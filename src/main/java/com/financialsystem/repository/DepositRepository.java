@@ -6,23 +6,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class DepositRepository {
-
-    private final JdbcTemplate jdbcTemplate;
+public class DepositRepository extends GenericRepository<Deposit> {
 
     @Autowired
     public DepositRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+        super(jdbcTemplate);
     }
 
     public List<Deposit> findAll() {
@@ -51,39 +48,28 @@ public class DepositRepository {
         return jdbcTemplate.query(sql, new DepositRowMapper(), accountId);
     }
 
-    @Transactional
-    public Long create(Deposit deposit) {
-        String sql = "INSERT INTO deposit (balance, account_id, is_blocked, is_frozen, annual_interest_rate)" +
-                " VALUES (?, ?, ?, ?, ?)";
-        return executeUpdate(sql, deposit);
+
+    @Override
+    protected String getCreateSql() {
+        return "INSERT INTO deposit (balance, account_id, is_blocked, is_frozen, annual_interest_rate) VALUES (?, ?, ?, ?, ?)";
     }
 
-    @Transactional
-    public Long update(Deposit deposit) {
-        String sql = "UPDATE deposit SET balance = ?, account_id = ?, is_blocked = ?, is_frozen = ?," +
-                " annual_interest_rate = ? WHERE id = ?";
-        return executeUpdate(sql, deposit);
+    @Override
+    protected String getUpdateSql() {
+        return "UPDATE deposit SET balance = ?, account_id = ?, is_blocked = ?, is_frozen = ?, annual_interest_rate = ? WHERE id = ?";
     }
 
-    private Long executeUpdate(String sql, Deposit deposit) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        try {
-            jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
-                ps.setBigDecimal(1, deposit.getBalance());
-                ps.setLong(2, deposit.getAccountId());
-                ps.setBoolean(3, deposit.isBlocked());
-                ps.setBoolean(4, deposit.isFrozen());
-                ps.setDouble(5, deposit.getAnnualInterestRate());
-                if (sql.startsWith("UPDATE")) {
-                    ps.setLong(6, deposit.getId());
-                }
-                return ps;
-            }, keyHolder);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+    @Override
+    protected PreparedStatement createPreparedStatement(String sql, Deposit deposit, Connection connection) throws SQLException {
+        PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
+        ps.setBigDecimal(1, deposit.getBalance());
+        ps.setLong(2, deposit.getAccountId());
+        ps.setBoolean(3, deposit.isBlocked());
+        ps.setBoolean(4, deposit.isFrozen());
+        ps.setDouble(5, deposit.getAnnualInterestRate());
+        if (sql.startsWith("UPDATE")) {
+            ps.setLong(6, deposit.getId());
         }
-
-        return (keyHolder.getKey() != null) ? keyHolder.getKey().longValue() : null;
+        return ps;
     }
 }

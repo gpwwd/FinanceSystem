@@ -1,31 +1,24 @@
 package com.financialsystem.repository;
 
 import com.financialsystem.domain.Account;
-import com.financialsystem.domain.Deposit;
-import com.financialsystem.domain.Loan;
 import com.financialsystem.mapper.AccountRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.SQLException;
 import java.util.Optional;
 
 @Repository
-public class AccountRepository {
-    private final JdbcTemplate jdbcTemplate;
+public class AccountRepository extends GenericRepository<Account>{
 
     @Autowired
     public AccountRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+        super(jdbcTemplate);
     }
 
     public Optional<Account> findById(Long id) {
@@ -40,37 +33,26 @@ public class AccountRepository {
         }
     }
 
-    @Transactional
-    public Long create(Account account) {
-        String sql = "INSERT INTO account (client_id, is_blocked, is_frozen, balance) " +
-                "VALUES (?, ?, ?, ?)";
-        return executeUpdate(sql, account);
+    @Override
+    protected String getCreateSql() {
+        return "INSERT INTO account (client_id, is_blocked, is_frozen, balance) VALUES (?, ?, ?, ?)";
     }
 
-    @Transactional
-    public Long update(Account account) {
-        String sql = "UPDATE account SET client_id = ?, is_blocked = ?, is_frozen = ?, balance = ? WHERE id = ?";
-        return executeUpdate(sql, account);
+    @Override
+    protected String getUpdateSql() {
+        return "UPDATE account SET client_id = ?, is_blocked = ?, is_frozen = ?, balance = ? WHERE id = ?";
     }
 
-    private Long executeUpdate(String sql, Account account) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        try {
-            jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
-                ps.setLong(1, account.getClientId());
-                ps.setBoolean(2, account.isBlocked());
-                ps.setBoolean(3, account.isFrozen()); // Добавлено поле is_frozen
-                ps.setBigDecimal(4, account.getBalance()); // Добавлено поле balance
-                if (sql.startsWith("UPDATE")) {
-                    ps.setLong(5, account.getId());
-                }
-                return ps;
-            }, keyHolder);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+    @Override
+    protected PreparedStatement createPreparedStatement(String sql, Account account, Connection connection) throws SQLException {
+        PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
+        ps.setLong(1, account.getClientId());
+        ps.setBoolean(2, account.isBlocked());
+        ps.setBoolean(3, account.isFrozen());
+        ps.setBigDecimal(4, account.getBalance());
+        if (sql.startsWith("UPDATE")) {
+            ps.setLong(5, account.getId());
         }
-
-        return (keyHolder.getKey() != null) ? keyHolder.getKey().longValue() : null;
+        return ps;
     }
 }

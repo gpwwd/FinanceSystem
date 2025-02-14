@@ -39,6 +39,7 @@ public class DepositService {
         deposit.withdraw(amount);
         account.replenish(amount);
         depositRepository.update(deposit);
+        accountRepository.update(account);
         return deposit;
     }
 
@@ -51,6 +52,7 @@ public class DepositService {
         deposit.replenish(amount);
         account.withdraw(amount);
         depositRepository.update(deposit);
+        accountRepository.update(account);
         return deposit;
     }
 
