@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 
 @RestController
-@RequestMapping("/deposit")
+@RequestMapping("/deposits")
 public class DepositController {
 
     private final DepositService depositService;
@@ -18,9 +18,9 @@ public class DepositController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Long> createDeposit(@RequestParam String accountNumber,
+    public ResponseEntity<Long> createDeposit(@RequestParam Long accountId,
                                               @RequestParam double annualInterestRate) {
-        Long depositId = depositService.create(accountNumber, annualInterestRate);
+        Long depositId = depositService.create(accountId, annualInterestRate);
         return ResponseEntity.ok(depositId);
     }
 

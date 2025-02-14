@@ -10,14 +10,14 @@ import java.math.BigDecimal;
 public class Deposit {
     private Long id;
     private BigDecimal balance;
-    private String accountNumber;
+    private Long accountId;
     private boolean isBlocked;
     private boolean isFrozen;
     private double annualInterestRate;
 
-    public static Deposit create(String accountNumber, double annualInterestRate) {
+    public static Deposit create(Long accountId, double annualInterestRate) {
         Deposit deposit = new Deposit();
-        deposit.accountNumber = accountNumber;
+        deposit.accountId = accountId;
         deposit.balance = BigDecimal.ZERO;
         deposit.isBlocked = false;
         deposit.isFrozen = false;
@@ -69,7 +69,7 @@ public class Deposit {
         target.replenish(amount);
     }
 
-    private void checkDepositState() {
+    public void checkDepositState() {
         if (isBlocked) throw new IllegalStateException("Счет заблокирован");
         if (isFrozen) throw new IllegalStateException("Счет заморожен");
     }

@@ -12,7 +12,7 @@ public class DepositRowMapper implements RowMapper<Deposit> {
         Deposit deposit = new Deposit();
         deposit.setId(rs.getLong("id"));
         deposit.setBalance(rs.getBigDecimal("balance"));
-        deposit.setAccountNumber(rs.getString("account_number"));
+        deposit.setAccountId(rs.getLong("account_id"));
         deposit.setBlocked(rs.getBoolean("is_blocked"));
         deposit.setFrozen(rs.getBoolean("is_frozen"));
         deposit.setAnnualInterestRate(rs.getFloat("annual_interest_rate"));

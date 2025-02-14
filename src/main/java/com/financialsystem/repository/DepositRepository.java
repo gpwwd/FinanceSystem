@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class DepositRepository {
@@ -25,7 +26,7 @@ public class DepositRepository {
     }
 
     public List<Deposit> findAll() {
-        String sql = "select * from deposits";
+        String sql = "select * from deposit";
         try{
             return jdbcTemplate.query(sql, new DepositRowMapper());
         } catch (DataAccessException e){
@@ -33,27 +34,33 @@ public class DepositRepository {
         }
     }
 
-    public Deposit findById(Long id) {
-        String sql = "select * from deposits where id = ?";
+    public Optional<Deposit> findById(Long id) {
+        String sql = "select * from deposit where id = ?";
         try {
-            return jdbcTemplate.queryForObject(sql, new DepositRowMapper(), id);
+            Deposit deposit = jdbcTemplate.queryForObject(sql, new DepositRowMapper(), id);
+            return Optional.ofNullable(deposit);
         } catch (EmptyResultDataAccessException e) {
-            throw new RuntimeException("Депозит с id = " + id + " не найден", e);
+            return Optional.empty();
         } catch (DataAccessException e) {
             throw new RuntimeException("Ошибка при получении депозита с id = " + id, e);
         }
     }
 
+    public List<Deposit> findDepositsByAccountId(Long accountId) {
+        String sql = "SELECT * FROM deposit WHERE account_id = ?";
+        return jdbcTemplate.query(sql, new DepositRowMapper(), accountId);
+    }
+
     @Transactional
     public Long create(Deposit deposit) {
-        String sql = "INSERT INTO deposits (balance, account_number, is_blocked, is_frozen, annual_interest_rate)" +
+        String sql = "INSERT INTO deposit (balance, account_id, is_blocked, is_frozen, annual_interest_rate)" +
                 " VALUES (?, ?, ?, ?, ?)";
         return executeUpdate(sql, deposit);
     }
 
     @Transactional
     public Long update(Deposit deposit) {
-        String sql = "UPDATE deposits SET balance = ?, account_number = ?, is_blocked = ?, is_frozen = ?," +
+        String sql = "UPDATE deposit SET balance = ?, account_id = ?, is_blocked = ?, is_frozen = ?," +
                 " annual_interest_rate = ? WHERE id = ?";
         return executeUpdate(sql, deposit);
     }
@@ -64,7 +71,7 @@ public class DepositRepository {
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
                 ps.setBigDecimal(1, deposit.getBalance());
-                ps.setString(2, deposit.getAccountNumber());
+                ps.setLong(2, deposit.getAccountId());
                 ps.setBoolean(3, deposit.isBlocked());
                 ps.setBoolean(4, deposit.isFrozen());
                 ps.setDouble(5, deposit.getAnnualInterestRate());
