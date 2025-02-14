@@ -5,6 +5,7 @@ import com.financialsystem.domain.Deposit;
 import com.financialsystem.repository.AccountRepository;
 import com.financialsystem.repository.DepositRepository;
 import com.financialsystem.repository.GenericRepository;
+import com.financialsystem.util.EntityFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,19 +25,16 @@ public class DepositService {
     }
 
     public Long create(Long accountId, double annualInterestRate){
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Аккаунт с " + accountId + " не найден"));
+        Account account = EntityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
         Deposit deposit = Deposit.create(accountId, annualInterestRate);
         return depositRepository.create(deposit);
     }
 
     @Transactional
     public Deposit withdraw(Long id, BigDecimal amount){
-        Deposit deposit = depositRepository.findById(id).
-                orElseThrow(() -> new RuntimeException("Депозит с " + id + " не найден"));
+        Deposit deposit = EntityFinder.findEntityById(id, depositRepository, "Депозит");
         Long accountId = deposit.getAccountId();
-        Account account = accountRepository.findById(accountId).
-                orElseThrow(() -> new RuntimeException("Аккаунт с " + id + " не найден"));
+        Account account = EntityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
         deposit.withdraw(amount);
         account.replenish(amount);
         depositRepository.update(deposit);
@@ -45,11 +43,9 @@ public class DepositService {
     }
 
     public Deposit replenish(Long id, BigDecimal amount){
-        Deposit deposit = depositRepository.findById(id).
-                orElseThrow(() -> new RuntimeException("Депозит с " + id + " не найден"));
+        Deposit deposit = EntityFinder.findEntityById(id, depositRepository, "Депозит");
         Long accountId = deposit.getAccountId();
-        Account account = accountRepository.findById(accountId).
-                orElseThrow(() -> new RuntimeException("Аккаунт с " + id + " не найден"));
+        Account account = EntityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
         deposit.replenish(amount);
         account.withdraw(amount);
         depositRepository.update(deposit);
@@ -58,10 +54,8 @@ public class DepositService {
     }
 
     public void transfer(Long fromId, Long toId, BigDecimal amount){
-        Deposit fromDeposit = depositRepository.findById(fromId).
-                orElseThrow(() -> new RuntimeException("Депозит с " + fromId + " не найден"));
-        Deposit toDeposit = depositRepository.findById(toId).
-                orElseThrow(() -> new RuntimeException("Депозит с " + toId + " не найден"));
+        Deposit fromDeposit = EntityFinder.findEntityById(fromId, depositRepository, "Депозит");
+        Deposit toDeposit = EntityFinder.findEntityById(toId, depositRepository, "Депозит");
 
         fromDeposit.transfer(amount, toDeposit);
 
@@ -72,29 +66,25 @@ public class DepositService {
     // реализовать пополнение через scheduler
 
     public Long blockDeposit(Long id){
-        Deposit deposit = depositRepository.findById(id).
-                orElseThrow(() -> new RuntimeException("Депозит с " + id + " не найден"));
+        Deposit deposit = EntityFinder.findEntityById(id, depositRepository, "Депозит");
         deposit.block();
         return depositRepository.update(deposit);
     }
 
     public Long unblockDeposit(Long id){
-        Deposit deposit = depositRepository.findById(id).
-                orElseThrow(() -> new RuntimeException("Депозит с " + id + " не найден"));
+        Deposit deposit = EntityFinder.findEntityById(id, depositRepository, "Депозит");
         deposit.unblock();
         return depositRepository.update(deposit);
     }
 
     public Long freeDeposit(Long id){
-        Deposit deposit = depositRepository.findById(id).
-                orElseThrow(() -> new RuntimeException("Депозит с " + id + " не найден"));
+        Deposit deposit = EntityFinder.findEntityById(id, depositRepository, "Депозит");
         deposit.freeze();
         return depositRepository.update(deposit);
     }
 
     public Long unfreeDeposit(Long id){
-        Deposit deposit = depositRepository.findById(id).
-                orElseThrow(() -> new RuntimeException("Депозит с " + id + " не найден"));
+        Deposit deposit = EntityFinder.findEntityById(id, depositRepository, "Депозит");
         deposit.unfreeze();
         return depositRepository.update(deposit);
     }

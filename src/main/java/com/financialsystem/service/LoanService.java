@@ -4,6 +4,7 @@ import com.financialsystem.domain.Account;
 import com.financialsystem.domain.Loan;
 import com.financialsystem.repository.AccountRepository;
 import com.financialsystem.repository.LoanRepository;
+import com.financialsystem.util.EntityFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +25,7 @@ public class LoanService {
 
     @Transactional
     public Long issueLoan(Long accountId, BigDecimal amount, BigDecimal interestRate, int termMonths) {
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Аккаунт с " + accountId + " не найден"));
+        Account account = EntityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
         Loan loan = Loan.create(accountId, amount, interestRate, termMonths);
         account.replenish(amount);
         accountRepository.update(account);
