@@ -69,7 +69,7 @@ public class Deposit {
         target.replenish(amount);
     }
 
-    public void checkDepositState() {
+    private void checkDepositState() {
         if (isBlocked) throw new IllegalStateException("Счет заблокирован");
         if (isFrozen) throw new IllegalStateException("Счет заморожен");
     }

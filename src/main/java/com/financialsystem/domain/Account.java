@@ -52,7 +52,7 @@ public class Account {
         this.balance = balance.add(amount);
     }
 
-    public void checkAccountState() {
+    private void checkAccountState() {
         if (isBlocked) throw new IllegalStateException("Счет заблокирован");
         if (isFrozen) throw new IllegalStateException("Счет заморожен");
     }
