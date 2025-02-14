@@ -3,20 +3,15 @@ package com.financialsystem.repository;
 import com.financialsystem.domain.Loan;
 import com.financialsystem.mapper.LoanRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class LoanRepository extends GenericRepository<Loan> {
@@ -26,21 +21,19 @@ public class LoanRepository extends GenericRepository<Loan> {
         super(jdbcTemplate);
     }
 
-    public Optional<Loan> findById(Long id) {
-        String sql = "SELECT * FROM loan WHERE id = ?";
-        try {
-            Loan loan = jdbcTemplate.queryForObject(sql, new LoanRowMapper(), id);
-            return Optional.ofNullable(loan);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        } catch (DataAccessException e) {
-            throw new RuntimeException("Ошибка при получении кредита с id = " + id, e);
-        }
-    }
-
     public List<Loan> findLoansByAccountId(Long accountId) {
         String sql = "SELECT * FROM loan WHERE account_id = ?";
         return jdbcTemplate.query(sql, new LoanRowMapper(), accountId);
+    }
+
+    @Override
+    protected String getFindByIdSql(){
+        return "SELECT * FROM loan WHERE id = ?";
+    }
+
+    @Override
+    protected RowMapper<Loan> getRowMapper() {
+        return new LoanRowMapper();
     }
 
     @Override

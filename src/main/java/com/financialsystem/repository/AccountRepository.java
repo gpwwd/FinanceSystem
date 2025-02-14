@@ -3,15 +3,13 @@ package com.financialsystem.repository;
 import com.financialsystem.domain.Account;
 import com.financialsystem.mapper.AccountRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Optional;
 
 @Repository
 public class AccountRepository extends GenericRepository<Account>{
@@ -19,18 +17,6 @@ public class AccountRepository extends GenericRepository<Account>{
     @Autowired
     public AccountRepository(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);
-    }
-
-    public Optional<Account> findById(Long id) {
-        String sql = "SELECT * FROM account WHERE id = ?";
-        try {
-            Account account = jdbcTemplate.queryForObject(sql, new AccountRowMapper(), id);
-            return Optional.ofNullable(account);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        } catch (DataAccessException e) {
-            throw new RuntimeException("Ошибка при получении аккаунта с id = " + id, e);
-        }
     }
 
     @Override
@@ -41,6 +27,16 @@ public class AccountRepository extends GenericRepository<Account>{
     @Override
     protected String getUpdateSql() {
         return "UPDATE account SET client_id = ?, is_blocked = ?, is_frozen = ?, balance = ? WHERE id = ?";
+    }
+
+    @Override
+    protected String getFindByIdSql() {
+        return "SELECT * FROM account WHERE id = ?";
+    }
+
+    @Override
+    protected RowMapper<Account> getRowMapper() {
+        return new AccountRowMapper();
     }
 
     @Override

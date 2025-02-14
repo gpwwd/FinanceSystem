@@ -4,6 +4,7 @@ import com.financialsystem.domain.Account;
 import com.financialsystem.domain.Deposit;
 import com.financialsystem.repository.AccountRepository;
 import com.financialsystem.repository.DepositRepository;
+import com.financialsystem.repository.GenericRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

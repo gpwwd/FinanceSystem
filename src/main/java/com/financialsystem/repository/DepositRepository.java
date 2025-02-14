@@ -4,15 +4,14 @@ import com.financialsystem.domain.Deposit;
 import com.financialsystem.mapper.DepositRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class DepositRepository extends GenericRepository<Deposit> {
@@ -31,18 +30,6 @@ public class DepositRepository extends GenericRepository<Deposit> {
         }
     }
 
-    public Optional<Deposit> findById(Long id) {
-        String sql = "select * from deposit where id = ?";
-        try {
-            Deposit deposit = jdbcTemplate.queryForObject(sql, new DepositRowMapper(), id);
-            return Optional.ofNullable(deposit);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        } catch (DataAccessException e) {
-            throw new RuntimeException("Ошибка при получении депозита с id = " + id, e);
-        }
-    }
-
     public List<Deposit> findDepositsByAccountId(Long accountId) {
         String sql = "SELECT * FROM deposit WHERE account_id = ?";
         return jdbcTemplate.query(sql, new DepositRowMapper(), accountId);
@@ -57,6 +44,16 @@ public class DepositRepository extends GenericRepository<Deposit> {
     @Override
     protected String getUpdateSql() {
         return "UPDATE deposit SET balance = ?, account_id = ?, is_blocked = ?, is_frozen = ?, annual_interest_rate = ? WHERE id = ?";
+    }
+
+    @Override
+    protected String getFindByIdSql() {
+        return "select * from deposit where id = ?";
+    }
+
+    @Override
+    protected RowMapper<Deposit> getRowMapper() {
+        return new DepositRowMapper();
     }
 
     @Override
