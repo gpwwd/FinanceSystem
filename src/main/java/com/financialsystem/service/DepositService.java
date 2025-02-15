@@ -5,13 +5,18 @@ import com.financialsystem.domain.Deposit;
 import com.financialsystem.repository.AccountRepository;
 import com.financialsystem.repository.DepositRepository;
 import com.financialsystem.util.EntityFinder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
+@Slf4j
 public class DepositService {
 
     private final DepositRepository depositRepository;
@@ -25,9 +30,9 @@ public class DepositService {
         this.entityFinder = entityFinder;
     }
 
-    public Long create(Long accountId, double annualInterestRate){
+    public Long create(Long accountId, BigDecimal annualInterestRate, int termMonths, BigDecimal principalBalance) {
         Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
-        Deposit deposit = Deposit.create(accountId, annualInterestRate);
+        Deposit deposit = Deposit.create(accountId, annualInterestRate, termMonths, principalBalance);
         return depositRepository.create(deposit);
     }
 
@@ -64,7 +69,30 @@ public class DepositService {
         depositRepository.update(toDeposit);
     }
 
-    // реализовать пополнение через scheduler
+    @Scheduled(cron = "*/10 * * * * *")
+    @Transactional
+    public void processMonthlyInterest() {
+        List<Deposit> deposits = depositRepository.findAll();
+
+        for (Deposit deposit : deposits) {
+
+            log.info("Проверка депозита {}. Дата создания: {}, Дата последнего начисления: {}, баланс: {}",
+                    deposit.getId(), deposit.getCreatedAt(), deposit.getLastInterestDate(), deposit.getBalance());
+            log.info("Сравнение: {} vs {}", LocalDateTime.now(), deposit.getCreatedAt().plusMinutes(deposit.getTermMonths()));
+
+            if (!deposit.isActive()) continue;
+
+            if (deposit.isGoneOverdue()) {
+                deposit.addMonthlyInterest();
+                log.info("Закрытие депозита: {}", deposit);
+                deposit.setBlocked(true);
+                depositRepository.update(deposit);
+            } else if(deposit.isMonthPassed()) {
+                deposit.addMonthlyInterest();
+                depositRepository.update(deposit);
+            }
+        }
+    }
 
     public Long blockDeposit(Long id){
         Deposit deposit = entityFinder.findEntityById(id, depositRepository, "Депозит");
@@ -78,13 +106,13 @@ public class DepositService {
         return depositRepository.update(deposit);
     }
 
-    public Long freeDeposit(Long id){
+    public Long freezeDeposit(Long id){
         Deposit deposit = entityFinder.findEntityById(id, depositRepository, "Депозит");
         deposit.freeze();
         return depositRepository.update(deposit);
     }
 
-    public Long unfreeDeposit(Long id){
+    public Long unfreezeDeposit(Long id){
         Deposit deposit = entityFinder.findEntityById(id, depositRepository, "Депозит");
         deposit.unfreeze();
         return depositRepository.update(deposit);

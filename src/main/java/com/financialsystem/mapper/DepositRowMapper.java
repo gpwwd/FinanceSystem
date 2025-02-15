@@ -15,7 +15,10 @@ public class DepositRowMapper implements RowMapper<Deposit> {
         deposit.setAccountId(rs.getLong("account_id"));
         deposit.setBlocked(rs.getBoolean("is_blocked"));
         deposit.setFrozen(rs.getBoolean("is_frozen"));
-        deposit.setAnnualInterestRate(rs.getFloat("annual_interest_rate"));
+        deposit.setInterestRate(rs.getBigDecimal("interest_rate"));
+        deposit.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+        deposit.setTermMonths(rs.getInt("term_months"));
+        deposit.setLastInterestDate(rs.getTimestamp("last_interest_date").toLocalDateTime());
         return deposit;
     }
 }

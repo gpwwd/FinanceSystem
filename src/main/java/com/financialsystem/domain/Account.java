@@ -18,7 +18,7 @@ public class Account {
     private boolean isBlocked;
     private boolean isFrozen; // добавить в бд
     private Long clientId;
-    private BigDecimal balance;// добавить в бд
+    private BigDecimal balance;
 
     public static Account create(Long clientId) {
         Account account = new Account();

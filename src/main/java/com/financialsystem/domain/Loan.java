@@ -1,13 +1,11 @@
 package com.financialsystem.domain;
 
-import com.financialsystem.repository.AccountRepository;
-import com.financialsystem.repository.LoanRepository;
-import com.financialsystem.util.EntityFinder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @Data @ToString
@@ -70,7 +68,7 @@ public class Loan {
     }
 
     private static BigDecimal calculateAmountToPayWithInterest(BigDecimal principal, BigDecimal interestRate) {
-        BigDecimal floatPercents = interestRate.divide(BigDecimal.valueOf(100));
+        BigDecimal floatPercents = interestRate.divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
         BigDecimal interest = principal.multiply(floatPercents);
         return principal.add(interest);
     }
@@ -90,12 +88,12 @@ public class Loan {
         this.paid = true;
     }
 
-    private boolean checkOverdue() {
+    private boolean isGoneOverdue() {
         return LocalDateTime.now().isAfter(createdAt.plusMonths(termMonths));
     }
 
     public void applyOverdue() {
-        if(checkOverdue()) {
+        if(isGoneOverdue()) {
             this.overdue = true;
         }
     }

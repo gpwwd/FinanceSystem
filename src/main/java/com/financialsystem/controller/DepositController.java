@@ -19,8 +19,10 @@ public class DepositController {
 
     @PostMapping("/create")
     public ResponseEntity<Long> createDeposit(@RequestParam Long accountId,
-                                              @RequestParam double annualInterestRate) {
-        Long depositId = depositService.create(accountId, annualInterestRate);
+                                              @RequestParam BigDecimal interestRate,
+                                              @RequestParam int termMonths,
+                                              @RequestParam BigDecimal principalBalance) {
+        Long depositId = depositService.create(accountId, interestRate, termMonths, principalBalance);
         return ResponseEntity.ok(depositId);
     }
 
@@ -58,13 +60,13 @@ public class DepositController {
 
     @PostMapping("/{id}/freeze")
     public ResponseEntity<Long> freezeDeposit(@PathVariable Long id) {
-        Long updatedId = depositService.freeDeposit(id);
+        Long updatedId = depositService.freezeDeposit(id);
         return ResponseEntity.ok(updatedId);
     }
 
     @PostMapping("/{id}/unfreeze")
     public ResponseEntity<Long> unfreezeDeposit(@PathVariable Long id) {
-        Long updatedId = depositService.unfreeDeposit(id);
+        Long updatedId = depositService.unfreezeDeposit(id);
         return ResponseEntity.ok(updatedId);
     }
 }
