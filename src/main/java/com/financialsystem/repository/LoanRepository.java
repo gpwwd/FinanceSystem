@@ -39,19 +39,27 @@ public class LoanRepository extends GenericRepository<Loan> {
     @Override
     protected String getCreateSql() {
         return "INSERT INTO loan (account_id, principal_amount, remaining_balance, interest_rate," +
-                " term_months, created_at, overdue)" +
-                " VALUES (?, ?, ?, ?, ? ,?, ?)";
+                " term_months, created_at, overdue, paid)" +
+                " VALUES (?, ?, ?, ?, ? ,?, ?, ?)";
     }
 
     @Override
     protected String getUpdateSql() {
-        return "UPDATE account SET account_id = ?, principal_amount = ?, remaining_balance = ?, " +
-                "interest_rate = ?, term_months = ?, created_at = ?, overdue = ? WHERE id = ?";
+        return "UPDATE loan SET account_id = ?, principal_amount = ?, remaining_balance = ?, " +
+                "interest_rate = ?, term_months = ?, created_at = ?, overdue = ?, paid = ? WHERE id = ?";
+    }
+
+    @Override
+    protected String getDeleteSql() {
+        return "DELETE FROM loan WHERE id = ?";
     }
 
     @Override
     protected PreparedStatement createPreparedStatement(String sql, Loan loan, Connection connection) throws SQLException {
         PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
+        if(sql.startsWith("DELETE")){
+            ps.setLong(1, loan.getId());
+        }
         ps.setLong(1, loan.getAccountId());
         ps.setBigDecimal(2, loan.getPrincipalAmount());
         ps.setBigDecimal(3, loan.getRemainingAmountToPay());
@@ -59,8 +67,9 @@ public class LoanRepository extends GenericRepository<Loan> {
         ps.setInt(5, loan.getTermMonths());
         ps.setTimestamp(6, Timestamp.valueOf(loan.getCreatedAt()));
         ps.setBoolean(7, loan.isOverdue());
+        ps.setBoolean(8, loan.isPaid());
         if (sql.startsWith("UPDATE")) {
-            ps.setLong(8, loan.getId());
+            ps.setLong(9, loan.getId());
         }
         return ps;
     }

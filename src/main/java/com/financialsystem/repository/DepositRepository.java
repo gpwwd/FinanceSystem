@@ -52,6 +52,11 @@ public class DepositRepository extends GenericRepository<Deposit> {
     }
 
     @Override
+    protected String getDeleteSql() {
+        return "DELETE FROM deposit WHERE id = ?";
+    }
+
+    @Override
     protected RowMapper<Deposit> getRowMapper() {
         return new DepositRowMapper();
     }
@@ -59,6 +64,9 @@ public class DepositRepository extends GenericRepository<Deposit> {
     @Override
     protected PreparedStatement createPreparedStatement(String sql, Deposit deposit, Connection connection) throws SQLException {
         PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
+        if(sql.startsWith("DELETE")){
+            ps.setLong(1, deposit.getId());
+        }
         ps.setBigDecimal(1, deposit.getBalance());
         ps.setLong(2, deposit.getAccountId());
         ps.setBoolean(3, deposit.isBlocked());

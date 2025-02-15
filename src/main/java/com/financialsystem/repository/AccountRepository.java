@@ -35,6 +35,11 @@ public class AccountRepository extends GenericRepository<Account>{
     }
 
     @Override
+    protected String getDeleteSql() {
+        return "DELETE FROM account WHERE id = ?";
+    }
+
+    @Override
     protected RowMapper<Account> getRowMapper() {
         return new AccountRowMapper();
     }
@@ -42,6 +47,9 @@ public class AccountRepository extends GenericRepository<Account>{
     @Override
     protected PreparedStatement createPreparedStatement(String sql, Account account, Connection connection) throws SQLException {
         PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
+        if(sql.startsWith("DELETE")){
+            ps.setLong(1, account.getId());
+        }
         ps.setLong(1, account.getClientId());
         ps.setBoolean(2, account.isBlocked());
         ps.setBoolean(3, account.isFrozen());

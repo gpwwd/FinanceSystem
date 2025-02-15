@@ -1,15 +1,10 @@
 package com.financialsystem.controller;
 
-import com.financialsystem.domain.LoanTerm;
-import com.financialsystem.service.DepositService;
 import com.financialsystem.service.LoanService;
 import com.financialsystem.util.ValidLoanTerm;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
@@ -36,6 +31,13 @@ public class LoanController {
                                                                 @RequestParam BigDecimal amount,
                                                                 @RequestParam @Valid @ValidLoanTerm String loanTerm) {
         Long depositId = loanService.issueLoanWithFixedInterestRate(accountId, amount, loanTerm);
+        return ResponseEntity.ok(depositId);
+    }
+
+    @PostMapping("/{loanId}/pay")
+    public ResponseEntity<Long> makeLoanPayment(@RequestParam BigDecimal amount,
+                                                @PathVariable Long loanId) {
+        Long depositId = loanService.makePayment(amount, loanId);
         return ResponseEntity.ok(depositId);
     }
 }

@@ -46,4 +46,24 @@ public class LoanService {
         accountRepository.update(account);
         return loanRepository.create(loan);
     }
+
+    @Transactional
+    public Long makePayment(BigDecimal amount, Long loanId) {
+        Loan loan = entityFinder.findEntityById(loanId, loanRepository, "Кредит");
+        Long loanAccountId = loan.getAccountId();
+        Account account = entityFinder.findEntityById(loanAccountId, accountRepository, "Аккаунт");
+        account.withdraw(amount);
+        loan.makePayment(amount);
+        if(loan.isPaidOff()){
+            accountRepository.update(account);
+            return handlePaidOffLoan(loan);
+        }
+        accountRepository.update(account);
+        return loanRepository.update(loan);
+    }
+
+    private Long handlePaidOffLoan(Loan loan) {
+        loan.markAsPaidOff();
+        return loanRepository.update(loan);
+    }
 }

@@ -21,6 +21,7 @@ public class Loan {
     private int termMonths;
     private LocalDateTime createdAt;
     private boolean overdue;
+    private boolean paid;
 
     public static Loan createWithCustomInterestRate(Long accountId, BigDecimal principalAmount, int termMonths,
                                                     LoanConfig loanConfig) {
@@ -46,6 +47,7 @@ public class Loan {
         loan.principalAmount = principalAmount;
         loan.createdAt = LocalDateTime.now();
         loan.overdue = false;
+        loan.paid = false;
         return loan;
     }
 
@@ -84,24 +86,17 @@ public class Loan {
         return remainingAmountToPay.compareTo(BigDecimal.ZERO) == 0;
     }
 
+    public void markAsPaidOff() {
+        this.paid = true;
+    }
+
     private boolean checkOverdue() {
         return LocalDateTime.now().isAfter(createdAt.plusMonths(termMonths));
     }
 
-    public void applyOverdue(LoanRepository loanRepository) {
+    public void applyOverdue() {
         if(checkOverdue()) {
             this.overdue = true;
-            loanRepository.update(this);
         }
-    }
-
-    public void makePayment(BigDecimal amount, LoanRepository loanRepository) {
-        if (amount.compareTo(remainingAmountToPay) >= 0) {
-            remainingAmountToPay = BigDecimal.ZERO;
-        } else {
-            remainingAmountToPay = remainingAmountToPay.subtract(amount);
-        }
-
-        loanRepository.update(this);
     }
 }

@@ -23,18 +23,22 @@ public abstract class GenericRepository<T> {
     protected abstract String getCreateSql();
     protected abstract String getUpdateSql();
     protected abstract String getFindByIdSql();
+    protected abstract String getDeleteSql();
     protected abstract RowMapper<T> getRowMapper();
     protected abstract PreparedStatement createPreparedStatement(String sql, T entity, Connection connection) throws SQLException;
 
     @Transactional
     public Long create(T entity) {
-        return executeUpdate(getCreateSql(), entity);
+        return execute(getCreateSql(), entity);
     }
 
     @Transactional
     public Long update(T entity) {
-        return executeUpdate(getUpdateSql(), entity);
+        return execute(getUpdateSql(), entity);
     }
+
+    @Transactional
+    public Long delete(T entity) { return execute(getDeleteSql(), entity); }
 
     public Optional<T> findById(Long id) {
         String sql = getFindByIdSql();
@@ -48,7 +52,7 @@ public abstract class GenericRepository<T> {
         }
     }
 
-    private Long executeUpdate(String sql, T entity) {
+    private Long execute(String sql, T entity) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         try {
             jdbcTemplate.update(connection -> createPreparedStatement(sql, entity, connection), keyHolder);
