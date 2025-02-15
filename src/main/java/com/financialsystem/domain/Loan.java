@@ -24,25 +24,26 @@ public class Loan {
 
     public static Loan createWithCustomInterestRate(Long accountId, BigDecimal principalAmount, int termMonths,
                                                     LoanConfig loanConfig) {
-        Loan loan = new Loan();
-        loan.accountId = accountId;
-        loan.principalAmount = principalAmount;
+        Loan loan = initializeCommonFields(accountId, principalAmount);
         BigDecimal interestRate = calculateCustomInterestRate(principalAmount, termMonths, loanConfig);
         loan.interestRate = interestRate;
         loan.remainingAmountToPay = calculateAmountToPayWithInterest(principalAmount, interestRate);
         loan.termMonths = termMonths;
-        loan.createdAt = LocalDateTime.now();
-        loan.overdue = false;
         return loan;
     }
 
     public static Loan createWithFixedInterestRate(Long accountId, BigDecimal principalAmount, LoanTerm loanTerm) {
-        Loan loan = new Loan();
-        loan.accountId = accountId;
-        loan.principalAmount = principalAmount;
+        Loan loan = initializeCommonFields(accountId, principalAmount);
         loan.remainingAmountToPay = calculateAmountToPayWithInterest(principalAmount, loanTerm.getInterestRate());
         loan.interestRate = loanTerm.getInterestRate();
         loan.termMonths = loanTerm.getTermMonths();
+        return loan;
+    }
+
+    private static Loan initializeCommonFields(Long accountId, BigDecimal principalAmount) {
+        Loan loan = new Loan();
+        loan.accountId = accountId;
+        loan.principalAmount = principalAmount;
         loan.createdAt = LocalDateTime.now();
         loan.overdue = false;
         return loan;
@@ -87,13 +88,10 @@ public class Loan {
         return LocalDateTime.now().isAfter(createdAt.plusMonths(termMonths));
     }
 
-    public void applyOverdue(LoanRepository loanRepository, AccountRepository accountRepository) {
+    public void applyOverdue(LoanRepository loanRepository) {
         if(checkOverdue()) {
             this.overdue = true;
-            Account account = EntityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
-            account.block();
             loanRepository.update(this);
-            accountRepository.update(account);
         }
     }
 

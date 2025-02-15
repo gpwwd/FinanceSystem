@@ -12,25 +12,26 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
 @Service
 public class LoanService {
     private final LoanRepository loanRepository;
     private final AccountRepository accountRepository;
     private final LoanConfig loanConfig;
+    private final EntityFinder entityFinder;
 
     @Autowired
     public LoanService(LoanRepository loanRepository, AccountRepository accountRepository,
-                       LoanConfig loanConfig) {
+                       LoanConfig loanConfig, EntityFinder entityFinder) {
         this.loanRepository = loanRepository;
         this.accountRepository = accountRepository;
         this.loanConfig = loanConfig;
+        this.entityFinder = entityFinder;
     }
 
     @Transactional
     public Long issueLoanWithCustomInterestRate(Long accountId, BigDecimal amount, int termMonths) {
-        Account account = EntityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
+        Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
         Loan loan = Loan.createWithCustomInterestRate(accountId, amount, termMonths, loanConfig);
         account.replenish(amount);
         accountRepository.update(account);
@@ -39,7 +40,7 @@ public class LoanService {
 
     @Transactional
     public Long issueLoanWithFixedInterestRate(Long accountId, BigDecimal amount, String loanTerm) {
-        Account account = EntityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
+        Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
         Loan loan = Loan.createWithFixedInterestRate(accountId, amount, LoanTerm.valueOf(loanTerm.toUpperCase()));
         account.replenish(amount);
         accountRepository.update(account);
