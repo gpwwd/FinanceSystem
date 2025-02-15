@@ -13,7 +13,7 @@ public class LoanRowMapper implements RowMapper<Loan> {
         loan.setId(rs.getLong("id"));
         loan.setAccountId(rs.getLong("account_id"));
         loan.setPrincipalAmount(rs.getBigDecimal("principal_amount"));
-        loan.setRemainingBalance(rs.getBigDecimal("remaining_balance"));
+        loan.setRemainingAmountToPay(rs.getBigDecimal("remaining_balance"));
         loan.setInterestRate(rs.getBigDecimal("interest_rate"));
         loan.setTermMonths(rs.getInt("term_months"));
         loan.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());

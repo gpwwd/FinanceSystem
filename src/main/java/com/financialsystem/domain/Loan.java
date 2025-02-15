@@ -2,13 +2,12 @@ package com.financialsystem.domain;
 
 import com.financialsystem.repository.AccountRepository;
 import com.financialsystem.repository.LoanRepository;
-import lombok.AllArgsConstructor;
+import com.financialsystem.util.EntityFinder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data @ToString
@@ -17,39 +16,71 @@ public class Loan {
     private Long id;
     private Long accountId;
     private BigDecimal principalAmount;
-    private BigDecimal remainingBalance;
+    private BigDecimal remainingAmountToPay;
     private BigDecimal interestRate;
     private int termMonths;
     private LocalDateTime createdAt;
     private boolean overdue;
 
-    public static Loan create(Long accountId, BigDecimal principalAmount, BigDecimal interestRate, int termMonths) {
+    public static Loan createWithCustomInterestRate(Long accountId, BigDecimal principalAmount, int termMonths,
+                                                    LoanConfig loanConfig) {
         Loan loan = new Loan();
         loan.accountId = accountId;
         loan.principalAmount = principalAmount;
-        loan.remainingBalance = calculateTotalPayable(principalAmount, interestRate);
+        BigDecimal interestRate = calculateCustomInterestRate(principalAmount, termMonths, loanConfig);
         loan.interestRate = interestRate;
+        loan.remainingAmountToPay = calculateAmountToPayWithInterest(principalAmount, interestRate);
         loan.termMonths = termMonths;
         loan.createdAt = LocalDateTime.now();
         loan.overdue = false;
         return loan;
     }
 
-    private static BigDecimal calculateTotalPayable(BigDecimal principal, BigDecimal interestRate) {
+    public static Loan createWithFixedInterestRate(Long accountId, BigDecimal principalAmount, LoanTerm loanTerm) {
+        Loan loan = new Loan();
+        loan.accountId = accountId;
+        loan.principalAmount = principalAmount;
+        loan.remainingAmountToPay = calculateAmountToPayWithInterest(principalAmount, loanTerm.getInterestRate());
+        loan.interestRate = loanTerm.getInterestRate();
+        loan.termMonths = loanTerm.getTermMonths();
+        loan.createdAt = LocalDateTime.now();
+        loan.overdue = false;
+        return loan;
+    }
+
+    private static BigDecimal calculateCustomInterestRate(BigDecimal principalAmount, int termMonths, LoanConfig loanConfig){
+        BigDecimal baseRate = loanConfig.getBaseRate();
+
+        if (principalAmount.compareTo(loanConfig.getLargeLoanThreshold()) > 0) {
+            baseRate = baseRate.subtract(loanConfig.getLargeLoanDiscount());
+        } else if (principalAmount.compareTo(loanConfig.getSmallLoanThreshold()) < 0) {
+            baseRate = baseRate.add(loanConfig.getSmallLoanPenalty());
+        }
+
+        if (termMonths > loanConfig.getLongTermThreshold()) {
+            baseRate = baseRate.add(loanConfig.getLongTermPenalty());
+        } else if (termMonths <= loanConfig.getShortTermThreshold()) {
+            baseRate = baseRate.subtract(loanConfig.getShortTermDiscount());
+        }
+
+        return baseRate;
+    }
+
+    private static BigDecimal calculateAmountToPayWithInterest(BigDecimal principal, BigDecimal interestRate) {
         BigDecimal floatPercents = interestRate.divide(BigDecimal.valueOf(100));
         BigDecimal interest = principal.multiply(floatPercents);
         return principal.add(interest);
     }
 
     public void makePayment(BigDecimal amount) {
-        if (remainingBalance.compareTo(amount) < 0) {
+        if (remainingAmountToPay.compareTo(amount) < 0) {
             throw new IllegalArgumentException("Сумма платежа больше остатка кредита");
         }
-        remainingBalance = remainingBalance.subtract(amount);
+        remainingAmountToPay = remainingAmountToPay.subtract(amount);
     }
 
     public boolean isPaidOff() {
-        return remainingBalance.compareTo(BigDecimal.ZERO) == 0;
+        return remainingAmountToPay.compareTo(BigDecimal.ZERO) == 0;
     }
 
     private boolean checkOverdue() {
@@ -59,8 +90,7 @@ public class Loan {
     public void applyOverdue(LoanRepository loanRepository, AccountRepository accountRepository) {
         if(checkOverdue()) {
             this.overdue = true;
-            Account account = accountRepository.findById(accountId)
-                    .orElseThrow(() -> new RuntimeException("Аккаунт с" + accountId + "не найден"));
+            Account account = EntityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
             account.block();
             loanRepository.update(this);
             accountRepository.update(account);
@@ -68,10 +98,10 @@ public class Loan {
     }
 
     public void makePayment(BigDecimal amount, LoanRepository loanRepository) {
-        if (amount.compareTo(remainingBalance) >= 0) {
-            remainingBalance = BigDecimal.ZERO;
+        if (amount.compareTo(remainingAmountToPay) >= 0) {
+            remainingAmountToPay = BigDecimal.ZERO;
         } else {
-            remainingBalance = remainingBalance.subtract(amount);
+            remainingAmountToPay = remainingAmountToPay.subtract(amount);
         }
 
         loanRepository.update(this);

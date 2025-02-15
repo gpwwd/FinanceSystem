@@ -54,7 +54,7 @@ public class LoanRepository extends GenericRepository<Loan> {
         PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
         ps.setLong(1, loan.getAccountId());
         ps.setBigDecimal(2, loan.getPrincipalAmount());
-        ps.setBigDecimal(3, loan.getRemainingBalance());
+        ps.setBigDecimal(3, loan.getRemainingAmountToPay());
         ps.setBigDecimal(4, loan.getInterestRate());
         ps.setInt(5, loan.getTermMonths());
         ps.setTimestamp(6, Timestamp.valueOf(loan.getCreatedAt()));
