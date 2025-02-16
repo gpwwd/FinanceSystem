@@ -16,7 +16,7 @@ public class Account {
     private List<Deposit> deposits;
     private List<Loan> loans;
     private boolean isBlocked;
-    private boolean isFrozen; // добавить в бд
+    private boolean isFrozen;
     private Long clientId;
     private BigDecimal balance;
 
@@ -33,7 +33,7 @@ public class Account {
     public void block() {
         this.isBlocked = true;
         for(var deposit : deposits) {
-            deposit.block();
+            deposit.setStatus(DepositStatus.BLOCKED);
         }
     }
 

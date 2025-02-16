@@ -38,7 +38,9 @@ public abstract class GenericRepository<T> {
     }
 
     @Transactional
-    public Long delete(T entity) { return execute(getDeleteSql(), entity); }
+    public Long delete(T entity) {
+        return execute(getDeleteSql(), entity);
+    }
 
     public Optional<T> findById(Long id) {
         String sql = getFindByIdSql();

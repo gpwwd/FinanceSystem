@@ -1,6 +1,8 @@
 package com.financialsystem.domain;
 
+import com.financialsystem.dto.DepositDatabseDto;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -8,13 +10,15 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 
-@Data @AllArgsConstructor @NoArgsConstructor @ToString
+@AllArgsConstructor @NoArgsConstructor @ToString
+@Slf4j
 public class Deposit {
     private Long id;
+    private BigDecimal principalBalance;
     private BigDecimal balance;
+    @Getter
     private Long accountId;
-    private boolean isBlocked;
-    private boolean isFrozen;
+    private DepositStatus depositStatus;
     private BigDecimal interestRate;
     private LocalDateTime createdAt;
     private LocalDateTime lastInterestDate;
@@ -24,8 +28,8 @@ public class Deposit {
         Deposit deposit = new Deposit();
         deposit.accountId = accountId;
         deposit.balance = principalBalance;
-        deposit.isBlocked = false;
-        deposit.isFrozen = false;
+        deposit.principalBalance = principalBalance;
+        deposit.depositStatus = DepositStatus.ACTIVE;
         deposit.interestRate = interestRate;
         deposit.createdAt = LocalDateTime.now();
         deposit.lastInterestDate = deposit.createdAt;
@@ -33,25 +37,29 @@ public class Deposit {
         return deposit;
     }
 
-    public void block() {
-        this.isBlocked = true;
+    public DepositDatabseDto toDto() {
+        return new DepositDatabseDto(
+                id, principalBalance, balance, accountId, depositStatus, interestRate, createdAt, lastInterestDate, termMonths);
     }
 
-    public void freeze() {
-        this.isFrozen = true;
+    public void setStatus(DepositStatus status) {
+        checkStatus(DepositStatus.ACTIVE);
+        checkStatus(DepositStatus.FROZEN);
+        checkStatus(DepositStatus.BLOCKED);
+        this.depositStatus = status;
     }
 
-    public void unblock() {
-        this.isBlocked = false;
+    public void withdrawInterest(BigDecimal amount) {
+        checkStatus(DepositStatus.ACTIVE);
+        BigDecimal interest = balance.subtract(principalBalance);
+        if (interest.compareTo(amount) < 0) {
+            throw new RuntimeException("Недостаточно процентов");
+        }
+        this.balance = balance.subtract(amount);
     }
 
-    public void unfreeze() {
-        this.isFrozen = false;
-    }
-
-    @Transactional
-    public void withdraw(BigDecimal amount) {
-        checkDepositState();
+    private void withdraw(BigDecimal amount) {
+        checkStatus(DepositStatus.ACTIVE);
         if (balance.compareTo(amount) < 0) {
             throw new RuntimeException("Недостаточно средств");
         }
@@ -60,19 +68,36 @@ public class Deposit {
 
     @Transactional
     public void replenish(BigDecimal amount) {
-        checkDepositState();
+        checkStatus(DepositStatus.ACTIVE);
         this.balance = balance.add(amount);
     }
 
     @Transactional
-    public void addMonthlyInterest() {
-        BigDecimal monthlyInterest = calculateTotalInterest().divide(new BigDecimal(termMonths), RoundingMode.HALF_UP);
+    public boolean addMonthlyInterestIfRequired() {
+        if(!isMonthPassed() || !this.depositStatus.equals(DepositStatus.ACTIVE)){
+            log.info(this.toString());
+            return false;
+        }
+
+        BigDecimal monthlyInterest = calculateTotalInterest().divide(new BigDecimal(12), RoundingMode.HALF_UP);
         replenish(monthlyInterest);
         lastInterestDate = LocalDateTime.now();
+
+        if(isGoneOverdue()){
+            this.depositStatus = DepositStatus.COMPLETE;
+            log.info("Bonus added: {} and deposit completed ", this);
+            return true;
+        }
+
+        log.info("Bonus added: {}", this);
+        return true;
     }
 
-    public boolean isActive() {
-        return !isBlocked && !isFrozen;
+    public BigDecimal retrieveMoney() {
+        checkStatus(DepositStatus.COMPLETE);
+        balance = BigDecimal.ZERO;
+        depositStatus = DepositStatus.CLOSED;
+        return balance;
     }
 
     @Transactional
@@ -92,11 +117,12 @@ public class Deposit {
     }
 
     private BigDecimal calculateTotalInterest() {
-        return getBalance().multiply(interestRate.divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP));
+        return this.balance.multiply(interestRate.divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP));
     }
 
-    private void checkDepositState() {
-        if (isBlocked) throw new IllegalStateException("Вклад заблокирован");
-        if (isFrozen) throw new IllegalStateException("Вклад заморожен");
+    private void checkStatus(DepositStatus status) {
+        if (!this.depositStatus.equals(status)) {
+            throw new IllegalStateException("Deposit status must be " + status + ", actual status is: " + status);
+        }
     }
 }

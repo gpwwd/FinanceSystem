@@ -1,17 +1,18 @@
 package com.financialsystem.service;
 
-import com.financialsystem.domain.Account;
-import com.financialsystem.domain.Loan;
-import com.financialsystem.domain.LoanConfig;
-import com.financialsystem.domain.LoanTerm;
+import com.financialsystem.domain.*;
 import com.financialsystem.repository.AccountRepository;
 import com.financialsystem.repository.LoanRepository;
 import com.financialsystem.util.EntityFinder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class LoanService {
@@ -65,5 +66,12 @@ public class LoanService {
     private Long handlePaidOffLoan(Loan loan) {
         loan.markAsPaidOff();
         return loanRepository.update(loan);
+    }
+
+
+    @Scheduled(cron = "*/10 * * * * *")
+    @Transactional
+    public void checkLoansOverdue() {
+
     }
 }

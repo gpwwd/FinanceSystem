@@ -26,9 +26,9 @@ public class DepositController {
         return ResponseEntity.ok(depositId);
     }
 
-    @PostMapping("/{id}/withdraw")
-    public ResponseEntity<Deposit> withdraw(@PathVariable Long id, @RequestParam BigDecimal amount) {
-        Deposit deposit = depositService.withdraw(id, amount);
+    @PostMapping("/{id}/withdraw-interest")
+    public ResponseEntity<Deposit> withdrawInterest(@PathVariable Long id, @RequestParam BigDecimal amount) {
+        Deposit deposit = depositService.withdrawInterest(id, amount);
         return ResponseEntity.ok(deposit);
     }
 
@@ -48,25 +48,25 @@ public class DepositController {
 
     @PostMapping("/{id}/block")
     public ResponseEntity<Long> blockDeposit(@PathVariable Long id) {
-        Long updatedId = depositService.blockDeposit(id);
-        return ResponseEntity.ok(updatedId);
+        depositService.blockDeposit(id);
+        return ResponseEntity.ok(id);
     }
 
     @PostMapping("/{id}/unblock")
     public ResponseEntity<Long> unblockDeposit(@PathVariable Long id) {
-        Long updatedId = depositService.unblockDeposit(id);
-        return ResponseEntity.ok(updatedId);
+         depositService.unblockDeposit(id);
+        return ResponseEntity.ok(id);
     }
 
     @PostMapping("/{id}/freeze")
     public ResponseEntity<Long> freezeDeposit(@PathVariable Long id) {
-        Long updatedId = depositService.freezeDeposit(id);
-        return ResponseEntity.ok(updatedId);
+        depositService.freezeDeposit(id);
+        return ResponseEntity.ok(id);
     }
 
     @PostMapping("/{id}/unfreeze")
     public ResponseEntity<Long> unfreezeDeposit(@PathVariable Long id) {
-        Long updatedId = depositService.unfreezeDeposit(id);
-        return ResponseEntity.ok(updatedId);
+        depositService.unfreezeDeposit(id);
+        return ResponseEntity.ok(id);
     }
 }

@@ -1,8 +1,11 @@
 package com.financialsystem.repository;
 
+import com.financialsystem.domain.Deposit;
 import com.financialsystem.domain.Loan;
+import com.financialsystem.mapper.DepositRowMapper;
 import com.financialsystem.mapper.LoanRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -19,6 +22,15 @@ public class LoanRepository extends GenericRepository<Loan> {
     @Autowired
     public LoanRepository(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);
+    }
+
+    public List<Loan> findAll() {
+        String sql = "select * from loan";
+        try{
+            return jdbcTemplate.query(sql, new LoanRowMapper());
+        } catch (DataAccessException e){
+            throw new RuntimeException(e);
+        }
     }
 
     public List<Loan> findLoansByAccountId(Long accountId) {

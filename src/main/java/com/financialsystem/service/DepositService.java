@@ -2,17 +2,20 @@ package com.financialsystem.service;
 
 import com.financialsystem.domain.Account;
 import com.financialsystem.domain.Deposit;
+import com.financialsystem.domain.DepositStatus;
 import com.financialsystem.repository.AccountRepository;
 import com.financialsystem.repository.DepositRepository;
 import com.financialsystem.util.EntityFinder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -37,11 +40,11 @@ public class DepositService {
     }
 
     @Transactional
-    public Deposit withdraw(Long id, BigDecimal amount){
+    public Deposit withdrawInterest(Long id, BigDecimal amount){
         Deposit deposit = entityFinder.findEntityById(id, depositRepository, "Депозит");
         Long accountId = deposit.getAccountId();
         Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
-        deposit.withdraw(amount);
+        deposit.withdrawInterest(amount);
         account.replenish(amount);
         depositRepository.update(deposit);
         accountRepository.update(account);
@@ -73,48 +76,36 @@ public class DepositService {
     @Transactional
     public void processMonthlyInterest() {
         List<Deposit> deposits = depositRepository.findAll();
+        List<Deposit> depositsToUpdate = new ArrayList<>();
 
         for (Deposit deposit : deposits) {
-
-            log.info("Проверка депозита {}. Дата создания: {}, Дата последнего начисления: {}, баланс: {}",
-                    deposit.getId(), deposit.getCreatedAt(), deposit.getLastInterestDate(), deposit.getBalance());
-            log.info("Сравнение: {} vs {}", LocalDateTime.now(), deposit.getCreatedAt().plusMinutes(deposit.getTermMonths()));
-
-            if (!deposit.isActive()) continue;
-
-            if (deposit.isGoneOverdue()) {
-                deposit.addMonthlyInterest();
-                log.info("Закрытие депозита: {}", deposit);
-                deposit.setBlocked(true);
-                depositRepository.update(deposit);
-            } else if(deposit.isMonthPassed()) {
-                deposit.addMonthlyInterest();
-                depositRepository.update(deposit);
+            if (deposit.addMonthlyInterestIfRequired()) {
+                depositsToUpdate.add(deposit);
             }
         }
+
+        depositRepository.batchUpdate(depositsToUpdate);
     }
 
-    public Long blockDeposit(Long id){
-        Deposit deposit = entityFinder.findEntityById(id, depositRepository, "Депозит");
-        deposit.block();
-        return depositRepository.update(deposit);
+    public void blockDeposit(Long id){
+        setStatus(id, DepositStatus.BLOCKED);
     }
 
-    public Long unblockDeposit(Long id){
-        Deposit deposit = entityFinder.findEntityById(id, depositRepository, "Депозит");
-        deposit.unblock();
-        return depositRepository.update(deposit);
+    public void unblockDeposit(Long id){
+        setStatus(id, DepositStatus.ACTIVE);
     }
 
-    public Long freezeDeposit(Long id){
-        Deposit deposit = entityFinder.findEntityById(id, depositRepository, "Депозит");
-        deposit.freeze();
-        return depositRepository.update(deposit);
+    public void freezeDeposit(Long id){
+        setStatus(id, DepositStatus.FROZEN);
     }
 
-    public Long unfreezeDeposit(Long id){
+    public void unfreezeDeposit(Long id){
+        setStatus(id, DepositStatus.ACTIVE);
+    }
+
+    private void setStatus(Long id, DepositStatus status) {
         Deposit deposit = entityFinder.findEntityById(id, depositRepository, "Депозит");
-        deposit.unfreeze();
-        return depositRepository.update(deposit);
+        deposit.setStatus(status);
+        depositRepository.update(deposit);
     }
 }

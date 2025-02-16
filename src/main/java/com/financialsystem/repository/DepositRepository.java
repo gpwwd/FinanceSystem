@@ -1,6 +1,7 @@
 package com.financialsystem.repository;
 
 import com.financialsystem.domain.Deposit;
+import com.financialsystem.dto.DepositDatabseDto;
 import com.financialsystem.mapper.DepositRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -36,18 +37,35 @@ public class DepositRepository extends GenericRepository<Deposit> {
         return jdbcTemplate.query(sql, new DepositRowMapper(), accountId);
     }
 
+    public void batchUpdate(List<Deposit> deposits) {
+        String sql = getUpdateSql();
+        List<DepositDatabseDto> depositDtos = deposits.stream().map(Deposit::toDto).toList();
+        jdbcTemplate.batchUpdate(sql, depositDtos, depositDtos.size(),
+                (ps, deposit) -> {
+                    ps.setBigDecimal(1, deposit.getBalance());
+                    ps.setLong(2, deposit.getAccountId());
+                    ps.setString(3, deposit.getDepositStatus().name());
+                    ps.setBigDecimal(4, deposit.getInterestRate());
+                    ps.setBigDecimal(5, deposit.getPrincipalBalance());
+                    ps.setTimestamp(6, Timestamp.valueOf(deposit.getCreatedAt()));
+                    ps.setInt(7, deposit.getTermMonths());
+                    ps.setTimestamp(8, Timestamp.valueOf(deposit.getLastInterestDate()));
+                    ps.setLong(9, deposit.getId());
+                }
+        );
+    }
 
     @Override
     protected String getCreateSql() {
-        return "INSERT INTO deposit (balance, account_id, is_blocked, is_frozen, interest_rate, " +
+        return "INSERT INTO deposit (balance, account_id, deposit_status, interest_rate, principal_balance, " +
                 "created_at, term_months, last_interest_date) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
     @Override
     protected String getUpdateSql() {
-        return "UPDATE deposit SET balance = ?, account_id = ?, is_blocked = ?, is_frozen = ?, interest_rate = ?, " +
-                "created_at = ?, term_months = ?, last_interest_date = ? WHERE id = ?";
+        return "UPDATE deposit SET balance = ?, account_id = ?, deposit_status = ?, interest_rate = ?, " +
+                "principal_balance = ?, created_at = ?, term_months = ?, last_interest_date = ? WHERE id = ?";
     }
 
     @Override
@@ -67,25 +85,26 @@ public class DepositRepository extends GenericRepository<Deposit> {
 
     @Override
     protected PreparedStatement createPreparedStatement(String sql, Deposit deposit, Connection connection) throws SQLException {
+        DepositDatabseDto depositDto = deposit.toDto();
         PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
 
         if (sql.startsWith("DELETE")) {
-            return prepareDeleteStatement(ps, deposit);
+            return prepareDeleteStatement(ps, depositDto);
         }
 
-        prepareCommonFields(ps, deposit);
+        prepareCommonFields(ps, depositDto);
 
         if (sql.startsWith("INSERT")) {
-            ps.setTimestamp(6, Timestamp.valueOf(deposit.getCreatedAt()));
+            ps.setTimestamp(6, Timestamp.valueOf(depositDto.getCreatedAt()));
         } else if (sql.startsWith("UPDATE")) {
-            ps.setTimestamp(6, getExistingCreatedAt(deposit.getId()));
+            ps.setTimestamp(6, getExistingCreatedAt(depositDto.getId()));
         }
 
-        ps.setInt(7, deposit.getTermMonths());
-        ps.setTimestamp(8, Timestamp.valueOf(deposit.getLastInterestDate()));
+        ps.setInt(7, depositDto.getTermMonths());
+        ps.setTimestamp(8, Timestamp.valueOf(depositDto.getLastInterestDate()));
 
         if (sql.startsWith("UPDATE")) {
-            ps.setLong(9, deposit.getId());
+            ps.setLong(9, depositDto.getId());
         }
 
         return ps;
@@ -96,16 +115,16 @@ public class DepositRepository extends GenericRepository<Deposit> {
         return jdbcTemplate.queryForObject(sql, Timestamp.class, depositId);
     }
 
-    private PreparedStatement prepareDeleteStatement(PreparedStatement ps, Deposit deposit) throws SQLException {
+    private PreparedStatement prepareDeleteStatement(PreparedStatement ps, DepositDatabseDto deposit) throws SQLException {
         ps.setLong(1, deposit.getId());
         return ps;
     }
 
-    private void prepareCommonFields(PreparedStatement ps, Deposit deposit) throws SQLException {
+    private void prepareCommonFields(PreparedStatement ps, DepositDatabseDto deposit) throws SQLException {
         ps.setBigDecimal(1, deposit.getBalance());
         ps.setLong(2, deposit.getAccountId());
-        ps.setBoolean(3, deposit.isBlocked());
-        ps.setBoolean(4, deposit.isFrozen());
-        ps.setBigDecimal(5, deposit.getInterestRate());
+        ps.setString(3, deposit.getDepositStatus().name());
+        ps.setBigDecimal(4, deposit.getInterestRate());
+        ps.setBigDecimal(5, deposit.getPrincipalBalance());
     }
 }
