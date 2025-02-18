@@ -39,7 +39,7 @@ public class DepositController {
     }
 
     @PostMapping("/{id}/retrieve")
-    public ResponseEntity<BigDecimal> replenish(@PathVariable Long id) {
+    public ResponseEntity<BigDecimal> retrieve(@PathVariable Long id) {
         BigDecimal retrievedMoney = depositService.retrieveMoney(id);
         return ResponseEntity.ok(retrievedMoney);
     }
