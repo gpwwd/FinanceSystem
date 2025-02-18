@@ -1,5 +1,6 @@
-package com.financialsystem.domain;
+package com.financialsystem.domain.model;
 
+import com.financialsystem.domain.status.DepositStatus;
 import com.financialsystem.dto.DepositDatabseDto;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,9 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 
-@AllArgsConstructor @NoArgsConstructor @ToString
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor @ToString
 @Slf4j
 public class Deposit {
     private Long id;
@@ -93,11 +96,13 @@ public class Deposit {
         return true;
     }
 
+    @Transactional
     public BigDecimal retrieveMoney() {
         checkStatus(DepositStatus.COMPLETE);
+        BigDecimal moneyToReturn = balance;
         balance = BigDecimal.ZERO;
         depositStatus = DepositStatus.CLOSED;
-        return balance;
+        return moneyToReturn;
     }
 
     @Transactional
@@ -122,7 +127,7 @@ public class Deposit {
 
     private void checkStatus(DepositStatus status) {
         if (!this.depositStatus.equals(status)) {
-            throw new IllegalStateException("Deposit status must be " + status + ", actual status is: " + status);
+            throw new IllegalStateException("Deposit status must be " + status + ", actual status is: " + this.depositStatus);
         }
     }
 }

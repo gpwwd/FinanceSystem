@@ -1,6 +1,6 @@
 package com.financialsystem.dto;
 
-import com.financialsystem.domain.status.DepositStatus;
+import com.financialsystem.domain.status.LoanStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -9,14 +9,13 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-public class DepositDatabseDto {
+public class LoanDatabaseDto {
     private Long id;
-    private BigDecimal principalBalance;
-    private BigDecimal balance;
     private Long accountId;
-    private DepositStatus depositStatus;
+    private BigDecimal principalAmount;
+    private BigDecimal remainingAmountToPay;
     private BigDecimal interestRate;
-    private LocalDateTime createdAt;
-    private LocalDateTime lastInterestDate;
     private int termMonths;
+    private LocalDateTime createdAt;
+    private LoanStatus status;
 }

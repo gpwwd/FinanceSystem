@@ -1,8 +1,7 @@
 package com.financialsystem.repository;
 
-import com.financialsystem.domain.Deposit;
-import com.financialsystem.domain.Loan;
-import com.financialsystem.mapper.DepositRowMapper;
+import com.financialsystem.domain.model.Loan;
+import com.financialsystem.dto.LoanDatabaseDto;
 import com.financialsystem.mapper.LoanRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -38,6 +37,25 @@ public class LoanRepository extends GenericRepository<Loan> {
         return jdbcTemplate.query(sql, new LoanRowMapper(), accountId);
     }
 
+    public void batchUpdate(List<Loan> loans) {
+        String sql = getUpdateSql();
+        List<LoanDatabaseDto> loanDtos = loans.stream().map(Loan::toDto).toList();
+
+        jdbcTemplate.batchUpdate(sql, loanDtos, loanDtos.size(), this::prepareStatementForUpdate);
+    }
+
+    private void prepareStatementForUpdate(PreparedStatement ps, LoanDatabaseDto loan) throws SQLException {
+        ps.setLong(1, loan.getAccountId());
+        ps.setBigDecimal(2, loan.getPrincipalAmount());
+        ps.setBigDecimal(3, loan.getRemainingAmountToPay());
+        ps.setBigDecimal(4, loan.getInterestRate());
+        ps.setInt(5, loan.getTermMonths());
+        ps.setTimestamp(6, Timestamp.valueOf(loan.getCreatedAt()));
+        ps.setString(7, loan.getStatus().name());
+        ps.setLong(8, loan.getId());
+    }
+
+
     @Override
     protected String getFindByIdSql(){
         return "SELECT * FROM loan WHERE id = ?";
@@ -51,14 +69,14 @@ public class LoanRepository extends GenericRepository<Loan> {
     @Override
     protected String getCreateSql() {
         return "INSERT INTO loan (account_id, principal_amount, remaining_balance, interest_rate," +
-                " term_months, created_at, overdue, paid)" +
-                " VALUES (?, ?, ?, ?, ? ,?, ?, ?)";
+                " term_months, created_at, status)" +
+                " VALUES (?, ?, ?, ?, ? ,?, ?)";
     }
 
     @Override
     protected String getUpdateSql() {
         return "UPDATE loan SET account_id = ?, principal_amount = ?, remaining_balance = ?, " +
-                "interest_rate = ?, term_months = ?, created_at = ?, overdue = ?, paid = ? WHERE id = ?";
+                "interest_rate = ?, term_months = ?, created_at = ?, status = ? WHERE id = ?";
     }
 
     @Override
@@ -68,20 +86,21 @@ public class LoanRepository extends GenericRepository<Loan> {
 
     @Override
     protected PreparedStatement createPreparedStatement(String sql, Loan loan, Connection connection) throws SQLException {
+        LoanDatabaseDto loanDto = loan.toDto();
+
         PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
         if(sql.startsWith("DELETE")){
-            ps.setLong(1, loan.getId());
+            ps.setLong(1, loanDto.getId());
         }
-        ps.setLong(1, loan.getAccountId());
-        ps.setBigDecimal(2, loan.getPrincipalAmount());
-        ps.setBigDecimal(3, loan.getRemainingAmountToPay());
-        ps.setBigDecimal(4, loan.getInterestRate());
-        ps.setInt(5, loan.getTermMonths());
-        ps.setTimestamp(6, Timestamp.valueOf(loan.getCreatedAt()));
-        ps.setBoolean(7, loan.isOverdue());
-        ps.setBoolean(8, loan.isPaid());
+        ps.setLong(1, loanDto.getAccountId());
+        ps.setBigDecimal(2, loanDto.getPrincipalAmount());
+        ps.setBigDecimal(3, loanDto.getRemainingAmountToPay());
+        ps.setBigDecimal(4, loanDto.getInterestRate());
+        ps.setInt(5, loanDto.getTermMonths());
+        ps.setTimestamp(6, Timestamp.valueOf(loanDto.getCreatedAt()));
+        ps.setString(7, loanDto.getStatus().name());
         if (sql.startsWith("UPDATE")) {
-            ps.setLong(9, loan.getId());
+            ps.setLong(8, loanDto.getId());
         }
         return ps;
     }

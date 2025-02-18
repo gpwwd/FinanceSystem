@@ -1,6 +1,9 @@
 package com.financialsystem.repository;
 
-import com.financialsystem.domain.Account;
+import com.financialsystem.domain.model.Account;
+import com.financialsystem.domain.status.AccountStatus;
+import com.financialsystem.dto.AccountDatabaseDto;
+import com.financialsystem.dto.LoanDatabaseDto;
 import com.financialsystem.mapper.AccountRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,12 +24,12 @@ public class AccountRepository extends GenericRepository<Account>{
 
     @Override
     protected String getCreateSql() {
-        return "INSERT INTO account (client_id, is_blocked, is_frozen, balance) VALUES (?, ?, ?, ?)";
+        return "INSERT INTO account (client_id, status = ?, balance) VALUES (?, ?, ?)";
     }
 
     @Override
     protected String getUpdateSql() {
-        return "UPDATE account SET client_id = ?, is_blocked = ?, is_frozen = ?, balance = ? WHERE id = ?";
+        return "UPDATE account SET client_id = ?, status = ?, balance = ?  WHERE id = ?";
     }
 
     @Override
@@ -46,16 +49,17 @@ public class AccountRepository extends GenericRepository<Account>{
 
     @Override
     protected PreparedStatement createPreparedStatement(String sql, Account account, Connection connection) throws SQLException {
+        AccountDatabaseDto accountDto = account.toDto();
+
         PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
         if(sql.startsWith("DELETE")){
-            ps.setLong(1, account.getId());
+            ps.setLong(1, accountDto.getId());
         }
-        ps.setLong(1, account.getClientId());
-        ps.setBoolean(2, account.isBlocked());
-        ps.setBoolean(3, account.isFrozen());
-        ps.setBigDecimal(4, account.getBalance());
+        ps.setLong(1, accountDto.getClientId());
+        ps.setString(2, accountDto.getStatus().name());
+        ps.setBigDecimal(3, accountDto.getBalance());
         if (sql.startsWith("UPDATE")) {
-            ps.setLong(5, account.getId());
+            ps.setLong(4, accountDto.getId());
         }
         return ps;
     }

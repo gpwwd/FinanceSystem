@@ -1,8 +1,6 @@
 package com.financialsystem.controller;
 
 import com.financialsystem.service.LoanService;
-import com.financialsystem.util.ValidLoanTerm;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,8 +27,8 @@ public class LoanController {
     @PostMapping("/issue/fixed-interest")
     public ResponseEntity<Long> issueLoanWithFixedInterestRate(@RequestParam Long accountId,
                                                                 @RequestParam BigDecimal amount,
-                                                                @RequestParam @Valid @ValidLoanTerm String loanTerm) {
-        Long depositId = loanService.issueLoanWithFixedInterestRate(accountId, amount, loanTerm);
+                                                                @RequestParam int termMonths) {
+        Long depositId = loanService.issueLoanWithFixedInterestRate(accountId, amount, termMonths);
         return ResponseEntity.ok(depositId);
     }
 

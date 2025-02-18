@@ -1,40 +1,41 @@
-package com.financialsystem.domain;
+package com.financialsystem.domain.model;
 
+import com.financialsystem.domain.status.AccountStatus;
+import com.financialsystem.dto.AccountDatabaseDto;
+import com.financialsystem.dto.DepositDatabseDto;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
+import lombok.Setter;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
-@Data @AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Account {
     private Long id;
-    private List<Deposit> deposits;
-    private List<Loan> loans;
-    private boolean isBlocked;
-    private boolean isFrozen;
+    @Setter(AccessLevel.PRIVATE)
+    private AccountStatus status;
     private Long clientId;
     private BigDecimal balance;
 
     public static Account create(Long clientId) {
         Account account = new Account();
-        account.deposits = new ArrayList<Deposit>();
-        account.loans = new ArrayList<Loan>();
         account.clientId = clientId;
-        account.isBlocked = false;
-        account.isFrozen = false;
+        account.status = AccountStatus.ACTIVE;
+        account.balance = BigDecimal.ZERO;
         return account;
     }
 
+    public AccountDatabaseDto toDto() {
+        return new AccountDatabaseDto(
+                id, status, clientId, balance);
+    }
+
     public void block() {
-        this.isBlocked = true;
-        for(var deposit : deposits) {
-            deposit.setStatus(DepositStatus.BLOCKED);
-        }
+        setStatus(AccountStatus.BLOCKED);
     }
 
     @Transactional
@@ -53,7 +54,8 @@ public class Account {
     }
 
     private void checkAccountState() {
-        if (isBlocked) throw new IllegalStateException("Счет заблокирован");
-        if (isFrozen) throw new IllegalStateException("Счет заморожен");
+        if(status == AccountStatus.BLOCKED || status == AccountStatus.FROZEN) {
+            throw new IllegalStateException("Account status must be " + status + ", actual status is: " + this.status);
+        }
     }
 }

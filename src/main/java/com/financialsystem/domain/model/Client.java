@@ -1,4 +1,4 @@
-package com.financialsystem.domain;
+package com.financialsystem.domain.model;
 
 import java.util.List;
 

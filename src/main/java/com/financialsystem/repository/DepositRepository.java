@@ -1,6 +1,6 @@
 package com.financialsystem.repository;
 
-import com.financialsystem.domain.Deposit;
+import com.financialsystem.domain.model.Deposit;
 import com.financialsystem.dto.DepositDatabseDto;
 import com.financialsystem.mapper.DepositRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;

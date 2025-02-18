@@ -1,4 +1,4 @@
-package com.financialsystem.domain;
+package com.financialsystem.util;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,17 +1,18 @@
 package com.financialsystem.service;
 
-import com.financialsystem.domain.*;
+import com.financialsystem.domain.model.Account;
+import com.financialsystem.domain.model.Loan;
 import com.financialsystem.repository.AccountRepository;
 import com.financialsystem.repository.LoanRepository;
 import com.financialsystem.util.EntityFinder;
-import lombok.extern.slf4j.Slf4j;
+import com.financialsystem.util.LoanConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -33,16 +34,16 @@ public class LoanService {
     @Transactional
     public Long issueLoanWithCustomInterestRate(Long accountId, BigDecimal amount, int termMonths) {
         Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
-        Loan loan = Loan.createWithCustomInterestRate(accountId, amount, termMonths, loanConfig);
+        Loan loan = Loan.createCustomRateLoan(accountId, amount, termMonths, loanConfig);
         account.replenish(amount);
         accountRepository.update(account);
         return loanRepository.create(loan);
     }
 
     @Transactional
-    public Long issueLoanWithFixedInterestRate(Long accountId, BigDecimal amount, String loanTerm) {
+    public Long issueLoanWithFixedInterestRate(Long accountId, BigDecimal amount, int termMonths) {
         Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
-        Loan loan = Loan.createWithFixedInterestRate(accountId, amount, LoanTerm.valueOf(loanTerm.toUpperCase()));
+        Loan loan = Loan.createFixedRateLoan(accountId, amount, termMonths);
         account.replenish(amount);
         accountRepository.update(account);
         return loanRepository.create(loan);
@@ -55,23 +56,27 @@ public class LoanService {
         Account account = entityFinder.findEntityById(loanAccountId, accountRepository, "Аккаунт");
         account.withdraw(amount);
         loan.makePayment(amount);
-        if(loan.isPaidOff()){
-            accountRepository.update(account);
-            return handlePaidOffLoan(loan);
-        }
         accountRepository.update(account);
         return loanRepository.update(loan);
     }
 
-    private Long handlePaidOffLoan(Loan loan) {
-        loan.markAsPaidOff();
-        return loanRepository.update(loan);
-    }
-
-
     @Scheduled(cron = "*/10 * * * * *")
     @Transactional
     public void checkLoansOverdue() {
+        List<Loan> loans = loanRepository.findAll();
+        List<Loan> loansToUpdate = new ArrayList<>();
 
+        for(var loan : loans ){
+            if(loan.isGoneOverdue()){
+                loan.applyOverduePenalty();
+                loansToUpdate.add(loan);
+                Long accountId = loan.getAccountId();
+                Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
+                account.block();
+                accountRepository.update(account);
+            }
+        }
+
+        loanRepository.batchUpdate(loansToUpdate);
     }
 }

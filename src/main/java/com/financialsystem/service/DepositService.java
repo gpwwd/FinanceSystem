@@ -1,25 +1,21 @@
 package com.financialsystem.service;
 
-import com.financialsystem.domain.Account;
-import com.financialsystem.domain.Deposit;
-import com.financialsystem.domain.DepositStatus;
+import com.financialsystem.domain.model.Account;
+import com.financialsystem.domain.model.Deposit;
+import com.financialsystem.domain.status.DepositStatus;
 import com.financialsystem.repository.AccountRepository;
 import com.financialsystem.repository.DepositRepository;
 import com.financialsystem.util.EntityFinder;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Slf4j
 public class DepositService {
 
     private final DepositRepository depositRepository;
@@ -70,6 +66,18 @@ public class DepositService {
 
         depositRepository.update(fromDeposit);
         depositRepository.update(toDeposit);
+    }
+
+    @Transactional
+    public BigDecimal retrieveMoney(Long id){
+        Deposit deposit = entityFinder.findEntityById(id, depositRepository, "Депозит");
+        Long accountId = deposit.getAccountId();
+        Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
+        BigDecimal retrievedMoney = deposit.retrieveMoney();
+        account.replenish(retrievedMoney);
+        depositRepository.update(deposit);
+        accountRepository.update(account);
+        return retrievedMoney;
     }
 
     @Scheduled(cron = "*/10 * * * * *")

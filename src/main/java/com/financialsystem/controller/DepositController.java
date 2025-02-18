@@ -1,6 +1,6 @@
 package com.financialsystem.controller;
 
-import com.financialsystem.domain.Deposit;
+import com.financialsystem.domain.model.Deposit;
 import com.financialsystem.service.DepositService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +36,12 @@ public class DepositController {
     public ResponseEntity<Deposit> replenish(@PathVariable Long id, @RequestParam BigDecimal amount) {
         Deposit deposit = depositService.replenish(id, amount);
         return ResponseEntity.ok(deposit);
+    }
+
+    @PostMapping("/{id}/retrieve")
+    public ResponseEntity<BigDecimal> replenish(@PathVariable Long id) {
+        BigDecimal retrievedMoney = depositService.retrieveMoney(id);
+        return ResponseEntity.ok(retrievedMoney);
     }
 
     @PostMapping("/transfer")
