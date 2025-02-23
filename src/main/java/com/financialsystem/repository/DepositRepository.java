@@ -16,7 +16,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 @Repository
-public class DepositRepository extends GenericRepository<Deposit> {
+public class DepositRepository extends GenericRepository<Deposit, Deposit> {
 
     @Autowired
     public DepositRepository(JdbcTemplate jdbcTemplate) {
@@ -108,6 +108,11 @@ public class DepositRepository extends GenericRepository<Deposit> {
         }
 
         return ps;
+    }
+
+    @Override
+    protected Deposit fromDto(Deposit dto) {
+        return dto;
     }
 
     private Timestamp getExistingCreatedAt(Long depositId) {

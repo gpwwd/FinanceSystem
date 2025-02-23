@@ -15,7 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 @Repository
-public class AccountRepository extends GenericRepository<Account>{
+public class AccountRepository extends GenericRepository<Account, Account>{
 
     @Autowired
     public AccountRepository(JdbcTemplate jdbcTemplate) {
@@ -24,7 +24,7 @@ public class AccountRepository extends GenericRepository<Account>{
 
     @Override
     protected String getCreateSql() {
-        return "INSERT INTO account (client_id, status = ?, balance) VALUES (?, ?, ?)";
+        return "INSERT INTO account (client_id, status, balance) VALUES (?, ?, ?)";
     }
 
     @Override
@@ -62,5 +62,10 @@ public class AccountRepository extends GenericRepository<Account>{
             ps.setLong(4, accountDto.getId());
         }
         return ps;
+    }
+
+    @Override
+    protected Account fromDto(Account dto) {
+        return dto;
     }
 }

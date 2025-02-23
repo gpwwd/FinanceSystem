@@ -16,7 +16,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 @Repository
-public class LoanRepository extends GenericRepository<Loan> {
+public class LoanRepository extends GenericRepository<Loan, Loan> {
 
     @Autowired
     public LoanRepository(JdbcTemplate jdbcTemplate) {
@@ -103,6 +103,11 @@ public class LoanRepository extends GenericRepository<Loan> {
             ps.setLong(8, loanDto.getId());
         }
         return ps;
+    }
+
+    @Override
+    protected Loan fromDto(Loan dto) {
+        return dto;
     }
 
 }

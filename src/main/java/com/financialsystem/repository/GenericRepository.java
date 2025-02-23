@@ -8,12 +8,13 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
 
-public abstract class GenericRepository<T> {
+public abstract class GenericRepository<Entity, Dto> {
     protected final JdbcTemplate jdbcTemplate;
 
     public GenericRepository(JdbcTemplate jdbcTemplate) {
@@ -24,29 +25,31 @@ public abstract class GenericRepository<T> {
     protected abstract String getUpdateSql();
     protected abstract String getFindByIdSql();
     protected abstract String getDeleteSql();
-    protected abstract RowMapper<T> getRowMapper();
-    protected abstract PreparedStatement createPreparedStatement(String sql, T entity, Connection connection) throws SQLException;
+    protected abstract RowMapper<Dto> getRowMapper();
+    protected abstract PreparedStatement createPreparedStatement(String sql, Entity entity, Connection connection) throws SQLException;
+    protected abstract Entity fromDto(Dto dto);
 
     @Transactional
-    public Long create(T entity) {
+    public Long create(Entity entity) {
         return execute(getCreateSql(), entity);
     }
 
     @Transactional
-    public Long update(T entity) {
+    public Long update(Entity entity) {
         return execute(getUpdateSql(), entity);
     }
 
     @Transactional
-    public Long delete(T entity) {
+    public Long delete(Entity entity) {
         return execute(getDeleteSql(), entity);
     }
 
-    public Optional<T> findById(Long id) {
+    public Optional<Entity> findById(Long id) {
         String sql = getFindByIdSql();
         try {
-            T entity = jdbcTemplate.queryForObject(sql, getRowMapper(), id);
-            return Optional.ofNullable(entity);
+            Dto entity = jdbcTemplate.queryForObject(sql, getRowMapper(), id);
+            return Optional.of(fromDto(entity));
+            //return Optional.ofNullable(entity);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         } catch (DataAccessException e) {
@@ -54,7 +57,7 @@ public abstract class GenericRepository<T> {
         }
     }
 
-    private Long execute(String sql, T entity) {
+    private Long execute(String sql, Entity entity) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         try {
             jdbcTemplate.update(connection -> createPreparedStatement(sql, entity, connection), keyHolder);
