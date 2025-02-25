@@ -53,6 +53,9 @@ public class ClientRepository extends GenericRepository<Client, ClientDatabaseDt
 
     @Override
     protected PreparedStatement createPreparedStatement(String sql, Client entity, Connection connection) throws SQLException {
+        if (entity.getClass() != Client.class) {
+            throw new IllegalArgumentException("Нельзя передавать наследников класса Client");
+        }
         ClientDatabaseDto user = entity.toDto();
 
         PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});

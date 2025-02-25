@@ -41,4 +41,8 @@ public class PendingClient extends Client {
     public void approveRegistration() {
         this.status = PendingClientStatus.APPROVED;
     }
+
+    public void rejectRegistration() {
+        this.status = PendingClientStatus.REJECTED;
+    }
 }

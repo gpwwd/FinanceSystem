@@ -27,6 +27,12 @@ public class ManagerController {
         return ResponseEntity.ok(approvedId);
     }
 
+    @PostMapping("/reject/{pendingClientId}")
+    public ResponseEntity<Long> rejectClient(@PathVariable Long pendingClientId) {
+        Long approvedId = managerService.rejectClient(pendingClientId);
+        return ResponseEntity.ok(approvedId);
+    }
+
     @GetMapping("/pending-clients")
     public ResponseEntity<List<PendingClientResponseDto>> getAllPendingClients() {
         List<PendingClientResponseDto> pendingClients = managerService.getAllPendingClients();

@@ -43,6 +43,13 @@ public class ManagerService {
         return clientRepository.create(client);
     }
 
+    @Transactional
+    public Long rejectClient(Long pendingClientId) {
+        PendingClient pendingClient = entityFinder.findEntityById(pendingClientId, pendingClientRepository, "Клиент ожидающий регистрацию");
+        pendingClient.rejectRegistration();
+        return pendingClientRepository.update(pendingClient);
+    }
+
     @Transactional(readOnly = true)
     public List<PendingClientResponseDto> getAllPendingClients() {
         return pendingClientRepository.findAll().stream()

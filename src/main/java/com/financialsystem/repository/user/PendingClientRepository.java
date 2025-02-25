@@ -27,7 +27,7 @@ public class PendingClientRepository extends GenericRepository<PendingClient, Pe
     @Override
     protected String getUpdateSql() {
         return "UPDATE pending_clients SET full_name = ?, passport_series_number = ?, identity_number = ?," +
-            "phone = ?, email = ?, role = ?, is_foreign = ?, client = ?, status = ?" +
+            "phone = ?, email = ?, role = ?, is_foreign = ?, created_at = ?, status = ? " +
             "WHERE id = ?";
     }
 
