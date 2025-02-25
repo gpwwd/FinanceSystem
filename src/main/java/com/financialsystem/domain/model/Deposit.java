@@ -1,7 +1,7 @@
 package com.financialsystem.domain.model;
 
 import com.financialsystem.domain.status.DepositStatus;
-import com.financialsystem.dto.DepositDatabseDto;
+import com.financialsystem.dto.database.DepositDatabseDto;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;

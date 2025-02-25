@@ -1,6 +1,6 @@
 package com.financialsystem.domain.model.user;
 
-import com.financialsystem.dto.user.UserDatabaseDto;
+import com.financialsystem.dto.database.user.UserDatabaseDto;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -14,7 +14,6 @@ public abstract class User  {
     protected String email;
     protected Role role;
     protected LocalDateTime createdAt;
-    protected Long enterpriseId;
     protected List<Long> banksIds = new ArrayList<>();
 
     protected User(UserDatabaseDto user) {
@@ -26,7 +25,6 @@ public abstract class User  {
         email = user.getEmail();
         role = user.getRole();
         createdAt = user.getCreatedAt();
-        enterpriseId = user.getEnterpriseId();
     }
 
     protected User(String fullName, String passport, String identityNumber,

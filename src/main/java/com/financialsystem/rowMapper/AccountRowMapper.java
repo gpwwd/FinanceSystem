@@ -1,8 +1,7 @@
-package com.financialsystem.mapper;
+package com.financialsystem.rowMapper;
 
 import com.financialsystem.domain.model.Account;
 import com.financialsystem.domain.status.AccountStatus;
-import com.financialsystem.domain.status.LoanStatus;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;

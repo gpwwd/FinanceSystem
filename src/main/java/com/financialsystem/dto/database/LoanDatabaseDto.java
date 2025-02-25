@@ -1,4 +1,4 @@
-package com.financialsystem.dto;
+package com.financialsystem.dto.database;
 
 import com.financialsystem.domain.status.LoanStatus;
 import lombok.AllArgsConstructor;

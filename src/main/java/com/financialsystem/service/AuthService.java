@@ -1,7 +1,10 @@
 package com.financialsystem.service;
 
 import com.financialsystem.domain.model.user.Client;
-import com.financialsystem.repository.user.UserRepository;
+import com.financialsystem.domain.model.user.PendingClient;
+import com.financialsystem.dto.request.ClientRegistrationRequest;
+import com.financialsystem.repository.user.ClientRepository;
+import com.financialsystem.repository.user.PendingClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,26 +14,17 @@ import java.time.LocalDateTime;
 @Service
 public class AuthService {
 
-    private final UserRepository userRepository;
-
-    @Autowired
-    public AuthService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-    //private final PendingUserRepository pendingUserRepository;
+    private final PendingClientRepository pendingClientRepository;
     //private final PasswordEncoder passwordEncoder;
 
+    @Autowired
+    public AuthService(PendingClientRepository pendingClientRepository) {
+        this.pendingClientRepository = pendingClientRepository;
+    }
+
     @Transactional
-    public Long registerClient(String username, String password) {
-//        if (userRepository.findByUsername(username) != null || pendingUserRepository.findByUsername(username) != null) {
-//            throw new RuntimeException("User already exists");
-//        }
-//
-//       // String encodedPassword = passwordEncoder.encode(password);
-//        pendingUserRepository.savePendingUser(username, password);
-        Client client = Client.create(username, "passport", "idedntityNumber", "phone",
-                "email", false, LocalDateTime.now());
-        Long id = userRepository.create(client);
-        return id;
+    public Long registerClient(ClientRegistrationRequest request) {
+        PendingClient pendingClient = PendingClient.create(request);
+        return pendingClientRepository.create(pendingClient);
     }
 }

@@ -1,5 +1,6 @@
 package com.financialsystem.repository;
 
+import com.financialsystem.dto.database.user.PendingClientDatabaseDto;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,7 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public abstract class GenericRepository<Entity, Dto> {
     protected final JdbcTemplate jdbcTemplate;
@@ -25,6 +28,7 @@ public abstract class GenericRepository<Entity, Dto> {
     protected abstract String getUpdateSql();
     protected abstract String getFindByIdSql();
     protected abstract String getDeleteSql();
+    protected abstract String getFindAllSql();
     protected abstract RowMapper<Dto> getRowMapper();
     protected abstract PreparedStatement createPreparedStatement(String sql, Entity entity, Connection connection) throws SQLException;
     protected abstract Entity fromDto(Dto dto);
@@ -42,6 +46,16 @@ public abstract class GenericRepository<Entity, Dto> {
     @Transactional
     public Long delete(Entity entity) {
         return execute(getDeleteSql(), entity);
+    }
+
+    public List<Entity> findAll() {
+        String sql = getFindAllSql();
+        try{
+            List<Dto> dtos = jdbcTemplate.query(sql, getRowMapper());
+            return dtos.stream().map(dto -> fromDto(dto)).collect(Collectors.toList());
+        } catch (DataAccessException e){
+            throw new RuntimeException(e);
+        }
     }
 
     public Optional<Entity> findById(Long id) {

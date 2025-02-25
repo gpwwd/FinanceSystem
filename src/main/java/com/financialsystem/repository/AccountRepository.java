@@ -1,10 +1,8 @@
 package com.financialsystem.repository;
 
 import com.financialsystem.domain.model.Account;
-import com.financialsystem.domain.status.AccountStatus;
-import com.financialsystem.dto.AccountDatabaseDto;
-import com.financialsystem.dto.LoanDatabaseDto;
-import com.financialsystem.mapper.AccountRowMapper;
+import com.financialsystem.dto.database.AccountDatabaseDto;
+import com.financialsystem.rowMapper.AccountRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -40,6 +38,11 @@ public class AccountRepository extends GenericRepository<Account, Account>{
     @Override
     protected String getDeleteSql() {
         return "DELETE FROM account WHERE id = ?";
+    }
+
+    @Override
+    protected String getFindAllSql() {
+        return "select * from account";
     }
 
     @Override

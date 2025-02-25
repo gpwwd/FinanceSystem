@@ -1,10 +1,9 @@
 package com.financialsystem.repository;
 
 import com.financialsystem.domain.model.Deposit;
-import com.financialsystem.dto.DepositDatabseDto;
-import com.financialsystem.mapper.DepositRowMapper;
+import com.financialsystem.dto.database.DepositDatabseDto;
+import com.financialsystem.rowMapper.DepositRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -21,15 +20,6 @@ public class DepositRepository extends GenericRepository<Deposit, Deposit> {
     @Autowired
     public DepositRepository(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);
-    }
-
-    public List<Deposit> findAll() {
-        String sql = "select * from deposit";
-        try{
-            return jdbcTemplate.query(sql, new DepositRowMapper());
-        } catch (DataAccessException e){
-            throw new RuntimeException(e);
-        }
     }
 
     public List<Deposit> findDepositsByAccountId(Long accountId) {
@@ -79,6 +69,11 @@ public class DepositRepository extends GenericRepository<Deposit, Deposit> {
     }
 
     @Override
+    protected String getFindAllSql() {
+        return "select * from deposit";
+    }
+
+    @Override
     protected RowMapper<Deposit> getRowMapper() {
         return new DepositRowMapper();
     }
@@ -89,10 +84,14 @@ public class DepositRepository extends GenericRepository<Deposit, Deposit> {
         PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
 
         if (sql.startsWith("DELETE")) {
-            return prepareDeleteStatement(ps, depositDto);
+            ps.setLong(1, depositDto.getId());
         }
 
-        prepareCommonFields(ps, depositDto);
+        ps.setBigDecimal(1, depositDto.getBalance());
+        ps.setLong(2, depositDto.getAccountId());
+        ps.setString(3, depositDto.getDepositStatus().name());
+        ps.setBigDecimal(4, depositDto.getInterestRate());
+        ps.setBigDecimal(5, depositDto.getPrincipalBalance());
 
         if (sql.startsWith("INSERT")) {
             ps.setTimestamp(6, Timestamp.valueOf(depositDto.getCreatedAt()));
@@ -118,18 +117,5 @@ public class DepositRepository extends GenericRepository<Deposit, Deposit> {
     private Timestamp getExistingCreatedAt(Long depositId) {
         String sql = "SELECT created_at FROM deposit WHERE id = ?";
         return jdbcTemplate.queryForObject(sql, Timestamp.class, depositId);
-    }
-
-    private PreparedStatement prepareDeleteStatement(PreparedStatement ps, DepositDatabseDto deposit) throws SQLException {
-        ps.setLong(1, deposit.getId());
-        return ps;
-    }
-
-    private void prepareCommonFields(PreparedStatement ps, DepositDatabseDto deposit) throws SQLException {
-        ps.setBigDecimal(1, deposit.getBalance());
-        ps.setLong(2, deposit.getAccountId());
-        ps.setString(3, deposit.getDepositStatus().name());
-        ps.setBigDecimal(4, deposit.getInterestRate());
-        ps.setBigDecimal(5, deposit.getPrincipalBalance());
     }
 }

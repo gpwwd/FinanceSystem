@@ -1,4 +1,4 @@
-package com.financialsystem.dto.user;
+package com.financialsystem.dto.database.user;
 
 import com.financialsystem.domain.model.user.Role;
 import lombok.AllArgsConstructor;
@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -19,5 +20,4 @@ public class UserDatabaseDto {
     protected String email;
     protected Role role;
     protected LocalDateTime createdAt;
-    protected Long enterpriseId;
 }

@@ -1,6 +1,6 @@
 package com.financialsystem.domain.model.user;
 
-import com.financialsystem.dto.user.UserDatabaseDto;
+import com.financialsystem.dto.database.user.UserDatabaseDto;
 
 import java.time.LocalDateTime;
 

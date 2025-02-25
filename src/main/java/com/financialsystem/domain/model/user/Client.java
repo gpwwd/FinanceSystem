@@ -1,6 +1,7 @@
 package com.financialsystem.domain.model.user;
 
-import com.financialsystem.dto.user.ClientDatabaseDto;
+import com.financialsystem.dto.database.user.ClientDatabaseDto;
+import com.financialsystem.dto.database.user.PendingClientDatabaseDto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,22 +23,9 @@ public class Client extends User {
     @Override
     public ClientDatabaseDto toDto() {
         return new ClientDatabaseDto(
-                this.id,
-                this.fullName,
-                this.passport,
-                this.identityNumber,
-                this.phone,
-                this.email,
-                this.role,
-                this.createdAt,
-                this.isForeign,
-                this.enterpriseId
+                this.id, this.fullName, this.passport, this.identityNumber, this.phone, this.email,
+                this.role, this.createdAt, this.isForeign
         );
-    }
-
-    private Client(String fullName, String passport, String identityNumber,
-                  String phone, String email, LocalDateTime createdAt) {
-        super(fullName, passport, identityNumber, phone, email, createdAt);
     }
 
     @Override
@@ -45,11 +33,10 @@ public class Client extends User {
         this.role = Role.CLIENT;
     }
 
-    public static Client create (String fullName, String passport, String email, String phone,
-                                 String passwordHash, boolean isForeign, LocalDateTime createdAt){
-        Client client = new Client(fullName, passport, email, phone, passwordHash, createdAt);
-        client.isForeign = isForeign;
-        client.assignRole();
-        return client;
+    public static Client create (PendingClientDatabaseDto dto){
+        if(!dto.getStatus().equals(PendingClientStatus.APPROVED)){
+            throw new RuntimeException("Client status is not APPROVED");
+        }
+        return new Client(dto);
     }
 }

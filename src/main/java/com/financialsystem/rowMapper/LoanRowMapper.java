@@ -1,4 +1,4 @@
-package com.financialsystem.mapper;
+package com.financialsystem.rowMapper;
 
 import com.financialsystem.domain.model.Loan;
 import com.financialsystem.domain.status.LoanStatus;

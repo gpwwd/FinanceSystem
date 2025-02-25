@@ -1,8 +1,8 @@
 package com.financialsystem.repository;
 
 import com.financialsystem.domain.model.Loan;
-import com.financialsystem.dto.LoanDatabaseDto;
-import com.financialsystem.mapper.LoanRowMapper;
+import com.financialsystem.dto.database.LoanDatabaseDto;
+import com.financialsystem.rowMapper.LoanRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -82,6 +82,11 @@ public class LoanRepository extends GenericRepository<Loan, Loan> {
     @Override
     protected String getDeleteSql() {
         return "DELETE FROM loan WHERE id = ?";
+    }
+
+    @Override
+    protected String getFindAllSql() {
+        return "select * from loan";
     }
 
     @Override

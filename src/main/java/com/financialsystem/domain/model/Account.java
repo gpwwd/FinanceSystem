@@ -1,8 +1,7 @@
 package com.financialsystem.domain.model;
 
 import com.financialsystem.domain.status.AccountStatus;
-import com.financialsystem.dto.AccountDatabaseDto;
-import com.financialsystem.dto.DepositDatabseDto;
+import com.financialsystem.dto.database.AccountDatabaseDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -10,7 +9,6 @@ import lombok.Setter;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

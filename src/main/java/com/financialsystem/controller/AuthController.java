@@ -1,10 +1,12 @@
 package com.financialsystem.controller;
 
+import com.financialsystem.domain.model.user.PendingClient;
+import com.financialsystem.dto.request.ClientRegistrationRequest;
 import com.financialsystem.service.AuthService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
@@ -16,9 +18,9 @@ public class AuthController {
         this.authService = authService;
     }
 
-    @PostMapping("/register/client")
-    public Long registerClient(@RequestParam String username, @RequestParam String password) {
-        Long id = authService.registerClient(username, password);
-        return id;
+    @PostMapping("/register")
+    public ResponseEntity<Long> registerClient(@RequestBody ClientRegistrationRequest request) {
+        Long clientId = authService.registerClient(request);
+        return ResponseEntity.ok(clientId);
     }
 }

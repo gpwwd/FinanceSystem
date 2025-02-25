@@ -1,4 +1,4 @@
-package com.financialsystem.dto.user;
+package com.financialsystem.dto.database.user;
 
 import com.financialsystem.domain.model.user.Role;
 import lombok.AllArgsConstructor;
@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -17,8 +18,8 @@ public class ClientDatabaseDto extends UserDatabaseDto {
     public ClientDatabaseDto(Long id, String fullName, String passport,
                              String identityNumber, String phone,
                              String email, Role role,
-                             LocalDateTime createdAt, boolean isForeign, Long enterpriseId) {
-        super(id, fullName, passport, identityNumber, phone, email, role, createdAt, enterpriseId);
+                             LocalDateTime createdAt, boolean isForeign) {
+        super(id, fullName, passport, identityNumber, phone, email, role, createdAt);
         this.isForeign = isForeign;
     }
 }
