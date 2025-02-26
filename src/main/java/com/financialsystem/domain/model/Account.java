@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -16,20 +17,28 @@ public class Account {
     private Long id;
     @Setter(AccessLevel.PRIVATE)
     private AccountStatus status;
-    private Long clientId;
+    private Long ownerId;
+    private Long bankId;
+    private Currency currency;
+    private LocalDateTime createdAt;
+    private boolean isSalary;
     private BigDecimal balance;
 
-    public static Account create(Long clientId) {
+    public static Account create(Long ownerId, Long bankId, Currency currency, boolean isSalary) {
         Account account = new Account();
-        account.clientId = clientId;
+        account.ownerId = ownerId;
+        account.bankId = bankId;
         account.status = AccountStatus.ACTIVE;
         account.balance = BigDecimal.ZERO;
+        account.currency = currency;
+        account.createdAt = LocalDateTime.now();
+        account.isSalary = isSalary;
         return account;
     }
 
     public AccountDatabaseDto toDto() {
         return new AccountDatabaseDto(
-                id, status, clientId, balance);
+                id, status, ownerId, bankId, currency, createdAt, isSalary, balance);
     }
 
     public void block() {

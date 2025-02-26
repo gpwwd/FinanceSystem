@@ -4,7 +4,6 @@ import com.financialsystem.dto.database.user.PendingClientDatabaseDto;
 import com.financialsystem.dto.request.ClientRegistrationRequest;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 
 public class PendingClient extends Client {
     private PendingClientStatus status;
@@ -22,7 +21,7 @@ public class PendingClient extends Client {
     public PendingClientDatabaseDto toDto() {
         return new PendingClientDatabaseDto(
                 this.id, this.fullName, this.passport, this.identityNumber, this.phone, this.email, this.role, this.createdAt,
-                this.isForeign, this.status
+                this.isForeign, this.status, this.banksIds.get(0)
         );
     }
 
@@ -34,11 +33,11 @@ public class PendingClient extends Client {
     public static PendingClient create (ClientRegistrationRequest request){
         return new PendingClient(new PendingClientDatabaseDto(
                 null, request.fullName(), request.passport(), request.identityNumber(), request.phone(), request.email(),
-                Role.CLIENT, LocalDateTime.now(), request.isForeign(), PendingClientStatus.PENDING
+                Role.CLIENT, LocalDateTime.now(), request.isForeign(), PendingClientStatus.PENDING, request.bankId()
         ));
     }
 
-    public void approveRegistration() {
+    public void setApprovedStatus() {
         this.status = PendingClientStatus.APPROVED;
     }
 

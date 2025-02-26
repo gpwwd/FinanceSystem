@@ -18,6 +18,15 @@ public class ClientDatabaseDto extends UserDatabaseDto {
     public ClientDatabaseDto(Long id, String fullName, String passport,
                              String identityNumber, String phone,
                              String email, Role role,
+                             LocalDateTime createdAt, boolean isForeign, List<Long> banksIds) {
+        super(id, fullName, passport, identityNumber, phone, email, role, createdAt, banksIds);
+        this.isForeign = isForeign;
+    }
+
+    // сделать 2 отдельных дто для связи с банком и без связи
+    public ClientDatabaseDto(Long id, String fullName, String passport,
+                             String identityNumber, String phone,
+                             String email, Role role,
                              LocalDateTime createdAt, boolean isForeign) {
         super(id, fullName, passport, identityNumber, phone, email, role, createdAt);
         this.isForeign = isForeign;

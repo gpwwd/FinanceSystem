@@ -11,5 +11,6 @@ public record ClientRegistrationRequest(
         String identityNumber,
         String phone,
         String email,
+        Long bankId,
         boolean isForeign
 ) {}

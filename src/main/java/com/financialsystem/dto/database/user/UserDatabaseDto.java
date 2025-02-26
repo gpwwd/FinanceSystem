@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -20,4 +21,16 @@ public class UserDatabaseDto {
     protected String email;
     protected Role role;
     protected LocalDateTime createdAt;
+    protected List<Long> banksIds = new ArrayList<>();
+
+    public UserDatabaseDto(Long id, String fullName, String passport, String identityNumber, String phone, String email, Role role, LocalDateTime createdAt) {
+        this.id = id;
+        this.fullName = fullName;
+        this.passport = passport;
+        this.identityNumber = identityNumber;
+        this.phone = phone;
+        this.email = email;
+        this.role = role;
+        this.createdAt = createdAt;
+    }
 }

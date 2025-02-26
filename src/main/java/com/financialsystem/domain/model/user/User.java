@@ -18,6 +18,12 @@ public abstract class User  {
 
     protected User(UserDatabaseDto user) {
         id = user.getId();
+
+        Objects.requireNonNull(user.getBanksIds(), "banksIds не может быть пустым");
+        if (user.getBanksIds().isEmpty()) {
+            throw new IllegalArgumentException("Пользователь должен быть связан хотя бы с одним банком");
+        }
+
         fullName = user.getFullName();
         passport = user.getPassport();
         identityNumber = user.getIdentityNumber();
@@ -25,16 +31,23 @@ public abstract class User  {
         email = user.getEmail();
         role = user.getRole();
         createdAt = user.getCreatedAt();
+        banksIds = user.getBanksIds();
     }
 
     protected User(String fullName, String passport, String identityNumber,
-                String phone, String email, LocalDateTime createdAt) {
+                String phone, String email, LocalDateTime createdAt, List<Long> banksIds) {
+        Objects.requireNonNull(banksIds, "banksIds не может быть пустым");
+        if (banksIds.isEmpty()) {
+            throw new IllegalArgumentException("Пользователь должен быть связан хотя бы с одним банком");
+        }
+
         this.fullName = fullName;
         this.passport = passport;
         this.identityNumber = identityNumber;
         this.phone = phone;
         this.email = email;
         this.createdAt = createdAt;
+        this.banksIds = banksIds;
     }
 
     protected abstract void assignRole();

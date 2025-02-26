@@ -22,7 +22,8 @@ public class PendingClientRowMapper implements RowMapper<PendingClientDatabaseDt
                 Role.valueOf(rs.getString("role")),
                 rs.getTimestamp("created_at").toLocalDateTime(),
                 rs.getBoolean("is_foreign"),
-                PendingClientStatus.valueOf(rs.getString("status"))
+                PendingClientStatus.valueOf(rs.getString("status")),
+                rs.getLong("bank_id")
         );
     }
 }

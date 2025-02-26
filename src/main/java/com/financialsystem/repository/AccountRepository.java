@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 @Repository
 public class AccountRepository extends GenericRepository<Account, Account>{
@@ -22,12 +23,14 @@ public class AccountRepository extends GenericRepository<Account, Account>{
 
     @Override
     protected String getCreateSql() {
-        return "INSERT INTO account (client_id, status, balance) VALUES (?, ?, ?)";
+        return "INSERT INTO account (balance, status, owner_id, bank_id, currency, " +
+                "created_at, is_salary) VALUES (?, ?, ?, ?, ?, ?, ?)";
     }
 
     @Override
     protected String getUpdateSql() {
-        return "UPDATE account SET client_id = ?, status = ?, balance = ?  WHERE id = ?";
+        return "UPDATE account SET balance = ?, status = ?, owner_id = ?, bank_id = ?, currency = ?, " +
+                "created_at = ?, is_salary = ? WHERE id = ?";
     }
 
     @Override
@@ -58,11 +61,15 @@ public class AccountRepository extends GenericRepository<Account, Account>{
         if(sql.startsWith("DELETE")){
             ps.setLong(1, accountDto.getId());
         }
-        ps.setLong(1, accountDto.getClientId());
+        ps.setBigDecimal(1, accountDto.getBalance());
         ps.setString(2, accountDto.getStatus().name());
-        ps.setBigDecimal(3, accountDto.getBalance());
+        ps.setLong(3, accountDto.getOwnerId());
+        ps.setLong(4, accountDto.getBankId());
+        ps.setString(5, accountDto.getCurrency().name());
+        ps.setTimestamp(6, Timestamp.valueOf(accountDto.getCreatedAt()));
+        ps.setBoolean(7, accountDto.isSalary());
         if (sql.startsWith("UPDATE")) {
-            ps.setLong(4, accountDto.getId());
+            ps.setLong(8, accountDto.getId());
         }
         return ps;
     }

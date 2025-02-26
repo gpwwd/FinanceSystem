@@ -1,12 +1,10 @@
 package com.financialsystem.service;
 
-import com.financialsystem.domain.model.Deposit;
 import com.financialsystem.domain.model.user.Client;
 import com.financialsystem.domain.model.user.PendingClient;
 import com.financialsystem.dto.database.user.PendingClientDatabaseDto;
 import com.financialsystem.dto.response.PendingClientResponseDto;
 import com.financialsystem.mapper.ClientMapper;
-import com.financialsystem.repository.GenericRepository;
 import com.financialsystem.repository.user.ClientRepository;
 import com.financialsystem.repository.user.PendingClientRepository;
 import com.financialsystem.util.EntityFinder;
@@ -32,10 +30,12 @@ public class ManagerService {
     }
 
     @Transactional
-    public Long approveClient(Long pendingClientId) {
+    public Long approveClient(Long pendingClientId
+    //Long managerId // достать из userDetails
+    ) {
         PendingClient pendingClient = entityFinder.findEntityById(pendingClientId, pendingClientRepository, "Клиент ожидающий регистрацию");
-        pendingClient.approveRegistration();
-
+        //manager.approveClientRegistration(pendingClient); // или перенести внутрь классаФ
+        pendingClient.setApprovedStatus();
         PendingClientDatabaseDto dto = pendingClient.toDto();
         Client client = Client.create(dto);
 

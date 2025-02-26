@@ -22,13 +22,19 @@ public class ManagerController {
     }
 
     @PostMapping("/approve/{pendingClientId}")
-    public ResponseEntity<Long> approveClient(@PathVariable Long pendingClientId) {
+    public ResponseEntity<Long> approveClient(@PathVariable Long pendingClientId
+                                              //@AuthenticationPrincipal CustomUserDetails userDetails,
+                                              ) {
+        //Long managerId = userDetails.getId();
         Long approvedId = managerService.approveClient(pendingClientId);
         return ResponseEntity.ok(approvedId);
     }
 
     @PostMapping("/reject/{pendingClientId}")
-    public ResponseEntity<Long> rejectClient(@PathVariable Long pendingClientId) {
+    public ResponseEntity<Long> rejectClient(@PathVariable Long pendingClientId
+                                             //@AuthenticationPrincipal CustomUserDetails userDetails,
+                                             ) {
+        //Long managerId = userDetails.getId();
         Long approvedId = managerService.rejectClient(pendingClientId);
         return ResponseEntity.ok(approvedId);
     }

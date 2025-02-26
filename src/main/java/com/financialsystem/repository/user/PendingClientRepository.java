@@ -20,14 +20,14 @@ public class PendingClientRepository extends GenericRepository<PendingClient, Pe
     @Override
     protected String getCreateSql() {
         return "INSERT INTO pending_clients (full_name, passport_series_number, identity_number," +
-            "phone, email, role, is_foreign, created_at, status)" +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
+            "phone, email, role, is_foreign, created_at, status, bank_id)" +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
     }
 
     @Override
     protected String getUpdateSql() {
         return "UPDATE pending_clients SET full_name = ?, passport_series_number = ?, identity_number = ?," +
-            "phone = ?, email = ?, role = ?, is_foreign = ?, created_at = ?, status = ? " +
+            "phone = ?, email = ?, role = ?, is_foreign = ?, created_at = ?, status = ?, bank_id = ? " +
             "WHERE id = ?";
     }
 
@@ -75,9 +75,10 @@ public class PendingClientRepository extends GenericRepository<PendingClient, Pe
             ps.setTimestamp(8, getExistingCreatedAt(client.getId()));
         }
         ps.setString(9, client.getStatus().name());
+        ps.setLong(10, client.getBanksIds().get(0));
 
         if (sql.startsWith("UPDATE")) {
-            ps.setLong(10, client.getId());
+            ps.setLong(11, client.getId());
         }
 
         return ps;
