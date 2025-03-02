@@ -2,11 +2,15 @@ package com.financialsystem.domain.model.user;
 
 import com.financialsystem.dto.database.user.PendingClientDatabaseDto;
 import com.financialsystem.dto.request.ClientRegistrationRequest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 
 public class PendingClient extends Client {
     private PendingClientStatus status;
+
+
+    private static int encoderStrength = 12;
 
     protected PendingClient(PendingClientDatabaseDto dto) {
         super(dto);
@@ -20,8 +24,9 @@ public class PendingClient extends Client {
     @Override
     public PendingClientDatabaseDto toDto() {
         return new PendingClientDatabaseDto(
-                this.id, this.fullName, this.passport, this.identityNumber, this.phone, this.email, this.role, this.createdAt,
-                this.isForeign, this.status, this.banksIds.get(0)
+                this.id, this.fullName, this.passport, this.identityNumber, this.phone,
+                this.email, this.role, this.password, this.createdAt,
+                this.isForeign, this.status
         );
     }
 
@@ -32,9 +37,15 @@ public class PendingClient extends Client {
 
     public static PendingClient create (ClientRegistrationRequest request){
         return new PendingClient(new PendingClientDatabaseDto(
-                null, request.fullName(), request.passport(), request.identityNumber(), request.phone(), request.email(),
-                Role.CLIENT, LocalDateTime.now(), request.isForeign(), PendingClientStatus.PENDING, request.bankId()
+                null, request.fullName(), request.passport(), request.identityNumber(),
+                request.phone(), request.email(), Role.CLIENT,
+                encodePassword(request.password()), LocalDateTime.now(),
+                request.isForeign(), PendingClientStatus.PENDING
         ));
+    }
+
+    private static String encodePassword(String password) {
+        return new BCryptPasswordEncoder(encoderStrength).encode(password);
     }
 
     public void setApprovedStatus() {

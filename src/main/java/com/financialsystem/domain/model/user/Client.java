@@ -3,11 +3,6 @@ package com.financialsystem.domain.model.user;
 import com.financialsystem.dto.database.user.ClientDatabaseDto;
 import com.financialsystem.dto.database.user.PendingClientDatabaseDto;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 public class Client extends User {
     protected boolean isForeign;
 
@@ -24,7 +19,7 @@ public class Client extends User {
     public ClientDatabaseDto toDto() {
         return new ClientDatabaseDto(
                 this.id, this.fullName, this.passport, this.identityNumber, this.phone, this.email,
-                this.role, this.createdAt, this.isForeign, this.banksIds
+                this.role, this.password, this.createdAt, this.isForeign
         );
     }
 
@@ -42,11 +37,5 @@ public class Client extends User {
         client.assignRole();
         client.isForeign = dto.isForeign();
         return client;
-    }
-
-    public void checkConnectionWithBank(Long bankId){
-        if (!this.banksIds.contains(bankId)) {
-            throw new IllegalArgumentException("Клиент не связан с данным банком");
-        }
     }
 }

@@ -20,20 +20,10 @@ public class ClientRepository extends GenericRepository<Client, ClientDatabaseDt
 
     @Override
     protected String getCreateSql() {
-        return """
-            WITH bank_check AS (
-                SELECT id FROM bank WHERE id = ?
-            ),
-            inserted_client AS (
-                INSERT INTO users (full_name, passport_series_number, identity_number, phone, email, role, is_foreign, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                RETURNING id
-            )
-            INSERT INTO user_bank (user_id, bank_id)
-            SELECT inserted_client.id, bank_check.id
-            FROM inserted_client, bank_check
-            RETURNING user_id;
-        """;
+        return "INSERT INTO users (full_name, passport_series_number, identity_number, " +
+                "phone, email, role, is_foreign, created_at, password)" +
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)" +
+        "RETURNING id";
     }
 
     @Override
@@ -44,14 +34,8 @@ public class ClientRepository extends GenericRepository<Client, ClientDatabaseDt
     @Override
     protected String getFindByIdSql() {
         return """
-        SELECT 
-            u.*, 
-            COALESCE(ARRAY_AGG(ub.bank_id), '{}') AS bank_ids
-        FROM users u
-        LEFT JOIN user_bank ub ON u.id = ub.user_id
-        WHERE u.id = ?
-        GROUP BY u.id
-    """;
+        SELECT * FROM users WHERE id = ?;
+        """;
     }
 
     @Override
@@ -62,15 +46,9 @@ public class ClientRepository extends GenericRepository<Client, ClientDatabaseDt
     @Override
     protected String getFindAllSql() {
         return """
-        SELECT 
-            u.*, 
-            COALESCE(ARRAY_AGG(ub.bank_id), '{}') AS bank_ids
-        FROM users u
-        LEFT JOIN user_bank ub ON u.id = ub.user_id
-        GROUP BY u.id
-    """;
+        SELECT * FROM users;
+        """;
     }
-
 
     @Override
     protected RowMapper<ClientDatabaseDto> getRowMapper() {
@@ -85,17 +63,36 @@ public class ClientRepository extends GenericRepository<Client, ClientDatabaseDt
         ClientDatabaseDto user = entity.toDto();
 
         PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
-        ps.setLong(1, user.getBanksIds().get(0));
-        ps.setString(2, user.getFullName());
-        ps.setString(3, user.getPassport());
-        ps.setString(4, user.getIdentityNumber());
-        ps.setString(5, user.getPhone());
-        ps.setString(6, user.getEmail());
-        ps.setString(7, user.getRole().name());
-        ps.setBoolean(8, user.isForeign());
-        ps.setTimestamp(9, Timestamp.valueOf(user.getCreatedAt()));
+
+        if (sql.startsWith("DELETE")) {
+            ps.setLong(1, user.getId());
+            return ps;
+        }
+
+        ps.setString(1, user.getFullName());
+        ps.setString(2, user.getPassport());
+        ps.setString(3, user.getIdentityNumber());
+        ps.setString(4, user.getPhone());
+        ps.setString(5, user.getEmail());
+        ps.setString(6, user.getRole().name());
+        ps.setBoolean(7, user.isForeign());
+        if (sql.startsWith("INSERT")) {
+            ps.setTimestamp(8, Timestamp.valueOf(user.getCreatedAt()));
+        } else if (sql.startsWith("UPDATE")) {
+            ps.setTimestamp(8, getExistingCreatedAt(user.getId()));
+        }
+        ps.setString(9, user.getPassword());
+
+        if (sql.startsWith("UPDATE")) {
+            ps.setLong(10, user.getId());
+        }
 
         return ps;
+    }
+
+    private Timestamp getExistingCreatedAt(Long depositId) {
+        String sql = "SELECT created_at FROM users WHERE id = ?";
+        return jdbcTemplate.queryForObject(sql, Timestamp.class, depositId);
     }
 
     public void assignEnterprises(Long clientId, List<Long> enterpriseIds) {

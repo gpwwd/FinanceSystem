@@ -33,7 +33,6 @@ public class AccountService {
     public Long createAccount(Long clientId, Long bankId, Currency currency, boolean isAccountForSalary // позже заменить на User из UserPrincipal.getUser()
     ) {
         Client client = entityFinder.findEntityById(clientId, clientRepository, "Клиент");
-        client.checkConnectionWithBank(bankId);
         Account account = Account.create(clientId, bankId, currency, isAccountForSalary);
         return accountRepository.create(account);
     }

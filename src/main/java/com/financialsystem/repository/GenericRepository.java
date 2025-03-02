@@ -63,7 +63,6 @@ public abstract class GenericRepository<Entity, Dto> {
         try {
             Dto entity = jdbcTemplate.queryForObject(sql, getRowMapper(), id);
             return Optional.of(fromDto(entity));
-            //return Optional.ofNullable(entity);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         } catch (DataAccessException e) {

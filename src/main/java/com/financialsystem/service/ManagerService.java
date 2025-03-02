@@ -34,7 +34,7 @@ public class ManagerService {
     //Long managerId // достать из userDetails
     ) {
         PendingClient pendingClient = entityFinder.findEntityById(pendingClientId, pendingClientRepository, "Клиент ожидающий регистрацию");
-        //manager.approveClientRegistration(pendingClient); // или перенести внутрь классаФ
+        //manager.approveClientRegistration(pendingClient); // или перенести внутрь класса
         pendingClient.setApprovedStatus();
         PendingClientDatabaseDto dto = pendingClient.toDto();
         Client client = Client.create(dto);

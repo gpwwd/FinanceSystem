@@ -4,11 +4,14 @@ import com.financialsystem.domain.model.user.PendingClient;
 import com.financialsystem.dto.database.user.PendingClientDatabaseDto;
 import com.financialsystem.rowMapper.PendingClientRowMapper;
 import com.financialsystem.repository.GenericRepository;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
+import java.util.Optional;
 
 @Repository
 public class PendingClientRepository extends GenericRepository<PendingClient, PendingClientDatabaseDto> {
@@ -20,14 +23,14 @@ public class PendingClientRepository extends GenericRepository<PendingClient, Pe
     @Override
     protected String getCreateSql() {
         return "INSERT INTO pending_clients (full_name, passport_series_number, identity_number," +
-            "phone, email, role, is_foreign, created_at, status, bank_id)" +
+            "phone, email, role, is_foreign, created_at, status, password)" +
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
     }
 
     @Override
     protected String getUpdateSql() {
         return "UPDATE pending_clients SET full_name = ?, passport_series_number = ?, identity_number = ?," +
-            "phone = ?, email = ?, role = ?, is_foreign = ?, created_at = ?, status = ?, bank_id = ? " +
+            "phone = ?, email = ?, role = ?, is_foreign = ?, created_at = ?, status = ?, password = ? " +
             "WHERE id = ?";
     }
 
@@ -68,14 +71,13 @@ public class PendingClientRepository extends GenericRepository<PendingClient, Pe
         ps.setString(5, client.getEmail());
         ps.setString(6, client.getRole().name());
         ps.setBoolean(7, client.isForeign());
-
         if (sql.startsWith("INSERT")) {
             ps.setTimestamp(8, Timestamp.valueOf(client.getCreatedAt()));
         } else if (sql.startsWith("UPDATE")) {
             ps.setTimestamp(8, getExistingCreatedAt(client.getId()));
         }
         ps.setString(9, client.getStatus().name());
-        ps.setLong(10, client.getBanksIds().get(0));
+        ps.setString(10, client.getPassword());
 
         if (sql.startsWith("UPDATE")) {
             ps.setLong(11, client.getId());
@@ -102,5 +104,21 @@ public class PendingClientRepository extends GenericRepository<PendingClient, Pe
     public void rejectClient(Long pendingClientId) {
         String sql = "UPDATE pending_clients SET status = 'REJECTED' WHERE id = ?";
         jdbcTemplate.update(sql, pendingClientId);
+    }
+
+    private String getFindByNameSql() {
+        return "SELECT * FROM pending_clients WHERE full_name = ?";
+    }
+
+    public Optional<PendingClient> findByName(String name) {
+        String sql = getFindByNameSql();
+        try {
+            PendingClientDatabaseDto dto = jdbcTemplate.queryForObject(sql, new PendingClientRowMapper(), name);
+            return Optional.of(fromDto(dto));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Ошибка при получении кредита с name = " + name, e);
+        }
     }
 }

@@ -4,7 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public abstract class NonClientUser extends User {
-    protected NonClientUser(String fullName, String passport, String email, String phone, String passwordHash, LocalDateTime createdAt, List<Long> banksIds) {
-        super(fullName, passport, email, phone, passwordHash, createdAt, banksIds);
+    protected NonClientUser(String fullName, String passport, String identityNumber,
+                            String phone, String email, LocalDateTime createdAt, String password) {
+        super(fullName, passport, identityNumber, phone, email, createdAt, password);
     }
 }

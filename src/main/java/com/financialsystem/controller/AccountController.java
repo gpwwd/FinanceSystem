@@ -1,7 +1,6 @@
 package com.financialsystem.controller;
 
 import com.financialsystem.domain.model.Currency;
-import com.financialsystem.dto.request.ClientRegistrationRequest;
 import com.financialsystem.service.AccountService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

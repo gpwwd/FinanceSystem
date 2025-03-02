@@ -1,6 +1,7 @@
 package com.financialsystem.domain.model.user;
 
 import com.financialsystem.dto.database.user.UserDatabaseDto;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -13,17 +14,11 @@ public abstract class User  {
     protected String phone;
     protected String email;
     protected Role role;
+    protected String password;
     protected LocalDateTime createdAt;
-    protected List<Long> banksIds = new ArrayList<>();
 
     protected User(UserDatabaseDto user) {
         id = user.getId();
-
-        Objects.requireNonNull(user.getBanksIds(), "banksIds не может быть пустым");
-        if (user.getBanksIds().isEmpty()) {
-            throw new IllegalArgumentException("Пользователь должен быть связан хотя бы с одним банком");
-        }
-
         fullName = user.getFullName();
         passport = user.getPassport();
         identityNumber = user.getIdentityNumber();
@@ -31,23 +26,18 @@ public abstract class User  {
         email = user.getEmail();
         role = user.getRole();
         createdAt = user.getCreatedAt();
-        banksIds = user.getBanksIds();
+        password = user.getPassword();
     }
 
     protected User(String fullName, String passport, String identityNumber,
-                String phone, String email, LocalDateTime createdAt, List<Long> banksIds) {
-        Objects.requireNonNull(banksIds, "banksIds не может быть пустым");
-        if (banksIds.isEmpty()) {
-            throw new IllegalArgumentException("Пользователь должен быть связан хотя бы с одним банком");
-        }
-
+                String phone, String email, LocalDateTime createdAt, String password) {
         this.fullName = fullName;
         this.passport = passport;
         this.identityNumber = identityNumber;
         this.phone = phone;
         this.email = email;
         this.createdAt = createdAt;
-        this.banksIds = banksIds;
+        this.password = password;
     }
 
     protected abstract void assignRole();
