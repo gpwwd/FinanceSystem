@@ -64,16 +64,16 @@ public class AuthService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password));
 
-        var token = jwtService.generateToken(username);
+        BankingUserDetails userDetails = (BankingUserDetails) authentication.getPrincipal();
 
-        BankingUserDetails client = (BankingUserDetails) authentication.getPrincipal();
+        var token = jwtService.generateToken(userDetails);
 
         var authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::toString)
                 .toList();
 
         return new UserAuthResponseDto(
-                client.getId(), client.getUsername(), token, authorities.getFirst()
+                userDetails.getId(), userDetails.getUsername(), token, authorities.getFirst()
         );
     }
 }

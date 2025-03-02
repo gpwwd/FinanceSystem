@@ -59,10 +59,9 @@ public class SecurityConfiguration {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequest -> authorizeRequest
-                        .requestMatchers(
-                                "/swagger-ui/**", "/v3/api-docs/**"
-                        ).permitAll() // Swagger доступен без авторизации
-                        .requestMatchers("/manager/pending-clients").authenticated() // Только этот эндпоинт требует авторизации
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/manager/**").hasAuthority("MANAGER") // Только этот эндпоинт требует авторизации
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

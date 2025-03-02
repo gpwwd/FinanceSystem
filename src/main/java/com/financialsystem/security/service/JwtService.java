@@ -1,9 +1,11 @@
 package com.financialsystem.security.service;
 
+import com.financialsystem.domain.model.user.BankingUserDetails;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.KeyGenerator;
@@ -30,13 +32,16 @@ public class JwtService {
         }
     }
 
-    public String generateToken(String username) {
+    public String generateToken(BankingUserDetails userDetails) {
         Map<String, Object> claims = new HashMap<String, Object>();
+        claims.put("roles", userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList());
 
         return Jwts.builder()
                 .claims()
                 .add(claims)
-                .subject(username)
+                .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
                 .and()
@@ -51,6 +56,10 @@ public class JwtService {
 
     public String extractUserName(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
     private SecretKey getKey() {
