@@ -27,7 +27,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-//@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class SecurityConfiguration {
 
     private static final int ENCODER_STRENGTH = 12;
@@ -61,7 +61,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorizeRequest -> authorizeRequest
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/manager/**").hasAuthority("MANAGER") // Только этот эндпоинт требует авторизации
+                        //.requestMatchers("/manager/**").hasAuthority("MANAGER")
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

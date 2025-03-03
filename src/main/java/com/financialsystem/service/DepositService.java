@@ -8,6 +8,7 @@ import com.financialsystem.repository.DepositRepository;
 import com.financialsystem.util.EntityFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,17 +30,22 @@ public class DepositService {
         this.entityFinder = entityFinder;
     }
 
-    public Long create(Long accountId, BigDecimal annualInterestRate, int termMonths, BigDecimal principalBalance) {
+    @PreAuthorize("hasAuthority('CLIENT')")
+    public Long create(Long userId, Long accountId, BigDecimal annualInterestRate, int termMonths, BigDecimal principalBalance) {
         Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
+        account.verifyOwner(userId);
+        account.withdraw(principalBalance);
         Deposit deposit = Deposit.create(accountId, annualInterestRate, termMonths, principalBalance);
+        accountRepository.update(account);
         return depositRepository.create(deposit);
     }
 
     @Transactional
-    public Deposit withdrawInterest(Long id, BigDecimal amount){
+    public Deposit withdrawInterest(Long userId, Long id, BigDecimal amount){
         Deposit deposit = entityFinder.findEntityById(id, depositRepository, "Депозит");
         Long accountId = deposit.getAccountId();
         Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
+        account.verifyOwner(userId);
         deposit.withdrawInterest(amount);
         account.replenish(amount);
         depositRepository.update(deposit);
@@ -47,10 +53,11 @@ public class DepositService {
         return deposit;
     }
 
-    public Deposit replenish(Long id, BigDecimal amount){
+    public Deposit replenish(Long userId, Long id, BigDecimal amount){
         Deposit deposit = entityFinder.findEntityById(id, depositRepository, "Депозит");
         Long accountId = deposit.getAccountId();
         Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
+        account.verifyOwner(userId);
         deposit.replenish(amount);
         account.withdraw(amount);
         depositRepository.update(deposit);
@@ -58,9 +65,16 @@ public class DepositService {
         return deposit;
     }
 
-    public void transfer(Long fromId, Long toId, BigDecimal amount){
+    public void transfer(Long userId, Long fromId, Long toId, BigDecimal amount){
         Deposit fromDeposit = entityFinder.findEntityById(fromId, depositRepository, "Депозит");
         Deposit toDeposit = entityFinder.findEntityById(toId, depositRepository, "Депозит");
+
+        Long fromDepositAccountId = fromDeposit.getAccountId();
+        Long toDepositAccountId = toDeposit.getAccountId();
+        Account fromDepositAccount = entityFinder.findEntityById(fromDepositAccountId, accountRepository, "Аккаунт");
+        Account toDepositAccount = entityFinder.findEntityById(toDepositAccountId, accountRepository, "Аккаунт");
+        fromDepositAccount.verifyOwner(userId);
+        toDepositAccount.verifyOwner(userId);
 
         fromDeposit.transfer(amount, toDeposit);
 
@@ -69,10 +83,11 @@ public class DepositService {
     }
 
     @Transactional
-    public BigDecimal retrieveMoney(Long id){
+    public BigDecimal retrieveMoney(Long userId, Long id){
         Deposit deposit = entityFinder.findEntityById(id, depositRepository, "Депозит");
         Long accountId = deposit.getAccountId();
         Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
+        account.verifyOwner(userId);
         BigDecimal retrievedMoney = deposit.retrieveMoney();
         account.replenish(retrievedMoney);
         depositRepository.update(deposit);

@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -63,6 +64,12 @@ public class Account {
     private void checkAccountState() {
         if(status == AccountStatus.BLOCKED || status == AccountStatus.FROZEN) {
             throw new IllegalStateException("Account status must be " + status + ", actual status is: " + this.status);
+        }
+    }
+
+    public void verifyOwner(Long userId) {
+        if (!ownerId.equals(userId)) {
+            throw new AccessDeniedException("Вы не можете управлять этим счетом!");
         }
     }
 }

@@ -9,6 +9,7 @@ import com.financialsystem.repository.AccountRepository;
 import com.financialsystem.repository.user.ClientRepository;
 import com.financialsystem.util.EntityFinder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,7 @@ public class AccountService {
     }
 
     @Transactional
+    @PreAuthorize("hasAuthority('CLIENT')")
     public Long createAccount(Long clientId, Long bankId, Currency currency, boolean isAccountForSalary // позже заменить на User из UserPrincipal.getUser()
     ) {
         Client client = entityFinder.findEntityById(clientId, clientRepository, "Клиент");

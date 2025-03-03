@@ -1,8 +1,11 @@
 package com.financialsystem.controller;
 
 import com.financialsystem.domain.model.Deposit;
+import com.financialsystem.domain.model.user.BankingUserDetails;
 import com.financialsystem.service.DepositService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -18,37 +21,48 @@ public class DepositController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Long> createDeposit(@RequestParam Long accountId,
-                                              @RequestParam BigDecimal interestRate,
-                                              @RequestParam int termMonths,
-                                              @RequestParam BigDecimal principalBalance) {
-        Long depositId = depositService.create(accountId, interestRate, termMonths, principalBalance);
+    @PreAuthorize("hasAuthority('CLIENT')")
+    public ResponseEntity<Long> createDeposit(
+            @AuthenticationPrincipal BankingUserDetails userDetails,
+            @RequestParam Long accountId,
+            @RequestParam BigDecimal interestRate,
+            @RequestParam int termMonths,
+            @RequestParam BigDecimal principalBalance) {
+        Long depositId = depositService.create(userDetails.getId(), accountId, interestRate, termMonths, principalBalance);
         return ResponseEntity.ok(depositId);
     }
 
     @PostMapping("/{id}/withdraw-interest")
-    public ResponseEntity<Deposit> withdrawInterest(@PathVariable Long id, @RequestParam BigDecimal amount) {
-        Deposit deposit = depositService.withdrawInterest(id, amount);
+    @PreAuthorize("hasAuthority('CLIENT')")
+    public ResponseEntity<Deposit> withdrawInterest(@AuthenticationPrincipal BankingUserDetails userDetails,
+                                                    @PathVariable Long id, @RequestParam BigDecimal amount) {
+        Deposit deposit = depositService.withdrawInterest(userDetails.getId(), id, amount);
         return ResponseEntity.ok(deposit);
     }
 
     @PostMapping("/{id}/replenish")
-    public ResponseEntity<Deposit> replenish(@PathVariable Long id, @RequestParam BigDecimal amount) {
-        Deposit deposit = depositService.replenish(id, amount);
+    @PreAuthorize("hasAuthority('CLIENT')")
+    public ResponseEntity<Deposit> replenish(@AuthenticationPrincipal BankingUserDetails userDetails,
+                                             @PathVariable Long id, @RequestParam BigDecimal amount) {
+        Deposit deposit = depositService.replenish(userDetails.getId(), id, amount);
         return ResponseEntity.ok(deposit);
     }
 
     @PostMapping("/{id}/retrieve")
-    public ResponseEntity<BigDecimal> retrieve(@PathVariable Long id) {
-        BigDecimal retrievedMoney = depositService.retrieveMoney(id);
+    @PreAuthorize("hasAuthority('CLIENT')")
+    public ResponseEntity<BigDecimal> retrieve(@AuthenticationPrincipal BankingUserDetails userDetails,
+                                               @PathVariable Long id) {
+        BigDecimal retrievedMoney = depositService.retrieveMoney(userDetails.getId(), id);
         return ResponseEntity.ok(retrievedMoney);
     }
 
     @PostMapping("/transfer")
-    public ResponseEntity<Void> transfer(@RequestParam Long fromId,
+    @PreAuthorize("hasAuthority('CLIENT')")
+    public ResponseEntity<Void> transfer(@AuthenticationPrincipal BankingUserDetails userDetails,
+                                         @RequestParam Long fromId,
                                          @RequestParam Long toId,
                                          @RequestParam BigDecimal amount) {
-        depositService.transfer(fromId, toId, amount);
+        depositService.transfer(userDetails.getId(), fromId, toId, amount);
         return ResponseEntity.ok().build();
     }
 

@@ -9,12 +9,14 @@ import com.financialsystem.repository.user.ClientRepository;
 import com.financialsystem.repository.user.PendingClientRepository;
 import com.financialsystem.util.EntityFinder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@PreAuthorize("hasAuthority('MANAGER')")
 public class ManagerService {
 
     private final PendingClientRepository pendingClientRepository;

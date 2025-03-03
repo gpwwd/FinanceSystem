@@ -6,12 +6,15 @@ import com.financialsystem.dto.response.PendingClientResponseDto;
 import com.financialsystem.service.ManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/manager")
+@PreAuthorize("hasAuthority('MANAGER')")
 public class ManagerController {
 
     private final ManagerService managerService;
