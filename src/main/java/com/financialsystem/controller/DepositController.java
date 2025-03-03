@@ -67,26 +67,32 @@ public class DepositController {
     }
 
     @PostMapping("/{id}/block")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<Long> blockDeposit(@PathVariable Long id) {
         depositService.blockDeposit(id);
         return ResponseEntity.ok(id);
     }
 
     @PostMapping("/{id}/unblock")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<Long> unblockDeposit(@PathVariable Long id) {
          depositService.unblockDeposit(id);
         return ResponseEntity.ok(id);
     }
 
     @PostMapping("/{id}/freeze")
-    public ResponseEntity<Long> freezeDeposit(@PathVariable Long id) {
-        depositService.freezeDeposit(id);
+    @PreAuthorize("hasAuthority('CLIENT') or hasAuthority('MANAGER')")
+    public ResponseEntity<Long> freezeDeposit(@AuthenticationPrincipal BankingUserDetails userDetails,
+                                              @PathVariable Long id) {
+        depositService.freezeDeposit(userDetails, id);
         return ResponseEntity.ok(id);
     }
 
     @PostMapping("/{id}/unfreeze")
-    public ResponseEntity<Long> unfreezeDeposit(@PathVariable Long id) {
-        depositService.unfreezeDeposit(id);
+    @PreAuthorize("hasAuthority('CLIENT') or hasAuthority('MANAGER')")
+    public ResponseEntity<Long> unfreezeDeposit(@AuthenticationPrincipal BankingUserDetails userDetails,
+                                                @PathVariable Long id) {
+        depositService.unfreezeDeposit(userDetails, id);
         return ResponseEntity.ok(id);
     }
 }

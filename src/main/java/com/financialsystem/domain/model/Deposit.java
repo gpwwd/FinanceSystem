@@ -46,9 +46,9 @@ public class Deposit {
     }
 
     public void setStatus(DepositStatus status) {
-        checkStatus(DepositStatus.ACTIVE);
-        checkStatus(DepositStatus.FROZEN);
-        checkStatus(DepositStatus.BLOCKED);
+        if(this.depositStatus.equals(DepositStatus.COMPLETE)) {
+            throw new IllegalStateException("You can not change deposit status when it is already COMPLETE");
+        }
         this.depositStatus = status;
     }
 

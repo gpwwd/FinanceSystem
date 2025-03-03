@@ -2,6 +2,8 @@ package com.financialsystem.service;
 
 import com.financialsystem.domain.model.Account;
 import com.financialsystem.domain.model.Deposit;
+import com.financialsystem.domain.model.user.BankingUserDetails;
+import com.financialsystem.domain.model.user.Role;
 import com.financialsystem.domain.status.DepositStatus;
 import com.financialsystem.repository.AccountRepository;
 import com.financialsystem.repository.DepositRepository;
@@ -41,6 +43,7 @@ public class DepositService {
     }
 
     @Transactional
+    @PreAuthorize("hasAuthority('CLIENT')")
     public Deposit withdrawInterest(Long userId, Long id, BigDecimal amount){
         Deposit deposit = entityFinder.findEntityById(id, depositRepository, "Депозит");
         Long accountId = deposit.getAccountId();
@@ -53,6 +56,8 @@ public class DepositService {
         return deposit;
     }
 
+    @Transactional
+    @PreAuthorize("hasAuthority('CLIENT')")
     public Deposit replenish(Long userId, Long id, BigDecimal amount){
         Deposit deposit = entityFinder.findEntityById(id, depositRepository, "Депозит");
         Long accountId = deposit.getAccountId();
@@ -65,14 +70,14 @@ public class DepositService {
         return deposit;
     }
 
+    @Transactional
+    @PreAuthorize("hasAuthority('CLIENT')")
     public void transfer(Long userId, Long fromId, Long toId, BigDecimal amount){
         Deposit fromDeposit = entityFinder.findEntityById(fromId, depositRepository, "Депозит");
         Deposit toDeposit = entityFinder.findEntityById(toId, depositRepository, "Депозит");
 
-        Long fromDepositAccountId = fromDeposit.getAccountId();
-        Long toDepositAccountId = toDeposit.getAccountId();
-        Account fromDepositAccount = entityFinder.findEntityById(fromDepositAccountId, accountRepository, "Аккаунт");
-        Account toDepositAccount = entityFinder.findEntityById(toDepositAccountId, accountRepository, "Аккаунт");
+        Account fromDepositAccount = entityFinder.findEntityById(fromDeposit.getAccountId(), accountRepository, "Аккаунт");
+        Account toDepositAccount = entityFinder.findEntityById(toDeposit.getAccountId(), accountRepository, "Аккаунт");
         fromDepositAccount.verifyOwner(userId);
         toDepositAccount.verifyOwner(userId);
 
@@ -83,10 +88,10 @@ public class DepositService {
     }
 
     @Transactional
+    @PreAuthorize("hasAuthority('CLIENT')")
     public BigDecimal retrieveMoney(Long userId, Long id){
         Deposit deposit = entityFinder.findEntityById(id, depositRepository, "Депозит");
-        Long accountId = deposit.getAccountId();
-        Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
+        Account account = entityFinder.findEntityById(deposit.getAccountId(), accountRepository, "Аккаунт");
         account.verifyOwner(userId);
         BigDecimal retrievedMoney = deposit.retrieveMoney();
         account.replenish(retrievedMoney);
@@ -110,20 +115,38 @@ public class DepositService {
         depositRepository.batchUpdate(depositsToUpdate);
     }
 
+    @PreAuthorize("hasAuthority('MANAGER')")
     public void blockDeposit(Long id){
         setStatus(id, DepositStatus.BLOCKED);
     }
 
+    @PreAuthorize("hasAuthority('MANAGER')")
     public void unblockDeposit(Long id){
         setStatus(id, DepositStatus.ACTIVE);
     }
 
-    public void freezeDeposit(Long id){
+    @PreAuthorize("hasAuthority('CLIENT') or hasAuthority('MANAGER')")
+    public void freezeDeposit(BankingUserDetails userDetails, Long id){
+        verifyFreezeAccess(userDetails, id);
         setStatus(id, DepositStatus.FROZEN);
     }
 
-    public void unfreezeDeposit(Long id){
+    @PreAuthorize("hasAuthority('CLIENT') or hasAuthority('MANAGER')")
+    public void unfreezeDeposit(BankingUserDetails userDetails, Long id){
+        verifyFreezeAccess(userDetails, id);
         setStatus(id, DepositStatus.ACTIVE);
+    }
+
+    private void verifyFreezeAccess(BankingUserDetails userDetails, Long depositId) {
+        if (userDetails.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("MANAGER"))) {
+            return;
+        }
+
+        Deposit deposit = entityFinder.findEntityById(depositId, depositRepository, "Депозит");
+        Account account = entityFinder.findEntityById(deposit.getAccountId(), accountRepository, "Аккаунт");
+
+        account.verifyOwner(userDetails.getId());
     }
 
     private void setStatus(Long id, DepositStatus status) {
