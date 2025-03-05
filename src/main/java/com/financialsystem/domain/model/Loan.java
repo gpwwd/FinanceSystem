@@ -39,14 +39,8 @@ public class Loan {
         this.status = LoanStatus.ACTIVE;
     }
 
-    public static Loan createFixedRateLoan(Long accountId, BigDecimal principalAmount, int termMonths) {
-        InterestCalculationStrategy interestStrategy = new FixedInterestStrategy();
-        BigDecimal interestRate = interestStrategy.calculateInterestRate(principalAmount, termMonths);
-        return new Loan(accountId, principalAmount, interestRate, termMonths);
-    }
-
-    public static Loan createCustomRateLoan(Long accountId, BigDecimal principalAmount, int termMonths, LoanConfig loanConfig) {
-        InterestCalculationStrategy interestStrategy = new CustomInterestStrategy(loanConfig);
+    public static Loan create(Long accountId, BigDecimal principalAmount, int termMonths,
+                              LoanConfig loanConfig, InterestCalculationStrategy interestStrategy) {
         BigDecimal interestRate = interestStrategy.calculateInterestRate(principalAmount, termMonths);
         return new Loan(accountId, principalAmount, interestRate, termMonths);
     }

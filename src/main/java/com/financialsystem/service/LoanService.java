@@ -4,7 +4,9 @@ import com.financialsystem.domain.model.Account;
 import com.financialsystem.domain.model.Loan;
 import com.financialsystem.domain.model.user.BankingUserDetails;
 import com.financialsystem.domain.status.PendingEntityStatus;
+import com.financialsystem.domain.strategy.CustomInterestStrategy;
 import com.financialsystem.domain.strategy.FixedInterestStrategy;
+import com.financialsystem.domain.strategy.InterestCalculationStrategy;
 import com.financialsystem.dto.database.PendingLoanDatabaseDto;
 import com.financialsystem.dto.response.PendingLoanResponseDto;
 import com.financialsystem.mapper.LoanMapper;
@@ -72,11 +74,13 @@ public class LoanService {
         PendingLoanDatabaseDto pendingLoanDatabaseDto = entityFinder.findEntityById(pendingLoanId, pendingLoanRepository, "Заявка на кредит");
         pendingLoanRepository.delete(pendingLoanDatabaseDto);
         if(pendingLoanDatabaseDto.isFixedInterest()){
-            return issueLoanWithFixedInterestRate(pendingLoanDatabaseDto.getAccountId(),
-                    pendingLoanDatabaseDto.getPrincipalAmount(), pendingLoanDatabaseDto.getTermMonths());
+            return issueLoan(pendingLoanDatabaseDto.getAccountId(),
+                    pendingLoanDatabaseDto.getPrincipalAmount(), pendingLoanDatabaseDto.getTermMonths(),
+                    new FixedInterestStrategy());
         } else {
-            return issueLoanWithCustomInterestRate(pendingLoanDatabaseDto.getAccountId(),
-                    pendingLoanDatabaseDto.getPrincipalAmount(), pendingLoanDatabaseDto.getTermMonths());
+            return issueLoan(pendingLoanDatabaseDto.getAccountId(),
+                    pendingLoanDatabaseDto.getPrincipalAmount(), pendingLoanDatabaseDto.getTermMonths(),
+                    new CustomInterestStrategy(loanConfig));
         }
     }
 
@@ -89,18 +93,9 @@ public class LoanService {
     }
 
     @Transactional
-    protected Long issueLoanWithCustomInterestRate(Long accountId, BigDecimal amount, int termMonths) {
+    protected Long issueLoan(Long accountId, BigDecimal amount, int termMonths, InterestCalculationStrategy strategy) {
         Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
-        Loan loan = Loan.createCustomRateLoan(accountId, amount, termMonths, loanConfig);
-        account.replenish(amount);
-        accountRepository.update(account);
-        return loanRepository.create(loan);
-    }
-
-    @Transactional
-    protected Long issueLoanWithFixedInterestRate(Long accountId, BigDecimal amount, int termMonths) {
-        Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
-        Loan loan = Loan.createFixedRateLoan(accountId, amount, termMonths);
+        Loan loan = Loan.create(accountId, amount, termMonths, loanConfig, strategy);
         account.replenish(amount);
         accountRepository.update(account);
         return loanRepository.create(loan);

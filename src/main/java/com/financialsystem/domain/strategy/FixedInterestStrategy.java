@@ -1,6 +1,9 @@
 package com.financialsystem.domain.strategy;
 
+import com.financialsystem.dto.response.LoanTermDto;
+
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 public class FixedInterestStrategy implements InterestCalculationStrategy  {
@@ -28,5 +31,12 @@ public class FixedInterestStrategy implements InterestCalculationStrategy  {
         if (interestRate == null) {
             throw new IllegalArgumentException("Некорректный срок кредита: " + termMonths);
         }
+    }
+
+    public static List<LoanTermDto> getAllFixedLoanTerms() {
+        return INTEREST_RATES.entrySet()
+                .stream()
+                .map(entry -> new LoanTermDto(entry.getKey(), entry.getValue()))
+                .toList();
     }
 }
