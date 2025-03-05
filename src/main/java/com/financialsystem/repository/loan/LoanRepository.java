@@ -1,7 +1,8 @@
-package com.financialsystem.repository;
+package com.financialsystem.repository.loan;
 
 import com.financialsystem.domain.model.Loan;
 import com.financialsystem.dto.database.LoanDatabaseDto;
+import com.financialsystem.repository.GenericRepository;
 import com.financialsystem.rowMapper.LoanRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -21,15 +22,6 @@ public class LoanRepository extends GenericRepository<Loan, Loan> {
     @Autowired
     public LoanRepository(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);
-    }
-
-    public List<Loan> findAll() {
-        String sql = "select * from loan";
-        try{
-            return jdbcTemplate.query(sql, new LoanRowMapper());
-        } catch (DataAccessException e){
-            throw new RuntimeException(e);
-        }
     }
 
     public List<Loan> findLoansByAccountId(Long accountId) {
@@ -54,7 +46,6 @@ public class LoanRepository extends GenericRepository<Loan, Loan> {
         ps.setString(7, loan.getStatus().name());
         ps.setLong(8, loan.getId());
     }
-
 
     @Override
     protected String getFindByIdSql(){
@@ -96,6 +87,7 @@ public class LoanRepository extends GenericRepository<Loan, Loan> {
         PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
         if(sql.startsWith("DELETE")){
             ps.setLong(1, loanDto.getId());
+            return ps;
         }
         ps.setLong(1, loanDto.getAccountId());
         ps.setBigDecimal(2, loanDto.getPrincipalAmount());

@@ -1,6 +1,6 @@
 package com.financialsystem.rowMapper;
 
-import com.financialsystem.domain.model.user.PendingClientStatus;
+import com.financialsystem.domain.status.PendingEntityStatus;
 import com.financialsystem.domain.model.user.Role;
 import com.financialsystem.dto.database.user.PendingClientDatabaseDto;
 import org.springframework.jdbc.core.RowMapper;
@@ -23,7 +23,7 @@ public class PendingClientRowMapper implements RowMapper<PendingClientDatabaseDt
                 rs.getString("password"),
                 rs.getTimestamp("created_at").toLocalDateTime(),
                 rs.getBoolean("is_foreign"),
-                PendingClientStatus.valueOf(rs.getString("status"))
+                PendingEntityStatus.valueOf(rs.getString("status"))
         );
     }
 }

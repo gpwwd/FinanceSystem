@@ -1,7 +1,5 @@
 package com.financialsystem.dto.response;
 
-import com.financialsystem.domain.model.user.PendingClientStatus;
-import com.financialsystem.domain.model.user.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

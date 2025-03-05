@@ -1,10 +1,16 @@
 package com.financialsystem.controller;
 
+import com.financialsystem.domain.model.user.BankingUserDetails;
+import com.financialsystem.dto.response.PendingLoanResponseDto;
 import com.financialsystem.service.LoanService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/loans")
@@ -16,26 +22,53 @@ public class LoanController {
         this.loanService = loanService;
     }
 
-    @PostMapping("/issue/custom-interest")
-    public ResponseEntity<Long> issueLoanWithCustomInterestRate(@RequestParam Long accountId,
-                                                                @RequestParam BigDecimal amount,
-                                                                @RequestParam int termMonths) {
-        Long depositId = loanService.issueLoanWithCustomInterestRate(accountId, amount, termMonths);
-        return ResponseEntity.ok(depositId);
+    @PostMapping("/loans/create-request")
+    @PreAuthorize("hasAuthority('CLIENT')")
+    public ResponseEntity<Long> requestLoan(@RequestParam Long accountId,
+                                            @RequestParam BigDecimal amount,
+                                            @RequestParam int termMonths,
+                                            @RequestParam boolean isFixedInterest,
+                                            @AuthenticationPrincipal BankingUserDetails userDetails
+    ) {
+        Long requestLoanId = loanService.createLoanRequest(userDetails, accountId, amount, termMonths, isFixedInterest);
+        return ResponseEntity.ok(requestLoanId);
     }
 
-    @PostMapping("/issue/fixed-interest")
-    public ResponseEntity<Long> issueLoanWithFixedInterestRate(@RequestParam Long accountId,
-                                                                @RequestParam BigDecimal amount,
-                                                                @RequestParam int termMonths) {
-        Long depositId = loanService.issueLoanWithFixedInterestRate(accountId, amount, termMonths);
-        return ResponseEntity.ok(depositId);
+    @PostMapping("/approve/{pendingLoanId}")
+    @PreAuthorize("hasAuthority('MANAGER')")
+    public ResponseEntity<Long> approveLoan(@PathVariable Long pendingLoanId) {
+        Long loanId = loanService.approveLoan(pendingLoanId);
+        return ResponseEntity.ok(loanId);
+    }
+
+    @PostMapping("/reject/{pendingLoanId}")
+    @PreAuthorize("hasAuthority('MANAGER')")
+    public ResponseEntity<Long> rejectLoan(@PathVariable Long pendingLoanId) {
+        Long loanId = loanService.rejectLoan(pendingLoanId);
+        return ResponseEntity.ok(loanId);
     }
 
     @PostMapping("/{loanId}/pay")
+    @PreAuthorize("hasAuthority('CLIENT')")
     public ResponseEntity<Long> makeLoanPayment(@RequestParam BigDecimal amount,
-                                                @PathVariable Long loanId) {
-        Long depositId = loanService.makePayment(amount, loanId);
-        return ResponseEntity.ok(depositId);
+                                                @PathVariable Long loanId,
+                                                @AuthenticationPrincipal BankingUserDetails userDetails) {
+        Long payedLoanId = loanService.makePayment(userDetails, amount, loanId);
+        return ResponseEntity.ok(payedLoanId);
+    }
+
+    @GetMapping("/pending/{accountId}")
+    @PreAuthorize("hasAuthority('CLIENT') or hasAuthority('MANAGER')")
+    public ResponseEntity<List<PendingLoanResponseDto>> getPendingLoansForAccount(@PathVariable Long accountId,
+                                                                                  @AuthenticationPrincipal BankingUserDetails userDetails) {
+        List<PendingLoanResponseDto> pendingLoans = loanService.getPendingLoansForUserAccount(userDetails, accountId);
+        return ResponseEntity.ok(pendingLoans);
+    }
+
+    @GetMapping("/pending")
+    @PreAuthorize("hasAuthority('MANAGER')")
+    public ResponseEntity<List<PendingLoanResponseDto>> getAllPendingLoans() {
+        List<PendingLoanResponseDto> pendingLoans = loanService.getPendingLoans();
+        return ResponseEntity.ok(pendingLoans);
     }
 }

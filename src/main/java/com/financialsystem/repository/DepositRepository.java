@@ -4,6 +4,8 @@ import com.financialsystem.domain.model.Deposit;
 import com.financialsystem.dto.database.DepositDatabseDto;
 import com.financialsystem.rowMapper.DepositRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -13,6 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class DepositRepository extends GenericRepository<Deposit, Deposit> {
@@ -117,5 +120,14 @@ public class DepositRepository extends GenericRepository<Deposit, Deposit> {
     private Timestamp getExistingCreatedAt(Long depositId) {
         String sql = "SELECT created_at FROM deposit WHERE id = ?";
         return jdbcTemplate.queryForObject(sql, Timestamp.class, depositId);
+    }
+
+    public List<Deposit> findByAccountId(Long accountId) {
+        String sql = "SELECT * FROM deposit WHERE account_id = ?";
+        try {
+            return jdbcTemplate.query(sql, getRowMapper(), accountId);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Ошибка при получении депозитов для account_id = " + accountId, e);
+        }
     }
 }

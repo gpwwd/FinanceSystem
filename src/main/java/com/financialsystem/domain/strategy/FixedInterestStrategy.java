@@ -19,4 +19,14 @@ public class FixedInterestStrategy implements InterestCalculationStrategy  {
         }
         return interestRate;
     }
+
+    public static void validateLoanTerm(int termMonths, boolean isFixedInterest) {
+        if(!isFixedInterest) {
+            return;
+        }
+        BigDecimal interestRate = INTEREST_RATES.get(termMonths);
+        if (interestRate == null) {
+            throw new IllegalArgumentException("Некорректный срок кредита: " + termMonths);
+        }
+    }
 }

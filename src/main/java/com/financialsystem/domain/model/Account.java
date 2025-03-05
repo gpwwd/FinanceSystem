@@ -2,10 +2,7 @@ package com.financialsystem.domain.model;
 
 import com.financialsystem.domain.status.AccountStatus;
 import com.financialsystem.dto.database.AccountDatabaseDto;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +15,7 @@ public class Account {
     private Long id;
     @Setter(AccessLevel.PRIVATE)
     private AccountStatus status;
+    @Getter
     private Long ownerId;
     private Long bankId;
     private Currency currency;
@@ -63,13 +61,20 @@ public class Account {
 
     private void checkAccountState() {
         if(status == AccountStatus.BLOCKED || status == AccountStatus.FROZEN) {
-            throw new IllegalStateException("Account status must be " + status + ", actual status is: " + this.status);
+            throw new IllegalStateException("Account status must be ACTIVE, actual status is: " + this.status);
         }
     }
 
     public void verifyOwner(Long userId) {
         if (!ownerId.equals(userId)) {
             throw new AccessDeniedException("Вы не можете управлять этим счетом!");
+        }
+    }
+
+    public void closeAccountCheck() {
+        checkAccountState();
+        if(this.balance.compareTo(BigDecimal.ZERO) > 0) {
+            throw new IllegalStateException("You can not close account with positive balance!");
         }
     }
 }

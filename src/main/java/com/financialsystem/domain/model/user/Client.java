@@ -1,5 +1,6 @@
 package com.financialsystem.domain.model.user;
 
+import com.financialsystem.domain.status.PendingEntityStatus;
 import com.financialsystem.dto.database.user.ClientDatabaseDto;
 import com.financialsystem.dto.database.user.PendingClientDatabaseDto;
 
@@ -29,7 +30,7 @@ public class Client extends User {
     }
 
     public static Client create (PendingClientDatabaseDto dto){
-        if(!dto.getStatus().equals(PendingClientStatus.APPROVED)){
+        if(!dto.getStatus().equals(PendingEntityStatus.APPROVED)){
             throw new RuntimeException("Client status is not APPROVED");
         }
 

@@ -1,7 +1,10 @@
 package com.financialsystem.controller;
 
 import com.financialsystem.domain.model.Deposit;
+import com.financialsystem.domain.model.DepositTerm;
 import com.financialsystem.domain.model.user.BankingUserDetails;
+import com.financialsystem.dto.response.DepositResponseDto;
+import com.financialsystem.dto.response.DepositTermDto;
 import com.financialsystem.service.DepositService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -9,6 +12,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 @RestController
 @RequestMapping("/deposits")
@@ -25,10 +30,9 @@ public class DepositController {
     public ResponseEntity<Long> createDeposit(
             @AuthenticationPrincipal BankingUserDetails userDetails,
             @RequestParam Long accountId,
-            @RequestParam BigDecimal interestRate,
             @RequestParam int termMonths,
             @RequestParam BigDecimal principalBalance) {
-        Long depositId = depositService.create(userDetails.getId(), accountId, interestRate, termMonths, principalBalance);
+        Long depositId = depositService.create(userDetails.getId(), accountId,  termMonths, principalBalance);
         return ResponseEntity.ok(depositId);
     }
 
@@ -94,5 +98,23 @@ public class DepositController {
                                                 @PathVariable Long id) {
         depositService.unfreezeDeposit(userDetails, id);
         return ResponseEntity.ok(id);
+    }
+
+    @GetMapping("/{accountId}")
+    @PreAuthorize("hasAuthority('CLIENT') or hasAuthority('MANAGER')")
+    public ResponseEntity<List<DepositResponseDto>> getDepositsForAccount(@AuthenticationPrincipal BankingUserDetails userDetails,
+                                                                       @PathVariable Long accountId) {
+        List<DepositResponseDto> deposits = depositService.getDepositsForAccount(userDetails, accountId);
+        return ResponseEntity.ok(deposits);
+    }
+
+    @GetMapping("/terms")
+    @PreAuthorize("hasAuthority('CLIENT') or hasAuthority('MANAGER')")
+    public ResponseEntity<List<DepositTermDto>> getAvailableDepositTerms() {
+        List<DepositTermDto> terms = Arrays.stream(DepositTerm.values())
+                .map(term -> new DepositTermDto(term.getMonths(), term.getInterestRate()))
+                .toList();
+
+        return ResponseEntity.ok(terms);
     }
 }

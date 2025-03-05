@@ -1,5 +1,6 @@
 package com.financialsystem.domain.model.user;
 
+import com.financialsystem.domain.status.PendingEntityStatus;
 import com.financialsystem.dto.database.user.PendingClientDatabaseDto;
 import com.financialsystem.dto.request.ClientRegistrationRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -7,7 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.time.LocalDateTime;
 
 public class PendingClient extends Client {
-    private PendingClientStatus status;
+    private PendingEntityStatus status;
 
 
     private static int encoderStrength = 12;
@@ -40,7 +41,7 @@ public class PendingClient extends Client {
                 null, request.fullName(), request.passport(), request.identityNumber(),
                 request.phone(), request.email(), Role.CLIENT,
                 encodePassword(request.password()), LocalDateTime.now(),
-                request.isForeign(), PendingClientStatus.PENDING
+                request.isForeign(), PendingEntityStatus.PENDING
         ));
     }
 
@@ -49,10 +50,10 @@ public class PendingClient extends Client {
     }
 
     public void setApprovedStatus() {
-        this.status = PendingClientStatus.APPROVED;
+        this.status = PendingEntityStatus.APPROVED;
     }
 
     public void rejectRegistration() {
-        this.status = PendingClientStatus.REJECTED;
+        this.status = PendingEntityStatus.REJECTED;
     }
 }

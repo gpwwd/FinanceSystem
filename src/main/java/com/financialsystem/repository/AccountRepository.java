@@ -60,6 +60,7 @@ public class AccountRepository extends GenericRepository<Account, Account>{
         PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
         if(sql.startsWith("DELETE")){
             ps.setLong(1, accountDto.getId());
+            return ps;
         }
         ps.setBigDecimal(1, accountDto.getBalance());
         ps.setString(2, accountDto.getStatus().name());

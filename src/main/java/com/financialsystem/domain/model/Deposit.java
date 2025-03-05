@@ -27,13 +27,15 @@ public class Deposit {
     private LocalDateTime lastInterestDate;
     private int termMonths;
 
-    public static Deposit create(Long accountId, BigDecimal interestRate, int termMonths, BigDecimal principalBalance) {
+    public static Deposit create(Long accountId, int termMonths, BigDecimal principalBalance) {
+        DepositTerm depositTerm = DepositTerm.fromMonths(termMonths);
+
         Deposit deposit = new Deposit();
         deposit.accountId = accountId;
         deposit.balance = principalBalance;
         deposit.principalBalance = principalBalance;
         deposit.depositStatus = DepositStatus.ACTIVE;
-        deposit.interestRate = interestRate;
+        deposit.interestRate = depositTerm.getInterestRate();
         deposit.createdAt = LocalDateTime.now();
         deposit.lastInterestDate = deposit.createdAt;
         deposit.termMonths = termMonths;
@@ -128,6 +130,12 @@ public class Deposit {
     private void checkStatus(DepositStatus status) {
         if (!this.depositStatus.equals(status)) {
             throw new IllegalStateException("Deposit status must be " + status + ", actual status is: " + this.depositStatus);
+        }
+    }
+
+    public void checkStatusForClosingDeposit() {
+        if(!this.depositStatus.equals(DepositStatus.COMPLETE)) {
+            throw new IllegalStateException("Deposit status with id" + this.id + "is not COMPLETE");
         }
     }
 }

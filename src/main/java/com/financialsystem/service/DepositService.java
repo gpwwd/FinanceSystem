@@ -3,13 +3,17 @@ package com.financialsystem.service;
 import com.financialsystem.domain.model.Account;
 import com.financialsystem.domain.model.Deposit;
 import com.financialsystem.domain.model.user.BankingUserDetails;
-import com.financialsystem.domain.model.user.Role;
+import com.financialsystem.domain.model.user.Client;
 import com.financialsystem.domain.status.DepositStatus;
+import com.financialsystem.dto.response.DepositResponseDto;
+import com.financialsystem.mapper.DepositMapper;
 import com.financialsystem.repository.AccountRepository;
 import com.financialsystem.repository.DepositRepository;
+import com.financialsystem.repository.user.ClientRepository;
 import com.financialsystem.util.EntityFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class DepositService {
@@ -33,11 +39,11 @@ public class DepositService {
     }
 
     @PreAuthorize("hasAuthority('CLIENT')")
-    public Long create(Long userId, Long accountId, BigDecimal annualInterestRate, int termMonths, BigDecimal principalBalance) {
+    public Long create(Long userId, Long accountId, int termMonths, BigDecimal principalBalance) {
         Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
         account.verifyOwner(userId);
         account.withdraw(principalBalance);
-        Deposit deposit = Deposit.create(accountId, annualInterestRate, termMonths, principalBalance);
+        Deposit deposit = Deposit.create(accountId, termMonths, principalBalance);
         accountRepository.update(account);
         return depositRepository.create(deposit);
     }
@@ -127,17 +133,17 @@ public class DepositService {
 
     @PreAuthorize("hasAuthority('CLIENT') or hasAuthority('MANAGER')")
     public void freezeDeposit(BankingUserDetails userDetails, Long id){
-        verifyFreezeAccess(userDetails, id);
+        verifyFreezeDepositAccess(userDetails, id);
         setStatus(id, DepositStatus.FROZEN);
     }
 
     @PreAuthorize("hasAuthority('CLIENT') or hasAuthority('MANAGER')")
     public void unfreezeDeposit(BankingUserDetails userDetails, Long id){
-        verifyFreezeAccess(userDetails, id);
+        verifyFreezeDepositAccess(userDetails, id);
         setStatus(id, DepositStatus.ACTIVE);
     }
 
-    private void verifyFreezeAccess(BankingUserDetails userDetails, Long depositId) {
+    private void verifyFreezeDepositAccess(BankingUserDetails userDetails, Long depositId) {
         if (userDetails.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("MANAGER"))) {
             return;
@@ -153,5 +159,24 @@ public class DepositService {
         Deposit deposit = entityFinder.findEntityById(id, depositRepository, "Депозит");
         deposit.setStatus(status);
         depositRepository.update(deposit);
+    }
+
+    @PreAuthorize("hasAuthority('CLIENT') or hasAuthority('MANAGER')")
+    public List<DepositResponseDto> getDepositsForAccount(BankingUserDetails userDetails, Long accountId) {
+        verifyUserAccessToAccount(userDetails, accountId);
+        return depositRepository.findDepositsByAccountId(accountId).stream().map(DepositMapper::toDepositResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    private void verifyUserAccessToAccount(BankingUserDetails userDetails, Long accountId) {
+        if (userDetails.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("MANAGER"))) {
+            return;
+        }
+
+        Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
+        if(!Objects.equals(account.getOwnerId(), userDetails.getId())) {
+            throw new AccessDeniedException("Этот счет не принадлежит аутенфицированному клиенту");
+        }
     }
 }

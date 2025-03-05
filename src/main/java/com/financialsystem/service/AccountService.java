@@ -2,10 +2,12 @@ package com.financialsystem.service;
 
 import com.financialsystem.domain.model.Account;
 import com.financialsystem.domain.model.Currency;
+import com.financialsystem.domain.model.Deposit;
 import com.financialsystem.domain.model.user.Client;
 import com.financialsystem.domain.model.user.PendingClient;
 import com.financialsystem.dto.database.user.PendingClientDatabaseDto;
 import com.financialsystem.repository.AccountRepository;
+import com.financialsystem.repository.DepositRepository;
 import com.financialsystem.repository.user.ClientRepository;
 import com.financialsystem.util.EntityFinder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,27 +22,35 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final ClientRepository clientRepository;
+    private final DepositRepository depositRepository;
     private final EntityFinder entityFinder;
 
     @Autowired
     public AccountService(AccountRepository accountRepository, EntityFinder entityFinder,
-                          ClientRepository clientRepository) {
+                          ClientRepository clientRepository, DepositRepository depositRepository) {
         this.accountRepository = accountRepository;
         this.entityFinder = entityFinder;
         this.clientRepository = clientRepository;
+        this.depositRepository = depositRepository;
     }
 
     @Transactional
     @PreAuthorize("hasAuthority('CLIENT')")
-    public Long createAccount(Long clientId, Long bankId, Currency currency, boolean isAccountForSalary // позже заменить на User из UserPrincipal.getUser()
+    public Long createAccount(Long clientId, Long bankId, Currency currency, boolean isAccountForSalary
     ) {
         Client client = entityFinder.findEntityById(clientId, clientRepository, "Клиент");
         Account account = Account.create(clientId, bankId, currency, isAccountForSalary);
         return accountRepository.create(account);
     }
 
-//    @Transactional
-//    public Long closeAccount(Long clientId, Long accountId) {
-//        Client client = entityFinder.findEntityById(clientId, clientRepository, "Клиент");
-//    }
+    @Transactional
+    @PreAuthorize("hasAuthority('CLIENT')")
+    public Long closeAccount(Long clientId, Long accountId) {
+        Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
+        account.verifyOwner(clientId);
+        account.closeAccountCheck();
+        List<Deposit> deposits = depositRepository.findByAccountId(accountId);
+        deposits.forEach(Deposit::checkStatusForClosingDeposit);
+        return accountRepository.delete(account);
+    }
 }

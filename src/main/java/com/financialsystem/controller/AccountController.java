@@ -32,9 +32,9 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.CREATED).body(accountId);
     }
 
-//    @DeleteMapping("/{accountId}/close")
-//    public ResponseEntity<Void> closeAccount(@PathVariable Long accountId, @RequestParam Long clientId) {
-//        Long deletedAccountId = accountService.closeAccount(clientId, accountId);
-//        return ResponseEntity.noContent().build(); // 204 No Content
-//    }
+    @DeleteMapping("/{accountId}/close")
+    public ResponseEntity<Void> closeAccount(@PathVariable Long accountId, @AuthenticationPrincipal BankingUserDetails userDetails) {
+        Long deletedAccountId = accountService.closeAccount(userDetails.getId(), accountId);
+        return ResponseEntity.noContent().build();
+    }
 }
