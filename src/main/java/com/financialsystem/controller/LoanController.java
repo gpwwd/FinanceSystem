@@ -63,7 +63,7 @@ public class LoanController {
     }
 
     @GetMapping("/pending/{accountId}")
-    @PreAuthorize("hasAuthority('CLIENT') or hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('CLIENT')")
     public ResponseEntity<List<PendingLoanResponseDto>> getPendingLoansForAccount(@PathVariable Long accountId,
                                                                                   @AuthenticationPrincipal BankingUserDetails userDetails) {
         List<PendingLoanResponseDto> pendingLoans = loanService.getPendingLoansForUserAccount(userDetails, accountId);
