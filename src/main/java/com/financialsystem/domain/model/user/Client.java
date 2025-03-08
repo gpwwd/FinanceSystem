@@ -31,7 +31,7 @@ public class Client extends User {
 
     public static Client create (PendingClientDatabaseDto dto){
         if(!dto.getStatus().equals(PendingEntityStatus.APPROVED)){
-            throw new RuntimeException("Client status is not APPROVED");
+            throw new IllegalStateException("Client status is not APPROVED");
         }
 
         Client client = new Client(dto);

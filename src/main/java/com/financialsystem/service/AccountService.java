@@ -37,7 +37,7 @@ public class AccountService {
     @Transactional
     public Long createAccount(Long clientId, Long bankId, Currency currency, boolean isAccountForSalary
     ) {
-        Client client = entityFinder.findEntityById(clientId, clientRepository, "Клиент");
+        entityFinder.findEntityById(clientId, clientRepository, "Клиент");
         Account account = Account.create(clientId, bankId, currency, isAccountForSalary);
         return accountRepository.create(account);
     }

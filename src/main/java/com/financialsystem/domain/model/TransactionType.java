@@ -1,4 +1,4 @@
-package com.financialsystem.domain.model.transaction;
+package com.financialsystem.domain.model;
 
 public enum TransactionType {
     ACCOUNT, DEPOSIT, LOAN;

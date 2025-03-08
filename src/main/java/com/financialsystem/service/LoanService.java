@@ -2,8 +2,8 @@ package com.financialsystem.service;
 
 import com.financialsystem.domain.model.Account;
 import com.financialsystem.domain.model.Loan;
-import com.financialsystem.domain.model.transaction.Transaction;
-import com.financialsystem.domain.model.transaction.TransactionType;
+import com.financialsystem.domain.model.Transaction;
+import com.financialsystem.domain.model.TransactionType;
 import com.financialsystem.domain.model.user.BankingUserDetails;
 import com.financialsystem.domain.status.PendingEntityStatus;
 import com.financialsystem.domain.strategy.CustomInterestStrategy;
@@ -20,16 +20,12 @@ import com.financialsystem.util.EntityFinder;
 import com.financialsystem.util.LoanConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service

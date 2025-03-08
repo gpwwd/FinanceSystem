@@ -2,6 +2,7 @@ package com.financialsystem.domain.model;
 
 import com.financialsystem.domain.status.DepositStatus;
 import com.financialsystem.dto.database.DepositDatabseDto;
+import com.financialsystem.exception.custom.BadRequestException;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,7 +60,7 @@ public class Deposit {
         checkStatus(DepositStatus.ACTIVE);
         BigDecimal interest = balance.subtract(principalBalance);
         if (interest.compareTo(amount) < 0) {
-            throw new RuntimeException("Недостаточно процентов");
+            throw new IllegalArgumentException("Недостаточно процентов");
         }
         this.balance = balance.subtract(amount);
     }
@@ -67,7 +68,7 @@ public class Deposit {
     private void withdraw(BigDecimal amount) {
         checkStatus(DepositStatus.ACTIVE);
         if (balance.compareTo(amount) < 0) {
-            throw new RuntimeException("Недостаточно средств");
+            throw new IllegalArgumentException("Недостаточно средств");
         }
         this.balance = balance.subtract(amount);
     }

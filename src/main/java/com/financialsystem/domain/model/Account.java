@@ -2,6 +2,7 @@ package com.financialsystem.domain.model;
 
 import com.financialsystem.domain.status.AccountStatus;
 import com.financialsystem.dto.database.AccountDatabaseDto;
+import com.financialsystem.exception.custom.BadRequestException;
 import lombok.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +50,7 @@ public class Account {
     public void withdraw(BigDecimal amount) {
         checkAccountState();
         if (balance.compareTo(amount) < 0) {
-            throw new RuntimeException("Недостаточно средств");
+            throw new IllegalArgumentException("Недостаточно средств");
         }
         this.balance = balance.subtract(amount);
     }
