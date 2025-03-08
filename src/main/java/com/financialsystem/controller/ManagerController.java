@@ -25,24 +25,23 @@ public class ManagerController {
     }
 
     @PostMapping("/approve/{pendingClientId}")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<Long> approveClient(@PathVariable Long pendingClientId
-                                              //@AuthenticationPrincipal CustomUserDetails userDetails,
                                               ) {
-        //Long managerId = userDetails.getId();
         Long approvedId = managerService.approveClient(pendingClientId);
         return ResponseEntity.ok(approvedId);
     }
 
     @PostMapping("/reject/{pendingClientId}")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<Long> rejectClient(@PathVariable Long pendingClientId
-                                             //@AuthenticationPrincipal CustomUserDetails userDetails,
                                              ) {
-        //Long managerId = userDetails.getId();
         Long approvedId = managerService.rejectClient(pendingClientId);
         return ResponseEntity.ok(approvedId);
     }
 
     @GetMapping("/pending-clients")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<List<PendingClientResponseDto>> getAllPendingClients() {
         List<PendingClientResponseDto> pendingClients = managerService.getAllPendingClients();
         return ResponseEntity.ok(pendingClients);
