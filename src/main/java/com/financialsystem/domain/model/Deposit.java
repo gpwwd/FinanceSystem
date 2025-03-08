@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor @ToString
 @Slf4j
 public class Deposit {
+    @Getter
     private Long id;
     private BigDecimal principalBalance;
     private BigDecimal balance;
@@ -84,7 +85,7 @@ public class Deposit {
             return false;
         }
 
-        BigDecimal monthlyInterest = calculateTotalInterest().divide(new BigDecimal(12), RoundingMode.HALF_UP);
+        BigDecimal monthlyInterest = calculateMonthlyInterest();
         replenish(monthlyInterest);
         lastInterestDate = LocalDateTime.now();
 
@@ -96,6 +97,10 @@ public class Deposit {
 
         log.info("Bonus added: {}", this);
         return true;
+    }
+
+    public BigDecimal calculateMonthlyInterest() {
+        return calculateTotalInterest().divide(new BigDecimal(12), RoundingMode.HALF_UP);
     }
 
     @Transactional

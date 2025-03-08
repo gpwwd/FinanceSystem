@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Repository
 public class TransactionRepository extends GenericRepository<Transaction, TransactionDatabaseDto> {
@@ -64,12 +65,13 @@ public class TransactionRepository extends GenericRepository<Transaction, Transa
 
         if (sql.startsWith("DELETE")) {
             ps.setLong(1, transactionDto.getId());
+            return ps;
         }
 
         ps.setLong(1, transactionDto.getFromEntityId());
         ps.setString(2, transactionDto.getFromType().name());
-        ps.setLong(1, transactionDto.getToEntityId());
-        ps.setString(2, transactionDto.getToType().name());
+        ps.setLong(3, transactionDto.getToEntityId());
+        ps.setString(4, transactionDto.getToType().name());
         ps.setBigDecimal(5, transactionDto.getAmount());
 
         if (sql.startsWith("INSERT")) {
@@ -81,10 +83,26 @@ public class TransactionRepository extends GenericRepository<Transaction, Transa
         ps.setString(7, transactionDto.getStatus().name());
 
         if (sql.startsWith("UPDATE")) {
-            ps.setLong(9, transactionDto.getId());
+            ps.setLong(8, transactionDto.getId());
         }
 
         return ps;
+    }
+
+    public void batchUpdate(List<Transaction> transactions) {
+        String sql = getCreateSql();
+        List<TransactionDatabaseDto> transactionDatabaseDtos = transactions.stream().map(Transaction::toDto).toList();
+        jdbcTemplate.batchUpdate(sql, transactionDatabaseDtos, transactionDatabaseDtos.size(),
+                (ps, transactionDto) -> {
+                    ps.setLong(1, transactionDto.getFromEntityId());
+                    ps.setString(2, transactionDto.getFromType().name());
+                    ps.setLong(3, transactionDto.getToEntityId());
+                    ps.setString(4, transactionDto.getToType().name());
+                    ps.setBigDecimal(5, transactionDto.getAmount());
+                    ps.setTimestamp(6, Timestamp.valueOf(transactionDto.getTimestamp()));
+                    ps.setString(7, transactionDto.getStatus().name());
+                }
+        );
     }
 
     private Timestamp getExistingCreatedAt(Long transactionId) {

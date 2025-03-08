@@ -35,7 +35,6 @@ public class AccountService {
     }
 
     @Transactional
-    @PreAuthorize("hasAuthority('CLIENT')")
     public Long createAccount(Long clientId, Long bankId, Currency currency, boolean isAccountForSalary
     ) {
         Client client = entityFinder.findEntityById(clientId, clientRepository, "Клиент");
@@ -44,7 +43,6 @@ public class AccountService {
     }
 
     @Transactional
-    @PreAuthorize("hasAuthority('CLIENT')")
     public Long closeAccount(Long clientId, Long accountId) {
         Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
         account.verifyOwner(clientId);

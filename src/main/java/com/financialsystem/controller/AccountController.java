@@ -22,6 +22,7 @@ public class AccountController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('CLIENT')")
     public ResponseEntity<Long> createAccount(
             @AuthenticationPrincipal BankingUserDetails userDetails,
             @RequestParam Long bankId,
@@ -33,8 +34,9 @@ public class AccountController {
     }
 
     @DeleteMapping("/{accountId}/close")
+    @PreAuthorize("hasAuthority('CLIENT')")
     public ResponseEntity<Void> closeAccount(@PathVariable Long accountId, @AuthenticationPrincipal BankingUserDetails userDetails) {
-        Long deletedAccountId = accountService.closeAccount(userDetails.getId(), accountId);
+        accountService.closeAccount(userDetails.getId(), accountId);
         return ResponseEntity.noContent().build();
     }
 }
