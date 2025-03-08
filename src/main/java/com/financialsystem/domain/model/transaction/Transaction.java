@@ -1,6 +1,5 @@
 package com.financialsystem.domain.model.transaction;
 
-import com.financialsystem.domain.status.TransactionStatus;
 import com.financialsystem.dto.database.TransactionDatabaseDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,7 +22,6 @@ public class Transaction {
     private TransactionType toType;
     private BigDecimal amount;
     private LocalDateTime timestamp;
-    private TransactionStatus status;
 
     private Transaction(Long fromEntityId, TransactionType fromType, Long toEntityId, TransactionType toType, BigDecimal amount) {
         this.fromEntityId = fromEntityId;
@@ -32,7 +30,6 @@ public class Transaction {
         this.toType = toType;
         this.amount = amount;
         this.timestamp = LocalDateTime.now();
-        this.status = TransactionStatus.PENDING;
     }
 
     public static Transaction create(Long fromEntityId, TransactionType fromType, Long toEntityId, TransactionType toType, BigDecimal amount) {
@@ -42,15 +39,7 @@ public class Transaction {
         return new Transaction(fromEntityId, fromType, toEntityId, toType, amount);
     }
 
-    public void markAsCompleted() {
-        this.status = TransactionStatus.COMPLETED;
-    }
-
-    public void markAsFailed() {
-        this.status = TransactionStatus.FAILED;
-    }
-
     public TransactionDatabaseDto toDto() {
-        return new TransactionDatabaseDto(id, fromEntityId, toEntityId, fromType, toType, amount, timestamp, status);
+        return new TransactionDatabaseDto(id, fromEntityId, toEntityId, fromType, toType, amount, timestamp);
     }
 }

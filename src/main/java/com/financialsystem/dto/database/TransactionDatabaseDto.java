@@ -1,7 +1,6 @@
 package com.financialsystem.dto.database;
 
 import com.financialsystem.domain.model.transaction.TransactionType;
-import com.financialsystem.domain.status.TransactionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -18,5 +17,4 @@ public class TransactionDatabaseDto {
     private TransactionType toType;
     private BigDecimal amount;
     private LocalDateTime timestamp;
-    private TransactionStatus status;
 }

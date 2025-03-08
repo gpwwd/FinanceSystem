@@ -7,6 +7,5 @@ CREATE TABLE transaction (
      to_entity_id BIGINT NOT NULL,
      to_type VARCHAR(50) NOT NULL CHECK (to_type IN ('ACCOUNT', 'DEPOSIT', 'LOAN')),
      amount DECIMAL(19,2) NOT NULL CHECK (amount > 0),
-     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-     status VARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED', 'FAILED'))
+     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
