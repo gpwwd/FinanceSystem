@@ -60,16 +60,6 @@ public class DepositController {
         return ResponseEntity.ok(retrievedMoney);
     }
 
-    @PostMapping("/transfer")
-    @PreAuthorize("hasAuthority('CLIENT')")
-    public ResponseEntity<Void> transfer(@AuthenticationPrincipal BankingUserDetails userDetails,
-                                         @RequestParam Long fromId,
-                                         @RequestParam Long toId,
-                                         @RequestParam BigDecimal amount) {
-        depositService.transfer(userDetails.getId(), fromId, toId, amount);
-        return ResponseEntity.ok().build();
-    }
-
     @PostMapping("/{id}/block")
     @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<Long> blockDeposit(@PathVariable Long id) {

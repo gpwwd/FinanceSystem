@@ -112,12 +112,6 @@ public class Deposit {
         return moneyToReturn;
     }
 
-    @Transactional
-    public void transfer(BigDecimal amount, Deposit target) {
-        this.withdraw(amount);
-        target.replenish(amount);
-    }
-
     public boolean isGoneOverdue() {
         // return LocalDateTime.now().isAfter(createdAt.plusMonths(termMonths));
         return LocalDateTime.now().isAfter(createdAt.plusMinutes(termMonths));

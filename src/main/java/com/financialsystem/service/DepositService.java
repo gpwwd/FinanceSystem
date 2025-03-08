@@ -98,24 +98,6 @@ public class DepositService {
         return deposit;
     }
 
-    //удалить этот метод
-    @Transactional
-    @PreAuthorize("hasAuthority('CLIENT')")
-    public void transfer(Long userId, Long fromId, Long toId, BigDecimal amount){
-        Deposit fromDeposit = entityFinder.findEntityById(fromId, depositRepository, "Депозит");
-        Deposit toDeposit = entityFinder.findEntityById(toId, depositRepository, "Депозит");
-
-        Account fromDepositAccount = entityFinder.findEntityById(fromDeposit.getAccountId(), accountRepository, "Аккаунт");
-        Account toDepositAccount = entityFinder.findEntityById(toDeposit.getAccountId(), accountRepository, "Аккаунт");
-        fromDepositAccount.verifyOwner(userId);
-        toDepositAccount.verifyOwner(userId);
-
-        fromDeposit.transfer(amount, toDeposit);
-
-        depositRepository.update(fromDeposit);
-        depositRepository.update(toDeposit);
-    }
-
     @Transactional
     @PreAuthorize("hasAuthority('CLIENT')")
     public BigDecimal retrieveMoney(Long userId, Long depositId){
