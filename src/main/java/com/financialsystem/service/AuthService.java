@@ -5,10 +5,10 @@ import com.financialsystem.domain.model.user.Client;
 import com.financialsystem.domain.model.user.PendingClient;
 import com.financialsystem.dto.request.ClientRegistrationRequest;
 import com.financialsystem.dto.response.UserAuthResponseDto;
+import com.financialsystem.exception.custom.BadRequestException;
 import com.financialsystem.repository.user.PendingClientRepository;
 import com.financialsystem.security.repository.UserDetailsRepository;
 import com.financialsystem.security.service.JwtService;
-import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -49,13 +49,13 @@ public class AuthService {
         Optional<BankingUserDetails> userOptional = userDetailsRepository.findByName(username);
 
         if (userOptional.isPresent()) {
-            throw new RuntimeException("User " + username + " is already in use");
+            throw new BadRequestException("User " + username + " is already in use");
         }
 
         Optional<PendingClient> pendingClientOptional = pendingClientRepository.findByName(username);
 
         if (pendingClientOptional.isPresent()) {
-            throw new RuntimeException("User with name '" + username + "' is already pending for verification.");
+            throw new BadRequestException("User with name '" + username + "' is already pending for verification.");
         }
     }
 
