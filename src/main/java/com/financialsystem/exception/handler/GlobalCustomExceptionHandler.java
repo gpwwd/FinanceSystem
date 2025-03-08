@@ -1,5 +1,6 @@
 package com.financialsystem.exception.handler;
 
+import com.financialsystem.exception.custom.BadRequestException;
 import com.financialsystem.exception.custom.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -23,4 +24,10 @@ public class GlobalCustomExceptionHandler {
     public ProblemDetail handleIllegalArgumentException(IllegalArgumentException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
     }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ProblemDetail handleBadRequestsException(RuntimeException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
 }

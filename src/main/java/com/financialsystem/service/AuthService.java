@@ -6,6 +6,7 @@ import com.financialsystem.domain.model.user.PendingClient;
 import com.financialsystem.dto.request.ClientRegistrationRequest;
 import com.financialsystem.dto.response.UserAuthResponseDto;
 import com.financialsystem.exception.custom.BadRequestException;
+import com.financialsystem.exception.custom.NotFoundException;
 import com.financialsystem.repository.user.PendingClientRepository;
 import com.financialsystem.security.repository.UserDetailsRepository;
 import com.financialsystem.security.service.JwtService;
@@ -49,13 +50,13 @@ public class AuthService {
         Optional<BankingUserDetails> userOptional = userDetailsRepository.findByName(username);
 
         if (userOptional.isPresent()) {
-            throw new BadRequestException("User " + username + " is already in use");
+            throw new NotFoundException("User " + username + " is already in use");
         }
 
         Optional<PendingClient> pendingClientOptional = pendingClientRepository.findByName(username);
 
         if (pendingClientOptional.isPresent()) {
-            throw new BadRequestException("User with name '" + username + "' is already pending for verification.");
+            throw new NotFoundException("User with name '" + username + "' is already pending for verification.");
         }
     }
 
