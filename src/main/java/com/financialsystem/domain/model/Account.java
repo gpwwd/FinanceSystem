@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Account {
+    @Getter
     private Long id;
     @Setter(AccessLevel.PRIVATE)
     private AccountStatus status;
