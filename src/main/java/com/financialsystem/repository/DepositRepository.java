@@ -88,6 +88,7 @@ public class DepositRepository extends GenericRepository<Deposit, Deposit> {
 
         if (sql.startsWith("DELETE")) {
             ps.setLong(1, depositDto.getId());
+            return ps;
         }
 
         ps.setBigDecimal(1, depositDto.getBalance());
