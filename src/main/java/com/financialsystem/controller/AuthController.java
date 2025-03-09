@@ -1,15 +1,15 @@
 package com.financialsystem.controller;
 
-import com.financialsystem.domain.model.user.PendingClient;
+import com.financialsystem.domain.model.Enterprise;
 import com.financialsystem.dto.request.ClientRegistrationRequest;
+import com.financialsystem.dto.request.EnterpriseRegistrationRequest;
 import com.financialsystem.dto.request.LoginRequestDto;
 import com.financialsystem.dto.request.SpecialistRegistrationRequest;
 import com.financialsystem.dto.response.UserAuthResponseDto;
 import com.financialsystem.service.AuthService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
@@ -35,9 +35,17 @@ public class AuthController {
         );
     }
 
+    @PreAuthorize("hasAuthority('MANAGER')")
     @PostMapping("/specialists/register")
     public ResponseEntity<Long> registerSpecialist(@RequestBody SpecialistRegistrationRequest request) {
         Long clientId = authService.registerSpecialist(request);
+        return ResponseEntity.ok(clientId);
+    }
+
+    @PreAuthorize("hasAuthority('MANAGER')")
+    @PostMapping("/enterprises/register")
+    public ResponseEntity<Long> registerEnterprise(@RequestBody EnterpriseRegistrationRequest request) {
+        Long clientId = authService.registerEnterprise(request);
         return ResponseEntity.ok(clientId);
     }
 }

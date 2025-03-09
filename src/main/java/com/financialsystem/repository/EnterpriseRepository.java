@@ -3,6 +3,8 @@ package com.financialsystem.repository;
 import com.financialsystem.domain.model.Enterprise;
 import com.financialsystem.dto.database.EnterpriseDatabaseDto;
 import com.financialsystem.rowMapper.EnterpriseRowMapper;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Optional;
 
 @Repository
 public class EnterpriseRepository extends GenericRepository<Enterprise, EnterpriseDatabaseDto> {
@@ -30,7 +33,7 @@ public class EnterpriseRepository extends GenericRepository<Enterprise, Enterpri
     @Override
     protected String getUpdateSql() {
         return """
-            UPDATE enterprise SET type = ?, legal_name = ?, unp = ?, 
+            UPDATE enterprise SET type = ?, legal_name = ?, unp = ?,
             bank_id = ?, legal_address = ?
             WHERE id = ?
         """;
@@ -88,5 +91,37 @@ public class EnterpriseRepository extends GenericRepository<Enterprise, Enterpri
     @Override
     protected Enterprise fromDto(EnterpriseDatabaseDto dto) {
         return Enterprise.fromDto(dto);
+    }
+
+    public String getFindByLegalNameSql() {
+        return "SELECT * FROM enterprise WHERE legal_name = ?";
+    }
+
+    public Optional<EnterpriseDatabaseDto> findByLegalName(String legalName) {
+        String sql = getFindByLegalNameSql();
+        try {
+            EnterpriseDatabaseDto dto = jdbcTemplate.queryForObject(sql, new EnterpriseRowMapper(), legalName);
+            return Optional.of(dto);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Ошибка при получении предприятия с legalName = " + legalName, e);
+        }
+    }
+
+    public String getFindByUnpSql() {
+        return "SELECT * FROM enterprise WHERE unp = ?";
+    }
+
+    public Optional<EnterpriseDatabaseDto> findByUnp(String unp) {
+        String sql = getFindByUnpSql();
+        try {
+            EnterpriseDatabaseDto dto = jdbcTemplate.queryForObject(sql, new EnterpriseRowMapper(), unp);
+            return Optional.of(dto);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Ошибка при получении предприятия с unp = " + unp, e);
+        }
     }
 }

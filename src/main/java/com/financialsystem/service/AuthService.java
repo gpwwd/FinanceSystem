@@ -4,11 +4,14 @@ import com.financialsystem.domain.model.Enterprise;
 import com.financialsystem.domain.model.user.BankingUserDetails;
 import com.financialsystem.domain.model.user.PendingClient;
 import com.financialsystem.domain.model.user.Specialist;
+import com.financialsystem.dto.database.EnterpriseDatabaseDto;
 import com.financialsystem.dto.database.user.SpecialistDatabaseDto;
 import com.financialsystem.dto.request.ClientRegistrationRequest;
+import com.financialsystem.dto.request.EnterpriseRegistrationRequest;
 import com.financialsystem.dto.request.SpecialistRegistrationRequest;
 import com.financialsystem.dto.response.UserAuthResponseDto;
 import com.financialsystem.exception.custom.BadRequestException;
+import com.financialsystem.repository.BankRepository;
 import com.financialsystem.repository.user.PendingClientRepository;
 import com.financialsystem.repository.user.SpecialistRepository;
 import com.financialsystem.security.repository.UserDetailsRepository;
@@ -22,6 +25,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.financialsystem.repository.EnterpriseRepository;
+import com.financialsystem.repository.BankRepository;
 
 import java.util.Optional;
 
@@ -35,12 +39,13 @@ public class AuthService {
     private final SpecialistRepository specialistRepository;
     private final EntityFinder entityFinder;
     private final EnterpriseRepository enterpriseRepository;
+    private final BankRepository bankRepository;
 
     @Autowired
     public AuthService(PendingClientRepository pendingClientRepository, UserDetailsRepository userDetailsRepository,
                        AuthenticationManager authenticationManager, JwtService jwtService,
                        SpecialistRepository specialistRepository, EntityFinder entityFinder,
-                       EnterpriseRepository enterpriseRepository) {
+                       EnterpriseRepository enterpriseRepository, BankRepository bankRepository) {
         this.pendingClientRepository = pendingClientRepository;
         this.userDetailsRepository = userDetailsRepository;
         this.authenticationManager = authenticationManager;
@@ -48,6 +53,7 @@ public class AuthService {
         this.specialistRepository = specialistRepository;
         this.entityFinder = entityFinder;
         this.enterpriseRepository = enterpriseRepository;
+        this.bankRepository = bankRepository;
     }
 
     @Transactional
@@ -91,13 +97,30 @@ public class AuthService {
 
     public Long registerSpecialist(SpecialistRegistrationRequest request) {
         Optional<SpecialistDatabaseDto> existingSpecialist = specialistRepository.findByName(request.fullName());
-        entityFinder.findEntityById(request.enterpriseId(), enterpriseRepository, "Предприятие");
-
         if (existingSpecialist.isPresent()) {
             throw new BadRequestException("Specialist " + request.fullName() + " is already in use");
         }
 
+        entityFinder.findEntityById(request.enterpriseId(), enterpriseRepository, "Предприятие");
+
         Specialist specialist = Specialist.create(request);
         return specialistRepository.create(specialist);
+    }
+
+    public Long registerEnterprise(EnterpriseRegistrationRequest request) {
+        Optional<EnterpriseDatabaseDto> existingNameEnterprise = enterpriseRepository.findByLegalName(request.legalName());
+        if (existingNameEnterprise.isPresent()) {
+            throw new BadRequestException("Enterprise with legal name" + request.legalName() + " is already in use");
+        }
+
+        Optional<EnterpriseDatabaseDto> existingUnpEnterprise = enterpriseRepository.findByUnp(request.unp());
+        if (existingUnpEnterprise.isPresent()) {
+            throw new BadRequestException("Enterprise with unp " + request.unp() + " is already in use");
+        }
+
+        entityFinder.findEntityById(request.bankId(), bankRepository, "Банк");
+
+        Enterprise enterprise = Enterprise.create(request);
+        return enterpriseRepository.create(enterprise);
     }
 }

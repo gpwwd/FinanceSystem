@@ -1,6 +1,7 @@
 package com.financialsystem.domain.model;
 
 import com.financialsystem.dto.database.EnterpriseDatabaseDto;
+import com.financialsystem.dto.request.EnterpriseRegistrationRequest;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,6 +31,10 @@ public class Enterprise {
         enterprise.legalAddress = legalAddress;
         enterprise.createdAt = LocalDateTime.now();
         return enterprise;
+    }
+
+    public static Enterprise create(EnterpriseRegistrationRequest request) {
+        return create(request.type(), request.legalName(), request.unp(), request.bankId(), request.legalAddress());
     }
 
     public EnterpriseDatabaseDto toDto() {
