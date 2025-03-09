@@ -61,7 +61,7 @@ public class DepositService {
 
     @Transactional
     @PreAuthorize("hasAuthority('CLIENT')")
-    public Deposit withdrawInterest(Long userId, Long depositId, BigDecimal amount){
+    public DepositResponseDto withdrawInterest(Long userId, Long depositId, BigDecimal amount){
         Deposit deposit = entityFinder.findEntityById(depositId, depositRepository, "Депозит");
         Account account = entityFinder.findEntityById(deposit.getAccountId(), accountRepository, "Аккаунт");
         account.verifyOwner(userId);
@@ -74,12 +74,12 @@ public class DepositService {
         depositRepository.update(deposit);
         accountRepository.update(account);
         transactionRepository.create(transaction);
-        return deposit;
+        return DepositMapper.toDepositResponseDto(deposit);
     }
 
     @Transactional
     @PreAuthorize("hasAuthority('CLIENT')")
-    public Deposit replenish(Long userId, Long depositId, BigDecimal amount){
+    public DepositResponseDto replenish(Long userId, Long depositId, BigDecimal amount){
         Deposit deposit = entityFinder.findEntityById(depositId, depositRepository, "Депозит");
         Account account = entityFinder.findEntityById(deposit.getAccountId(), accountRepository, "Аккаунт");
         account.verifyOwner(userId);
@@ -92,7 +92,7 @@ public class DepositService {
         depositRepository.update(deposit);
         accountRepository.update(account);
         transactionRepository.create(transaction);
-        return deposit;
+        return DepositMapper.toDepositResponseDto(deposit);
     }
 
     @Transactional

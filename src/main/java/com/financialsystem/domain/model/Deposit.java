@@ -65,14 +65,6 @@ public class Deposit {
         this.balance = balance.subtract(amount);
     }
 
-    private void withdraw(BigDecimal amount) {
-        checkStatus(DepositStatus.ACTIVE);
-        if (balance.compareTo(amount) < 0) {
-            throw new IllegalArgumentException("Недостаточно средств");
-        }
-        this.balance = balance.subtract(amount);
-    }
-
     @Transactional
     public void replenish(BigDecimal amount) {
         checkStatus(DepositStatus.ACTIVE);

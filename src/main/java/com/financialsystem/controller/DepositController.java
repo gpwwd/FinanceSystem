@@ -38,17 +38,17 @@ public class DepositController {
 
     @PostMapping("/{id}/withdraw-interest")
     @PreAuthorize("hasAuthority('CLIENT')")
-    public ResponseEntity<Deposit> withdrawInterest(@AuthenticationPrincipal BankingUserDetails userDetails,
+    public ResponseEntity<DepositResponseDto> withdrawInterest(@AuthenticationPrincipal BankingUserDetails userDetails,
                                                     @PathVariable Long id, @RequestParam BigDecimal amount) {
-        Deposit deposit = depositService.withdrawInterest(userDetails.getId(), id, amount);
+        DepositResponseDto deposit = depositService.withdrawInterest(userDetails.getId(), id, amount);
         return ResponseEntity.ok(deposit);
     }
 
     @PostMapping("/{id}/replenish")
     @PreAuthorize("hasAuthority('CLIENT')")
-    public ResponseEntity<Deposit> replenish(@AuthenticationPrincipal BankingUserDetails userDetails,
+    public ResponseEntity<DepositResponseDto> replenish(@AuthenticationPrincipal BankingUserDetails userDetails,
                                              @PathVariable Long id, @RequestParam BigDecimal amount) {
-        Deposit deposit = depositService.replenish(userDetails.getId(), id, amount);
+        DepositResponseDto deposit = depositService.replenish(userDetails.getId(), id, amount);
         return ResponseEntity.ok(deposit);
     }
 

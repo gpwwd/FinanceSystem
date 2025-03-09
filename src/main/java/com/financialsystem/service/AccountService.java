@@ -44,7 +44,7 @@ public class AccountService {
 
     @Transactional
     public Long closeAccount(Long clientId, Long accountId) {
-        Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
+        Account account = entityFinder.findEntityById(accountId, accountRepository, "Счет");
         account.verifyOwner(clientId);
         account.closeAccountCheck();
         List<Deposit> deposits = depositRepository.findByAccountId(accountId);

@@ -30,4 +30,9 @@ public class GlobalCustomExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
+    @ExceptionHandler({RuntimeException.class})
+    public ProblemDetail handleRuntimeException(RuntimeException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
+
 }

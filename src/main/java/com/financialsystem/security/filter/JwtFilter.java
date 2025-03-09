@@ -1,4 +1,4 @@
-package com.financialsystem.security.util;
+package com.financialsystem.security.filter;
 
 import com.financialsystem.security.service.JwtService;
 import jakarta.servlet.FilterChain;
