@@ -1,15 +1,18 @@
 package com.financialsystem.service;
 
 import com.financialsystem.domain.model.user.BankingUserDetails;
-import com.financialsystem.domain.model.user.Client;
 import com.financialsystem.domain.model.user.PendingClient;
+import com.financialsystem.domain.model.user.Specialist;
+import com.financialsystem.dto.database.user.SpecialistDatabaseDto;
 import com.financialsystem.dto.request.ClientRegistrationRequest;
+import com.financialsystem.dto.request.SpecialistRegistrationRequest;
 import com.financialsystem.dto.response.UserAuthResponseDto;
 import com.financialsystem.exception.custom.BadRequestException;
-import com.financialsystem.exception.custom.NotFoundException;
 import com.financialsystem.repository.user.PendingClientRepository;
+import com.financialsystem.repository.user.SpecialistRepository;
 import com.financialsystem.security.repository.UserDetailsRepository;
 import com.financialsystem.security.service.JwtService;
+import com.financialsystem.util.EntityFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,7 +21,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -28,15 +30,19 @@ public class AuthService {
     private final UserDetailsRepository userDetailsRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
-    //private final PasswordEncoder passwordEncoder;
+    private final SpecialistRepository specialistRepository;
+    private final EntityFinder entityFinder;
 
     @Autowired
     public AuthService(PendingClientRepository pendingClientRepository, UserDetailsRepository userDetailsRepository,
-                       AuthenticationManager authenticationManager, JwtService jwtService) {
+                       AuthenticationManager authenticationManager, JwtService jwtService,
+                       SpecialistRepository specialistRepository, EntityFinder entityFinder) {
         this.pendingClientRepository = pendingClientRepository;
         this.userDetailsRepository = userDetailsRepository;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.specialistRepository = specialistRepository;
+        this.entityFinder = entityFinder;
     }
 
     @Transactional
@@ -50,13 +56,13 @@ public class AuthService {
         Optional<BankingUserDetails> userOptional = userDetailsRepository.findByName(username);
 
         if (userOptional.isPresent()) {
-            throw new NotFoundException("User " + username + " is already in use");
+            throw new BadRequestException("User " + username + " is already in use");
         }
 
         Optional<PendingClient> pendingClientOptional = pendingClientRepository.findByName(username);
 
         if (pendingClientOptional.isPresent()) {
-            throw new NotFoundException("User with name '" + username + "' is already pending for verification.");
+            throw new BadRequestException("User with name '" + username + "' is already pending for verification.");
         }
     }
 
@@ -76,5 +82,17 @@ public class AuthService {
         return new UserAuthResponseDto(
                 userDetails.getId(), userDetails.getUsername(), token, authorities.getFirst()
         );
+    }
+
+    public Long registerSpecialist(SpecialistRegistrationRequest request) {
+        Optional<SpecialistDatabaseDto> existingSpecialist = specialistRepository.findByName(request.fullName());
+        Enterprise enterprise = entityFinder.findEntityById(request.enterpriseId(), EnterpriseRepository, "Предприятие");
+
+        if (existingSpecialist.isPresent()) {
+            throw new BadRequestException("Specialist " + request.fullName() + " is already in use");
+        }
+
+        Specialist specialist = Specialist.create(request);
+        return specialistRepository.create(specialist);
     }
 }

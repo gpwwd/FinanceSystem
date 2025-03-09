@@ -75,7 +75,7 @@ public abstract class GenericRepository<Entity, Dto> {
         try {
             jdbcTemplate.update(connection -> createPreparedStatement(sql, entity, connection), keyHolder);
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при выполнении операции с сущностью" + entity.getClass().getSimpleName(), e);
+            throw new RuntimeException("Ошибка при выполнении операции с сущностью " + entity.getClass().getSimpleName(), e);
         }
 
         return (keyHolder.getKey() != null) ? keyHolder.getKey().longValue() : null;

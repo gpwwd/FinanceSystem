@@ -65,6 +65,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorizeRequest -> authorizeRequest
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/auth/clients/register").anonymous()
+                        .requestMatchers("/auth/specialists/register").anonymous()
                         .requestMatchers("/auth/login").anonymous()
                         .requestMatchers("/auth/**").permitAll()
                         //.requestMatchers("/manager/**").hasAuthority("MANAGER")

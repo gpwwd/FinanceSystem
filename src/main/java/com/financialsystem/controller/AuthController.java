@@ -3,6 +3,7 @@ package com.financialsystem.controller;
 import com.financialsystem.domain.model.user.PendingClient;
 import com.financialsystem.dto.request.ClientRegistrationRequest;
 import com.financialsystem.dto.request.LoginRequestDto;
+import com.financialsystem.dto.request.SpecialistRegistrationRequest;
 import com.financialsystem.dto.response.UserAuthResponseDto;
 import com.financialsystem.service.AuthService;
 import org.springframework.http.ResponseEntity;
@@ -32,5 +33,11 @@ public class AuthController {
         return ResponseEntity.ok(
                 authService.login(request.getUsername(), request.getPassword())
         );
+    }
+
+    @PostMapping("/specialists/register")
+    public ResponseEntity<Long> registerSpecialist(@RequestBody SpecialistRegistrationRequest request) {
+        Long clientId = authService.registerSpecialist(request);
+        return ResponseEntity.ok(clientId);
     }
 }

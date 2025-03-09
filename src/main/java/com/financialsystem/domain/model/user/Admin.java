@@ -25,7 +25,7 @@ public class Admin extends NonClientUser {
                                String phone, String email, LocalDateTime createdAt, String password) {
         // Здесь можно добавить валидацию или другие логические проверки
         // Например, проверка на уникальность email или корректность паспорта
-        Admin admin = new Admin(fullName, passport, identityNumber, phone, email, createdAt, password);
+        Admin admin = new Admin(fullName, passport, identityNumber, phone, email, createdAt, encodePassword(password));
         admin.assignRole();
         return admin;
     }

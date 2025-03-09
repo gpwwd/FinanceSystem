@@ -1,6 +1,11 @@
 package com.financialsystem.domain.model.user;
 
+import com.financialsystem.domain.status.PendingEntityStatus;
+import com.financialsystem.dto.database.user.PendingClientDatabaseDto;
 import com.financialsystem.dto.database.user.SpecialistDatabaseDto;
+import com.financialsystem.dto.request.ClientRegistrationRequest;
+import com.financialsystem.dto.request.SpecialistRegistrationRequest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 
@@ -34,5 +39,11 @@ public class Specialist extends NonClientUser{
         Specialist specialist = new Specialist(fullName, passport, identityNumber, phone, email, createdAt, password, enterpriseId);
         specialist.assignRole();
         return specialist;
+    }
+
+    public static Specialist create (SpecialistRegistrationRequest request){
+        return create(request.fullName(), request.passport(), request.identityNumber(),
+                request.phone(), request.email(), LocalDateTime.now(),
+                encodePassword(request.password()), request.enterpriseId());
     }
 }

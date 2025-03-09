@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
-import java.util.List;
 
 @Repository
 public class ClientRepository extends GenericRepository<Client, ClientDatabaseDto> {
@@ -93,16 +92,6 @@ public class ClientRepository extends GenericRepository<Client, ClientDatabaseDt
     private Timestamp getExistingCreatedAt(Long depositId) {
         String sql = "SELECT created_at FROM users WHERE id = ?";
         return jdbcTemplate.queryForObject(sql, Timestamp.class, depositId);
-    }
-
-    public void assignEnterprises(Long clientId, List<Long> enterpriseIds) {
-        String deleteSql = "DELETE FROM user_enterprise WHERE user_id = ?";
-        jdbcTemplate.update(deleteSql, clientId);
-
-        String insertSql = "INSERT INTO user_enterprise (user_id, enterprise_id) VALUES (?, ?)";
-        for (Long enterpriseId : enterpriseIds) {
-            jdbcTemplate.update(insertSql, clientId, enterpriseId);
-        }
     }
 
     @Override

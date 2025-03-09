@@ -118,7 +118,7 @@ public class PendingClientRepository extends GenericRepository<PendingClient, Pe
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         } catch (DataAccessException e) {
-            throw new RuntimeException("Ошибка при получении кредита с name = " + name, e);
+            throw new RuntimeException("Ошибка при получении ожидающего регистрации пользователя с name = " + name, e);
         }
     }
 }

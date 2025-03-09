@@ -1,12 +1,13 @@
 package com.financialsystem.domain.model.user;
 
 import com.financialsystem.dto.database.user.UserDatabaseDto;
-import lombok.Getter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
-import java.util.*;
 
 public abstract class User  {
+    protected static int encoderStrength = 12;
+
     protected Long id;
     protected String fullName;
     protected String passport; // сделать отдельеный value object
@@ -42,4 +43,8 @@ public abstract class User  {
 
     protected abstract void assignRole();
     public abstract UserDatabaseDto toDto();
+
+    protected static String encodePassword(String password) {
+        return new BCryptPasswordEncoder(encoderStrength).encode(password);
+    }
 }

@@ -24,7 +24,7 @@ public class Manager extends NonClientUser{
 
     public static Manager create (String fullName, String passport, String identityNumber,
                                   String phone, String email, LocalDateTime createdAt, String password){
-        Manager manager = new Manager(fullName, passport, identityNumber, phone, email, createdAt, password);
+        Manager manager = new Manager(fullName, passport, identityNumber, phone, email, createdAt, encodePassword(password));
         manager.assignRole();
         return manager;
     }

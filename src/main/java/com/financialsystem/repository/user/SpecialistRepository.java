@@ -1,10 +1,15 @@
 package com.financialsystem.repository.user;
 
+import com.financialsystem.domain.model.user.PendingClient;
 import com.financialsystem.domain.model.user.Specialist;
+import com.financialsystem.dto.database.user.PendingClientDatabaseDto;
 import com.financialsystem.dto.database.user.SpecialistDatabaseDto;
 import com.financialsystem.repository.GenericRepository;
+import com.financialsystem.rowMapper.PendingClientRowMapper;
 import com.financialsystem.rowMapper.SpecialistRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -13,6 +18,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Optional;
 
 @Repository
 public class SpecialistRepository extends GenericRepository<Specialist, SpecialistDatabaseDto> {
@@ -27,11 +33,11 @@ public class SpecialistRepository extends GenericRepository<Specialist, Speciali
         return """
                 WITH inserted_user AS (
                             INSERT INTO users (full_name, passport_series_number, identity_number,\s
-                                               phone, email, role, created_at, password)
+                                               phone, email, role, password, created_at)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                             RETURNING id
                         )
-                        INSERT INTO specialists (user_id, enterprise_id)\s
+                        INSERT INTO specialist (user_id, enterprise_id)\s
                         SELECT id, ? FROM inserted_user\s
                         RETURNING id
                 """;
@@ -43,7 +49,7 @@ public class SpecialistRepository extends GenericRepository<Specialist, Speciali
             UPDATE users
             SET full_name = ?, passport_series_number = ?, identity_number = ?,
                 phone = ?, email = ?, role = ?, password = ?
-            WHERE id = (SELECT user_id FROM specialists WHERE id = ?);
+            WHERE id = (SELECT user_id FROM specialist WHERE id = ?);
         """;
     }
 
@@ -51,7 +57,7 @@ public class SpecialistRepository extends GenericRepository<Specialist, Speciali
     protected String getFindByIdSql() {
         return """
             SELECT u.*, es.enterprise_id FROM users u
-            JOIN specialists es ON u.id = es.user_id
+            JOIN specialist es ON u.id = es.user_id
             WHERE es.id = ?;
         """;
     }
@@ -60,7 +66,7 @@ public class SpecialistRepository extends GenericRepository<Specialist, Speciali
     protected String getDeleteSql() {
         return """
             WITH deleted_specialist AS (
-                DELETE FROM specialists WHERE id = ? RETURNING user_id
+                DELETE FROM specialist WHERE id = ? RETURNING user_id
             )
             DELETE FROM users WHERE id IN (SELECT user_id FROM deleted_specialist);
         """;
@@ -70,7 +76,7 @@ public class SpecialistRepository extends GenericRepository<Specialist, Speciali
     protected String getFindAllSql() {
         return """
             SELECT u.*, es.enterprise_id FROM users u
-            JOIN specialists es ON u.id = es.user_id;
+            JOIN specialist es ON u.id = es.user_id;
         """;
     }
 
@@ -84,7 +90,7 @@ public class SpecialistRepository extends GenericRepository<Specialist, Speciali
         SpecialistDatabaseDto dto = specialist.toDto();
         PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
 
-        if (sql.contains("DELETE FROM specialists")) {
+        if (sql.contains("DELETE FROM specialist")) {
             ps = connection.prepareStatement(sql);
             ps.setLong(1, dto.getId());
             return ps;
@@ -97,8 +103,8 @@ public class SpecialistRepository extends GenericRepository<Specialist, Speciali
             return ps;
         }
 
-        ps = connection.prepareStatement(sql, new String[]{"id"});
         fillPreparedStatement(ps, dto);
+        ps.setTimestamp(8, Timestamp.valueOf(dto.getCreatedAt()));
         ps.setLong(9, dto.getEnterpriseId());
 
         return ps;
@@ -117,5 +123,27 @@ public class SpecialistRepository extends GenericRepository<Specialist, Speciali
     @Override
     protected Specialist fromDto(SpecialistDatabaseDto specialistDatabaseDto) {
         throw new UnsupportedOperationException();
+    }
+
+    public String getFindByNameSql() {
+        return """
+        SELECT u.id, u.full_name, u.passport_series_number, u.identity_number, 
+               u.phone, u.email, u.role, u.password, u.created_at, s.enterprise_id
+        FROM users u
+        JOIN specialist s ON u.id = s.user_id
+        WHERE u.full_name = ?;
+    """;
+    }
+
+    public Optional<SpecialistDatabaseDto> findByName(String name) {
+        String sql = getFindByNameSql();
+        try {
+            SpecialistDatabaseDto dto = jdbcTemplate.queryForObject(sql, new SpecialistRowMapper(), name);
+            return Optional.of(dto);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Ошибка при получении специалиста стороннего предприятия с name = " + name, e);
+        }
     }
 }

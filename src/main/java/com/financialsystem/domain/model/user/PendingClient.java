@@ -10,9 +10,6 @@ import java.time.LocalDateTime;
 public class PendingClient extends Client {
     private PendingEntityStatus status;
 
-
-    private static int encoderStrength = 12;
-
     protected PendingClient(PendingClientDatabaseDto dto) {
         super(dto);
         this.status = dto.getStatus();
@@ -43,10 +40,6 @@ public class PendingClient extends Client {
                 encodePassword(request.password()), LocalDateTime.now(),
                 request.isForeign(), PendingEntityStatus.PENDING
         ));
-    }
-
-    private static String encodePassword(String password) {
-        return new BCryptPasswordEncoder(encoderStrength).encode(password);
     }
 
     public void setApprovedStatus() {

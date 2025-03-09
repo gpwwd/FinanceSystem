@@ -1,11 +1,12 @@
 package com.financialsystem.dto.request;
 
-public record ClientRegistrationRequest(
+public record SpecialistRegistrationRequest(
         String fullName,
         String passport,
         String identityNumber,
         String phone,
         String email,
         String password,
-        boolean isForeign
-) {}
+        Long enterpriseId
+) {
+}
