@@ -1,6 +1,6 @@
 package com.financialsystem.mapper;
 
-import com.financialsystem.dto.database.PendingLoanDatabaseDto;
+import com.financialsystem.dto.database.loan.PendingLoanDatabaseDto;
 import com.financialsystem.dto.response.PendingLoanResponseDto;
 
 public class LoanMapper {

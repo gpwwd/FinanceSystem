@@ -1,9 +1,7 @@
 package com.financialsystem.rowMapper;
 
-import com.financialsystem.domain.model.Loan;
-import com.financialsystem.domain.status.LoanStatus;
 import com.financialsystem.domain.status.PendingEntityStatus;
-import com.financialsystem.dto.database.PendingLoanDatabaseDto;
+import com.financialsystem.dto.database.loan.PendingLoanDatabaseDto;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;

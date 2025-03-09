@@ -1,6 +1,6 @@
 package com.financialsystem.rowMapper;
 
-import com.financialsystem.domain.model.Deposit;
+import com.financialsystem.domain.model.deposit.Deposit;
 import com.financialsystem.domain.status.DepositStatus;
 import org.springframework.jdbc.core.RowMapper;
 

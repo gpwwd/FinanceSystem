@@ -1,18 +1,18 @@
 package com.financialsystem.service;
 
-import com.financialsystem.domain.model.Account;
+import com.financialsystem.domain.model.account.Account;
 import com.financialsystem.domain.model.Loan;
-import com.financialsystem.domain.model.Transaction;
-import com.financialsystem.domain.model.TransactionType;
+import com.financialsystem.domain.model.transaction.Transaction;
+import com.financialsystem.domain.model.transaction.TransactionType;
 import com.financialsystem.domain.model.user.BankingUserDetails;
 import com.financialsystem.domain.status.PendingEntityStatus;
 import com.financialsystem.domain.strategy.CustomInterestStrategy;
 import com.financialsystem.domain.strategy.FixedInterestStrategy;
 import com.financialsystem.domain.strategy.InterestCalculationStrategy;
-import com.financialsystem.dto.database.PendingLoanDatabaseDto;
+import com.financialsystem.dto.database.loan.PendingLoanDatabaseDto;
 import com.financialsystem.dto.response.PendingLoanResponseDto;
 import com.financialsystem.mapper.LoanMapper;
-import com.financialsystem.repository.AccountRepository;
+import com.financialsystem.repository.account.AccountRepository;
 import com.financialsystem.repository.TransactionRepository;
 import com.financialsystem.repository.loan.LoanRepository;
 import com.financialsystem.repository.loan.PendingLoanRepository;

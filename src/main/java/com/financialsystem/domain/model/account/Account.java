@@ -1,8 +1,8 @@
-package com.financialsystem.domain.model;
+package com.financialsystem.domain.model.account;
 
+import com.financialsystem.domain.model.Currency;
 import com.financialsystem.domain.status.AccountStatus;
-import com.financialsystem.dto.database.AccountDatabaseDto;
-import com.financialsystem.exception.custom.BadRequestException;
+import com.financialsystem.dto.database.account.AccountDatabaseDto;
 import lombok.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,21 +11,20 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Account {
     @Getter
-    private Long id;
+    protected Long id;
     @Setter(AccessLevel.PRIVATE)
-    private AccountStatus status;
+    protected AccountStatus status;
     @Getter
-    private Long ownerId;
-    private Long bankId;
-    private Currency currency;
-    private LocalDateTime createdAt;
-    private boolean isSalary;
-    private BigDecimal balance;
+    protected Long ownerId;
+    protected Long bankId;
+    protected Currency currency;
+    protected LocalDateTime createdAt;
+    protected BigDecimal balance;
 
-    public static Account create(Long ownerId, Long bankId, Currency currency, boolean isSalary) {
+    public static Account create(Long ownerId, Long bankId, Currency currency) {
         Account account = new Account();
         account.ownerId = ownerId;
         account.bankId = bankId;
@@ -33,13 +32,12 @@ public class Account {
         account.balance = BigDecimal.ZERO;
         account.currency = currency;
         account.createdAt = LocalDateTime.now();
-        account.isSalary = isSalary;
         return account;
     }
 
     public AccountDatabaseDto toDto() {
         return new AccountDatabaseDto(
-                id, status, ownerId, bankId, currency, createdAt, isSalary, balance);
+                id, status, ownerId, bankId, currency, createdAt, balance);
     }
 
     public void block() {

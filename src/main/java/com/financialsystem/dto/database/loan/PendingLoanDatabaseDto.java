@@ -1,4 +1,4 @@
-package com.financialsystem.dto.database;
+package com.financialsystem.dto.database.loan;
 
 import com.financialsystem.domain.status.PendingEntityStatus;
 import lombok.AllArgsConstructor;

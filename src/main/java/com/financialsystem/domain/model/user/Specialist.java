@@ -5,12 +5,14 @@ import com.financialsystem.dto.database.user.PendingClientDatabaseDto;
 import com.financialsystem.dto.database.user.SpecialistDatabaseDto;
 import com.financialsystem.dto.request.ClientRegistrationRequest;
 import com.financialsystem.dto.request.SpecialistRegistrationRequest;
+import lombok.Getter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 
 public class Specialist extends NonClientUser{
 
+    @Getter
     private Long enterpriseId;
 
     private Specialist(String fullName, String passport, String identityNumber,

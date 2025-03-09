@@ -1,8 +1,7 @@
-package com.financialsystem.domain.model;
+package com.financialsystem.domain.model.deposit;
 
 import com.financialsystem.domain.status.DepositStatus;
 import com.financialsystem.dto.database.DepositDatabseDto;
-import com.financialsystem.exception.custom.BadRequestException;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;

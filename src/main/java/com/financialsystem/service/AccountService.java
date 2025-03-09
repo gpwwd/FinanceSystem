@@ -1,17 +1,13 @@
 package com.financialsystem.service;
 
-import com.financialsystem.domain.model.Account;
+import com.financialsystem.domain.model.account.Account;
 import com.financialsystem.domain.model.Currency;
-import com.financialsystem.domain.model.Deposit;
-import com.financialsystem.domain.model.user.Client;
-import com.financialsystem.domain.model.user.PendingClient;
-import com.financialsystem.dto.database.user.PendingClientDatabaseDto;
-import com.financialsystem.repository.AccountRepository;
+import com.financialsystem.domain.model.deposit.Deposit;
+import com.financialsystem.repository.account.AccountRepository;
 import com.financialsystem.repository.DepositRepository;
 import com.financialsystem.repository.user.ClientRepository;
 import com.financialsystem.util.EntityFinder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,10 +31,9 @@ public class AccountService {
     }
 
     @Transactional
-    public Long createAccount(Long clientId, Long bankId, Currency currency, boolean isAccountForSalary
-    ) {
+    public Long createAccount(Long clientId, Long bankId, Currency currency) {
         entityFinder.findEntityById(clientId, clientRepository, "Клиент");
-        Account account = Account.create(clientId, bankId, currency, isAccountForSalary);
+        Account account = Account.create(clientId, bankId, currency);
         return accountRepository.create(account);
     }
 

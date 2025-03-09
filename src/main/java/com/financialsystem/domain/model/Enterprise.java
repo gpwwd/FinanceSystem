@@ -17,6 +17,7 @@ public class Enterprise {
     private String type;
     private String legalName;
     private String unp;
+    @Getter
     private Long bankId;
     private String legalAddress;
     private LocalDateTime createdAt;

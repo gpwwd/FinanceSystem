@@ -1,14 +1,20 @@
 package com.financialsystem.repository.user;
 
+import com.financialsystem.domain.model.SalaryProject;
 import com.financialsystem.domain.model.user.Client;
+import com.financialsystem.dto.database.SalaryProjectDatabaseDto;
 import com.financialsystem.dto.database.user.ClientDatabaseDto;
 import com.financialsystem.rowMapper.ClientRowMapper;
 import com.financialsystem.repository.GenericRepository;
+import com.financialsystem.rowMapper.SalaryProjectRowMapper;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
+import java.util.Optional;
 
 @Repository
 public class ClientRepository extends GenericRepository<Client, ClientDatabaseDto> {
@@ -97,5 +103,17 @@ public class ClientRepository extends GenericRepository<Client, ClientDatabaseDt
     @Override
     protected Client fromDto(ClientDatabaseDto dto) {
         return Client.fromDto(dto);
+    }
+
+    public Optional<Client> findByPassportSeriesNumber(String passpoprtSeriesNumber) {
+        String sql = "SELECT * FROM users WHERE passport_series_number = ?;";
+        try {
+            ClientDatabaseDto dto = jdbcTemplate.queryForObject(sql, new ClientRowMapper(), passpoprtSeriesNumber);
+            return Optional.of(fromDto(dto));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Ошибка при поиске клиента с серийным номером пасспорта = " + passpoprtSeriesNumber, e);
+        }
     }
 }

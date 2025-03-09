@@ -58,7 +58,7 @@ public class SpecialistRepository extends GenericRepository<Specialist, Speciali
         return """
             SELECT u.*, es.enterprise_id FROM users u
             JOIN specialist es ON u.id = es.user_id
-            WHERE es.id = ?;
+            WHERE u.id = ?;
         """;
     }
 

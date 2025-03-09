@@ -1,14 +1,14 @@
 package com.financialsystem.service;
 
-import com.financialsystem.domain.model.Account;
-import com.financialsystem.domain.model.Deposit;
-import com.financialsystem.domain.model.Transaction;
-import com.financialsystem.domain.model.TransactionType;
+import com.financialsystem.domain.model.account.Account;
+import com.financialsystem.domain.model.deposit.Deposit;
+import com.financialsystem.domain.model.transaction.Transaction;
+import com.financialsystem.domain.model.transaction.TransactionType;
 import com.financialsystem.domain.model.user.BankingUserDetails;
 import com.financialsystem.domain.status.DepositStatus;
 import com.financialsystem.dto.response.DepositResponseDto;
 import com.financialsystem.mapper.DepositMapper;
-import com.financialsystem.repository.AccountRepository;
+import com.financialsystem.repository.account.AccountRepository;
 import com.financialsystem.repository.DepositRepository;
 import com.financialsystem.repository.TransactionRepository;
 import com.financialsystem.util.EntityFinder;

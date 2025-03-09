@@ -1,11 +1,10 @@
 package com.financialsystem.repository.loan;
 
 import com.financialsystem.domain.model.Loan;
-import com.financialsystem.dto.database.LoanDatabaseDto;
+import com.financialsystem.dto.database.loan.LoanDatabaseDto;
 import com.financialsystem.repository.GenericRepository;
 import com.financialsystem.rowMapper.LoanRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;

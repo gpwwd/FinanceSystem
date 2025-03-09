@@ -1,6 +1,6 @@
 package com.financialsystem.repository;
 
-import com.financialsystem.domain.model.Transaction;
+import com.financialsystem.domain.model.transaction.Transaction;
 import com.financialsystem.dto.database.TransactionDatabaseDto;
 import com.financialsystem.rowMapper.TransactionRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;

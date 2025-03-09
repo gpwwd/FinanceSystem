@@ -1,6 +1,6 @@
 package com.financialsystem.rowMapper;
 
-import com.financialsystem.domain.model.TransactionType;
+import com.financialsystem.domain.model.transaction.TransactionType;
 import com.financialsystem.dto.database.TransactionDatabaseDto;
 import org.springframework.jdbc.core.RowMapper;
 

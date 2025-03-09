@@ -1,7 +1,6 @@
 package com.financialsystem.controller;
 
-import com.financialsystem.domain.model.Deposit;
-import com.financialsystem.domain.model.DepositTerm;
+import com.financialsystem.domain.model.deposit.DepositTerm;
 import com.financialsystem.domain.model.user.BankingUserDetails;
 import com.financialsystem.dto.response.DepositResponseDto;
 import com.financialsystem.dto.response.DepositTermDto;

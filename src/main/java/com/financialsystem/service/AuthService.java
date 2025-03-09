@@ -25,7 +25,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.financialsystem.repository.EnterpriseRepository;
-import com.financialsystem.repository.BankRepository;
 
 import java.util.Optional;
 

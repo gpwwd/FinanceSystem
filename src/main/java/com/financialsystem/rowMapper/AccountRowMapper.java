@@ -1,6 +1,6 @@
 package com.financialsystem.rowMapper;
 
-import com.financialsystem.domain.model.Account;
+import com.financialsystem.domain.model.account.Account;
 import com.financialsystem.domain.model.Currency;
 import com.financialsystem.domain.status.AccountStatus;
 import org.springframework.jdbc.core.RowMapper;
@@ -18,7 +18,6 @@ public class AccountRowMapper implements RowMapper<Account> {
                 rs.getLong("bank_id"),
                 Currency.valueOf(rs.getString("currency")),
                 rs.getTimestamp("created_at").toLocalDateTime(),
-                rs.getBoolean("is_salary"),
                 rs.getBigDecimal("balance")
         );
     }

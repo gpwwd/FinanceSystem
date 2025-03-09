@@ -1,12 +1,9 @@
 package com.financialsystem.controller;
 
-import com.financialsystem.domain.model.DepositTerm;
 import com.financialsystem.domain.model.user.BankingUserDetails;
-import com.financialsystem.dto.response.DepositTermDto;
 import com.financialsystem.dto.response.LoanTermDto;
 import com.financialsystem.dto.response.PendingLoanResponseDto;
 import com.financialsystem.service.LoanService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import com.financialsystem.domain.strategy.FixedInterestStrategy;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 
 @RestController

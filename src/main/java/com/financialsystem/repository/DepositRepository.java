@@ -1,11 +1,10 @@
 package com.financialsystem.repository;
 
-import com.financialsystem.domain.model.Deposit;
+import com.financialsystem.domain.model.deposit.Deposit;
 import com.financialsystem.dto.database.DepositDatabseDto;
 import com.financialsystem.rowMapper.DepositRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -15,7 +14,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class DepositRepository extends GenericRepository<Deposit, Deposit> {

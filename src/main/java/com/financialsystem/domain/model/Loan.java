@@ -2,10 +2,8 @@ package com.financialsystem.domain.model;
 
 import com.financialsystem.util.LoanConfig;
 import com.financialsystem.domain.status.LoanStatus;
-import com.financialsystem.domain.strategy.CustomInterestStrategy;
-import com.financialsystem.domain.strategy.FixedInterestStrategy;
 import com.financialsystem.domain.strategy.InterestCalculationStrategy;
-import com.financialsystem.dto.database.LoanDatabaseDto;
+import com.financialsystem.dto.database.loan.LoanDatabaseDto;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 

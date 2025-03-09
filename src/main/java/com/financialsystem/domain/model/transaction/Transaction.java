@@ -1,4 +1,4 @@
-package com.financialsystem.domain.model;
+package com.financialsystem.domain.model.transaction;
 
 import com.financialsystem.dto.database.TransactionDatabaseDto;
 import lombok.AccessLevel;

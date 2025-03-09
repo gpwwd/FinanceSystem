@@ -1,8 +1,6 @@
 package com.financialsystem.repository.loan;
 
-import com.financialsystem.domain.model.Deposit;
-import com.financialsystem.domain.status.PendingEntityStatus;
-import com.financialsystem.dto.database.PendingLoanDatabaseDto;
+import com.financialsystem.dto.database.loan.PendingLoanDatabaseDto;
 import com.financialsystem.repository.GenericRepository;
 import com.financialsystem.rowMapper.PendingLoanRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +12,6 @@ import org.springframework.stereotype.Repository;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.List;
 
 @Repository

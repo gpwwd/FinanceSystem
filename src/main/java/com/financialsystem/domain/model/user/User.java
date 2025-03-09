@@ -1,6 +1,7 @@
 package com.financialsystem.domain.model.user;
 
 import com.financialsystem.dto.database.user.UserDatabaseDto;
+import lombok.Getter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 public abstract class User  {
     protected static int encoderStrength = 12;
 
+    @Getter
     protected Long id;
     protected String fullName;
     protected String passport; // сделать отдельеный value object

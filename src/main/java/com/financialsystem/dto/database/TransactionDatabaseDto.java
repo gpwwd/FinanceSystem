@@ -1,6 +1,6 @@
 package com.financialsystem.dto.database;
 
-import com.financialsystem.domain.model.TransactionType;
+import com.financialsystem.domain.model.transaction.TransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

@@ -1,6 +1,5 @@
 package com.financialsystem.controller;
 
-import com.financialsystem.domain.model.Account;
 import com.financialsystem.domain.model.Currency;
 import com.financialsystem.domain.model.user.BankingUserDetails;
 import com.financialsystem.service.AccountService;
@@ -26,10 +25,9 @@ public class AccountController {
     public ResponseEntity<Long> createAccount(
             @AuthenticationPrincipal BankingUserDetails userDetails,
             @RequestParam Long bankId,
-            @RequestParam Currency currency,
-            @RequestParam boolean isAccountForSalary
+            @RequestParam Currency currency
     ) {
-        Long accountId = accountService.createAccount(userDetails.getId(), bankId, currency, isAccountForSalary);
+        Long accountId = accountService.createAccount(userDetails.getId(), bankId, currency);
         return ResponseEntity.status(HttpStatus.CREATED).body(accountId);
     }
 

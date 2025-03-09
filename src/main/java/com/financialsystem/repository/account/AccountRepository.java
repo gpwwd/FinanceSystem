@@ -1,7 +1,8 @@
-package com.financialsystem.repository;
+package com.financialsystem.repository.account;
 
-import com.financialsystem.domain.model.Account;
-import com.financialsystem.dto.database.AccountDatabaseDto;
+import com.financialsystem.domain.model.account.Account;
+import com.financialsystem.dto.database.account.AccountDatabaseDto;
+import com.financialsystem.repository.GenericRepository;
 import com.financialsystem.rowMapper.AccountRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,7 +15,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 @Repository
-public class AccountRepository extends GenericRepository<Account, Account>{
+public class AccountRepository extends GenericRepository<Account, Account> {
 
     @Autowired
     public AccountRepository(JdbcTemplate jdbcTemplate) {
@@ -24,13 +25,13 @@ public class AccountRepository extends GenericRepository<Account, Account>{
     @Override
     protected String getCreateSql() {
         return "INSERT INTO account (balance, status, owner_id, bank_id, currency, " +
-                "created_at, is_salary) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                "created_at) VALUES (?, ?, ?, ?, ?, ?)";
     }
 
     @Override
     protected String getUpdateSql() {
         return "UPDATE account SET balance = ?, status = ?, owner_id = ?, bank_id = ?, currency = ?, " +
-                "created_at = ?, is_salary = ? WHERE id = ?";
+                "created_at = ? WHERE id = ?";
     }
 
     @Override
@@ -68,9 +69,8 @@ public class AccountRepository extends GenericRepository<Account, Account>{
         ps.setLong(4, accountDto.getBankId());
         ps.setString(5, accountDto.getCurrency().name());
         ps.setTimestamp(6, Timestamp.valueOf(accountDto.getCreatedAt()));
-        ps.setBoolean(7, accountDto.isSalary());
         if (sql.startsWith("UPDATE")) {
-            ps.setLong(8, accountDto.getId());
+            ps.setLong(7, accountDto.getId());
         }
         return ps;
     }
