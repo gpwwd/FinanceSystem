@@ -1,6 +1,6 @@
 package com.financialsystem.domain.model.user;
 
-import com.financialsystem.dto.database.user.UserDatabaseDto;
+import com.financialsystem.dto.database.user.SpecialistDatabaseDto;
 
 import java.time.LocalDateTime;
 
@@ -21,8 +21,11 @@ public class Specialist extends NonClientUser{
     }
 
     @Override
-    public UserDatabaseDto toDto() {
-        return null;
+    public SpecialistDatabaseDto toDto() {
+        return new SpecialistDatabaseDto(
+                this.id, this.fullName, this.passport, this.identityNumber, this.phone, this.email,
+                this.role, this.password, this.createdAt, this.enterpriseId
+        );
     }
 
     public static Specialist create (String fullName, String passport, String identityNumber,
