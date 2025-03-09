@@ -122,7 +122,7 @@ public class SpecialistRepository extends GenericRepository<Specialist, Speciali
 
     @Override
     protected Specialist fromDto(SpecialistDatabaseDto specialistDatabaseDto) {
-        throw new UnsupportedOperationException();
+        return Specialist.fromDto(specialistDatabaseDto);
     }
 
     public String getFindByNameSql() {

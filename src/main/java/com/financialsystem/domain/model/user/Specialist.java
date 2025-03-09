@@ -33,6 +33,11 @@ public class Specialist extends NonClientUser{
         );
     }
 
+    public static Specialist fromDto(SpecialistDatabaseDto dto) {
+        return new Specialist(dto.getFullName(), dto.getPassport(), dto.getIdentityNumber(),
+                dto.getPhone(), dto.getEmail(), dto.getCreatedAt(), dto.getPassword(), dto.getEnterpriseId());
+    }
+
     public static Specialist create (String fullName, String passport, String identityNumber,
                                   String phone, String email, LocalDateTime createdAt,
                                      String password, Long enterpriseId){

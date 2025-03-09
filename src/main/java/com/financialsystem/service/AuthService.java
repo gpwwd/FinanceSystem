@@ -1,5 +1,6 @@
 package com.financialsystem.service;
 
+import com.financialsystem.domain.model.Enterprise;
 import com.financialsystem.domain.model.user.BankingUserDetails;
 import com.financialsystem.domain.model.user.PendingClient;
 import com.financialsystem.domain.model.user.Specialist;
@@ -20,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.financialsystem.repository.EnterpriseRepository;
 
 import java.util.Optional;
 
@@ -32,17 +34,20 @@ public class AuthService {
     private final JwtService jwtService;
     private final SpecialistRepository specialistRepository;
     private final EntityFinder entityFinder;
+    private final EnterpriseRepository enterpriseRepository;
 
     @Autowired
     public AuthService(PendingClientRepository pendingClientRepository, UserDetailsRepository userDetailsRepository,
                        AuthenticationManager authenticationManager, JwtService jwtService,
-                       SpecialistRepository specialistRepository, EntityFinder entityFinder) {
+                       SpecialistRepository specialistRepository, EntityFinder entityFinder,
+                       EnterpriseRepository enterpriseRepository) {
         this.pendingClientRepository = pendingClientRepository;
         this.userDetailsRepository = userDetailsRepository;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.specialistRepository = specialistRepository;
         this.entityFinder = entityFinder;
+        this.enterpriseRepository = enterpriseRepository;
     }
 
     @Transactional
@@ -86,7 +91,7 @@ public class AuthService {
 
     public Long registerSpecialist(SpecialistRegistrationRequest request) {
         Optional<SpecialistDatabaseDto> existingSpecialist = specialistRepository.findByName(request.fullName());
-        Enterprise enterprise = entityFinder.findEntityById(request.enterpriseId(), EnterpriseRepository, "Предприятие");
+        entityFinder.findEntityById(request.enterpriseId(), enterpriseRepository, "Предприятие");
 
         if (existingSpecialist.isPresent()) {
             throw new BadRequestException("Specialist " + request.fullName() + " is already in use");
