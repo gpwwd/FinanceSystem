@@ -1,6 +1,7 @@
 package com.financialsystem.domain.model.user;
 
 import com.financialsystem.dto.database.user.UserDatabaseDto;
+import com.financialsystem.exception.custom.BadRequestException;
 import lombok.Getter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -48,5 +49,11 @@ public abstract class User  {
 
     protected static String encodePassword(String password) {
         return new BCryptPasswordEncoder(encoderStrength).encode(password);
+    }
+
+    public void checkRole(Role role){
+        if(this.role != role){
+            throw new BadRequestException("Роль пользователя должна быть " + role);
+        }
     }
 }

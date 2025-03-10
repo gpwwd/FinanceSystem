@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class SalaryProject {
     @Getter
     private Long id;
+    @Getter
     private Long enterpriseId;
     private Long bankId;
     @Getter

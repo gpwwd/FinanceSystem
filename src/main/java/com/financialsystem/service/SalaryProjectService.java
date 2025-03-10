@@ -6,11 +6,11 @@ import com.financialsystem.domain.model.SalaryProject;
 import com.financialsystem.domain.model.account.SalaryAccount;
 import com.financialsystem.domain.model.user.BankingUserDetails;
 import com.financialsystem.domain.model.user.Client;
+import com.financialsystem.domain.model.user.Role;
 import com.financialsystem.domain.model.user.Specialist;
 import com.financialsystem.dto.request.EmployeeRequestForSalaryProject;
 import com.financialsystem.dto.response.EmployeeResponseForSalaryProject;
 import com.financialsystem.exception.custom.NotFoundException;
-import com.financialsystem.repository.account.AccountRepository;
 import com.financialsystem.repository.EnterpriseRepository;
 import com.financialsystem.repository.SalaryProjectRepository;
 import com.financialsystem.repository.account.SalaryAccountRepository;
@@ -20,6 +20,9 @@ import com.financialsystem.util.EntityFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+
+import java.util.List;
 
 @Service
 public class SalaryProjectService {
@@ -60,20 +63,25 @@ public class SalaryProjectService {
 
         Enterprise enterprise = entityFinder.findEntityById(enterpriseId, enterpriseRepository, "Предприятие");
 
-        SalaryProject salaryProject = salaryProjectRepository.findByEnterpriseId(enterpriseId).
-                orElseThrow(() -> new NotFoundException("Salary project with enterpriseId " + enterpriseId + " not found"));
+        List<SalaryProject> salaryProjects = salaryProjectRepository.findAllByEnterpriseId(enterpriseId);
+
+        SalaryProject salaryProject = salaryProjects.stream()
+                .filter(sp -> sp.getId().equals(request.salaryProjectId()))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Salary project with ID " + request.salaryProjectId()
+                        + " not found among projects for enterpriseId " + enterpriseId));
 
         Client client = clientRepository.findByPassportSeriesNumber(request.passportSeriesNumber()).
                 orElseThrow(() -> new NotFoundException("Клиент с серийным номером пасспорта " +
                 request.passportSeriesNumber() + " не найден"));
-        // добавить проверку на роль у клиента(зарплатный счет можно создать только у клиента)
+        client.checkRole(Role.CLIENT);
 
         SalaryAccount salaryAccount = SalaryAccount.create(client.getId(), enterprise.getBankId(),
                 salaryProject.getCurrency(), salaryProject.getId());
         Long salaryAccountId = salaryAccountRepository.create(salaryAccount);
 
         return new EmployeeResponseForSalaryProject(
-                salaryProject.getId(), enterpriseId, enterprise.getBankId(), salaryAccountId, request.fullName(), request.passportSeriesNumber()
+                salaryProject.getId(), enterpriseId, enterprise.getBankId(), salaryAccountId, client.toDto().getFullName(), request.passportSeriesNumber()
         );
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -88,13 +89,11 @@ public class SalaryProjectRepository extends GenericRepository<SalaryProject, Sa
         return SalaryProject.fromDto(dto);
     }
 
-    public Optional<SalaryProject> findByEnterpriseId(Long enterpriseId) {
+    public List<SalaryProject> findAllByEnterpriseId(Long enterpriseId) {
         String sql = "SELECT * FROM salary_project WHERE enterprise_id = ?";
         try {
-            SalaryProjectDatabaseDto dto = jdbcTemplate.queryForObject(sql, new SalaryProjectRowMapper(), enterpriseId);
-            return Optional.of(fromDto(dto));
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
+            List<SalaryProjectDatabaseDto> dtos = jdbcTemplate.query(sql, new SalaryProjectRowMapper(), enterpriseId);
+            return dtos.stream().map(this::fromDto).toList();
         } catch (DataAccessException e) {
             throw new RuntimeException("Ошибка при поиске зарплатного проекта с enterpriseId = " + enterpriseId, e);
         }
