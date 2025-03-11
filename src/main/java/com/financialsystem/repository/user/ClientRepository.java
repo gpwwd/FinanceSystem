@@ -1,12 +1,9 @@
 package com.financialsystem.repository.user;
 
-import com.financialsystem.domain.model.SalaryProject;
 import com.financialsystem.domain.model.user.Client;
-import com.financialsystem.dto.database.SalaryProjectDatabaseDto;
 import com.financialsystem.dto.database.user.ClientDatabaseDto;
 import com.financialsystem.rowMapper.ClientRowMapper;
 import com.financialsystem.repository.GenericRepository;
-import com.financialsystem.rowMapper.SalaryProjectRowMapper;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;

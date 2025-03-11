@@ -3,6 +3,7 @@ package com.financialsystem.controller;
 import com.financialsystem.domain.model.Currency;
 import com.financialsystem.domain.model.user.BankingUserDetails;
 import com.financialsystem.dto.request.EmployeeRequestForSalaryProject;
+import com.financialsystem.dto.request.SalaryProjectRequest;
 import com.financialsystem.dto.response.EmployeeResponseForSalaryProject;
 import com.financialsystem.service.SalaryProjectService;
 import com.financialsystem.service.SpecialistService;
@@ -12,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/specialist")
@@ -28,9 +31,10 @@ public class SpecialistController {
     }
 
     @PostMapping("/salary-projects/create-request")
-    public ResponseEntity<Long> requestSalaryProject(@RequestBody String currency,
+    public ResponseEntity<Long> requestSalaryProject(@RequestBody SalaryProjectRequest request,
                                                      @AuthenticationPrincipal BankingUserDetails userDetails) {
-        Long salaryProjectRequestId = salaryProjectService.createRequest(userDetails, Currency.valueOf(currency));
+        Long salaryProjectRequestId = salaryProjectService.createRequest(userDetails,
+                Currency.valueOf(request.currency()), request.employeesPassports());
         return ResponseEntity.status(HttpStatus.CREATED).body(salaryProjectRequestId);
     }
 

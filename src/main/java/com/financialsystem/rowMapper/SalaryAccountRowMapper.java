@@ -2,6 +2,7 @@ package com.financialsystem.rowMapper;
 
 import com.financialsystem.domain.model.Currency;
 import com.financialsystem.domain.status.AccountStatus;
+import com.financialsystem.domain.status.PendingEntityStatus;
 import com.financialsystem.dto.database.account.SalaryAccountDatabaseDto;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -20,7 +21,8 @@ public class SalaryAccountRowMapper implements RowMapper<SalaryAccountDatabaseDt
                Currency.valueOf(rs.getString("currency")),
                rs.getTimestamp("created_at").toLocalDateTime(),
                rs.getBigDecimal("balance"),
-               rs.getLong("salary_project_id")
+               rs.getLong("salary_project_id"),
+               PendingEntityStatus.valueOf(rs.getString("pending_status"))
        );
     }
 }

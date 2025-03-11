@@ -1,7 +1,7 @@
 package com.financialsystem.domain.model;
 
 import com.financialsystem.domain.status.SalaryProjectStatus;
-import com.financialsystem.dto.database.SalaryProjectDatabaseDto;
+import com.financialsystem.dto.database.project.SalaryProjectDatabaseDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,6 +35,19 @@ public class SalaryProject {
     public void approveProjectRequest() {
         this.status = SalaryProjectStatus.ACTIVE;
         this.createdAt = LocalDateTime.now();
+    }
+
+    private void checkStatus(SalaryProjectStatus status) {
+        if(!this.status.equals(status)) {
+            throw new IllegalStateException("Salary project status mismatch, " +
+                    "should be " + status + " but is " + this.status);
+        }
+    }
+
+    public void checkStatusToAddEmployee(){
+        if(!this.status.equals(SalaryProjectStatus.ACTIVE) && !this.status.equals(SalaryProjectStatus.PENDING)) {
+            throw new IllegalStateException("Salary project status should be ACTIVE or PENDING");
+        }
     }
 
     public SalaryProjectDatabaseDto toDto() {

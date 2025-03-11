@@ -1,10 +1,8 @@
 package com.financialsystem.domain.model.user;
 
-import com.financialsystem.dto.database.user.PendingClientDatabaseDto;
 import com.financialsystem.dto.database.user.UserDatabaseDto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class Manager extends NonClientUser{
     private Manager(String fullName, String passport, String identityNumber,

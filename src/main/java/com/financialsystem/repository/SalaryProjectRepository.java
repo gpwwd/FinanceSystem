@@ -1,14 +1,9 @@
 package com.financialsystem.repository;
 
 import com.financialsystem.domain.model.SalaryProject;
-import com.financialsystem.dto.database.BankDatabaseDto;
-import com.financialsystem.dto.database.EnterpriseDatabaseDto;
-import com.financialsystem.dto.database.SalaryProjectDatabaseDto;
-import com.financialsystem.rowMapper.BankRowMapper;
-import com.financialsystem.rowMapper.EnterpriseRowMapper;
+import com.financialsystem.dto.database.project.SalaryProjectDatabaseDto;
 import com.financialsystem.rowMapper.SalaryProjectRowMapper;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -17,7 +12,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class SalaryProjectRepository extends GenericRepository<SalaryProject, SalaryProjectDatabaseDto> {

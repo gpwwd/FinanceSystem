@@ -1,19 +1,18 @@
-package com.financialsystem.dto.database;
+package com.financialsystem.dto.database.project;
 
 import com.financialsystem.domain.model.Currency;
-import com.financialsystem.domain.status.SalaryProjectStatus;
+import com.financialsystem.dto.request.EmployeeRequestForSalaryProject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class SalaryProjectDatabaseDto {
+public class SalaryProjectRequestDatabaseDto {
     private Long id;
     private Long enterpriseId;
     private Long bankId;
     private Currency currency;
-    private LocalDateTime createdAt;
-    private SalaryProjectStatus status;
+    private List<EmployeeRequestForSalaryProject> employees;
 }

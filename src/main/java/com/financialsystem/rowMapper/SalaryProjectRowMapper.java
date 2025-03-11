@@ -1,7 +1,7 @@
 package com.financialsystem.rowMapper;
 
 import com.financialsystem.domain.model.Currency;
-import com.financialsystem.dto.database.SalaryProjectDatabaseDto;
+import com.financialsystem.dto.database.project.SalaryProjectDatabaseDto;
 import com.financialsystem.domain.status.SalaryProjectStatus;
 import org.springframework.jdbc.core.RowMapper;
 
