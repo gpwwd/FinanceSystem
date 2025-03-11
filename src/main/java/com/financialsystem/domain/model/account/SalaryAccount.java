@@ -52,7 +52,7 @@ public class SalaryAccount extends Account {
 
     public SalaryAccountDatabaseDto toDto() {
         return new SalaryAccountDatabaseDto(
-                id, status, ownerId, bankId, currency, createdAt, balance, salaryProjectId, salaryAccountStatus, salaryAmount);
+                id, status, ownerId, enterpriseId, bankId, currency, createdAt, balance, salaryProjectId, salaryAccountStatus, salaryAmount);
     }
 
     public void approveSalaryAccountStatus() {

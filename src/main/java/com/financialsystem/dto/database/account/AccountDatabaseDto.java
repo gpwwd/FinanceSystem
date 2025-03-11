@@ -16,6 +16,7 @@ public class AccountDatabaseDto {
     private Long id;
     private AccountStatus status;
     private Long ownerId;
+    private Long enterpriseId;
     private Long bankId;
     private Currency currency;
     private LocalDateTime createdAt;

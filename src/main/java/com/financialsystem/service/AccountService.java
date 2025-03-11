@@ -2,6 +2,7 @@ package com.financialsystem.service;
 
 import com.financialsystem.domain.model.account.Account;
 import com.financialsystem.domain.model.Currency;
+import com.financialsystem.domain.model.account.PersonalAccount;
 import com.financialsystem.domain.model.deposit.Deposit;
 import com.financialsystem.repository.account.AccountRepository;
 import com.financialsystem.repository.DepositRepository;
@@ -31,9 +32,9 @@ public class AccountService {
     }
 
     @Transactional
-    public Long createAccount(Long clientId, Long bankId, Currency currency) {
+    public Long createPersonalAccount(Long clientId, Long bankId, Currency currency) {
         entityFinder.findEntityById(clientId, clientRepository, "Клиент");
-        Account account = Account.create(clientId, bankId, currency);
+        Account account = PersonalAccount.create(clientId, bankId, currency);
         return accountRepository.create(account);
     }
 

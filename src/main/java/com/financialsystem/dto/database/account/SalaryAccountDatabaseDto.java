@@ -17,10 +17,10 @@ public class SalaryAccountDatabaseDto extends AccountDatabaseDto {
     private PendingEntityStatus salaryAccountStatus;
     private BigDecimal salaryAmount;
 
-    public SalaryAccountDatabaseDto(Long id, AccountStatus status, Long ownerId, Long bankId, Currency currency,
+    public SalaryAccountDatabaseDto(Long id, AccountStatus status, Long ownerId, Long enterpriseId, Long bankId, Currency currency,
                                     LocalDateTime createdAt, BigDecimal balance, Long salaryProjectId, PendingEntityStatus salaryAccountStatus,
                                     BigDecimal salaryAmount) {
-        super(id, status, ownerId, bankId, currency, createdAt, balance);
+        super(id, status, ownerId, enterpriseId, bankId, currency, createdAt, balance);
         this.salaryProjectId = salaryProjectId;
         this.salaryAccountStatus = salaryAccountStatus;
         this.salaryAmount = salaryAmount;

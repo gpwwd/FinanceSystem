@@ -37,11 +37,15 @@ public class SalaryProject {
         this.createdAt = LocalDateTime.now();
     }
 
-    private void checkStatus(SalaryProjectStatus status) {
-        if(!this.status.equals(status)) {
+    public void checkStatusOrThrow(SalaryProjectStatus status) {
+        if (!this.status.equals(status)) {
             throw new IllegalStateException("Salary project status mismatch, " +
                     "should be " + status + " but is " + this.status);
         }
+    }
+
+    public boolean isStatus(SalaryProjectStatus status) {
+        return this.status.equals(status);
     }
 
     public void checkStatusToAddEmployee(){

@@ -11,10 +11,22 @@ import java.sql.SQLException;
 public class AccountRowMapper implements RowMapper<Account> {
     @Override
     public Account mapRow(ResultSet rs, int rowNum) throws SQLException {
+        Long enterpriseId = rs.getLong("enterprise_id");
+        if (rs.wasNull()) {
+            enterpriseId = null;
+        }
+
+        Long ownerId = rs.getLong("owner_id");
+        if (rs.wasNull()) {
+            ownerId = null;
+        }
+
+
         return new Account(
                 rs.getLong("id"),
                 AccountStatus.valueOf(rs.getString("status")),
-                rs.getLong("owner_id"),
+                ownerId,
+                enterpriseId,
                 rs.getLong("bank_id"),
                 Currency.valueOf(rs.getString("currency")),
                 rs.getTimestamp("created_at").toLocalDateTime(),

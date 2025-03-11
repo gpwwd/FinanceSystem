@@ -27,7 +27,7 @@ public class AccountController {
             @RequestParam Long bankId,
             @RequestParam Currency currency
     ) {
-        Long accountId = accountService.createAccount(userDetails.getId(), bankId, currency);
+        Long accountId = accountService.createPersonalAccount(userDetails.getId(), bankId, currency);
         return ResponseEntity.status(HttpStatus.CREATED).body(accountId);
     }
 

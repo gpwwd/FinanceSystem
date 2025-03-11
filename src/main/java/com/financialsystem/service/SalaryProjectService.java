@@ -5,6 +5,7 @@ import com.financialsystem.domain.model.Enterprise;
 import com.financialsystem.domain.model.SalaryProject;
 import com.financialsystem.domain.model.account.SalaryAccount;
 import com.financialsystem.domain.model.user.*;
+import com.financialsystem.domain.status.SalaryProjectStatus;
 import com.financialsystem.dto.request.EmployeeRequestForCreatingSalaryProject;
 import com.financialsystem.dto.request.EmployeeRequestForSalaryProject;
 import com.financialsystem.dto.request.SalaryProjectRequest;
@@ -109,20 +110,35 @@ public class SalaryProjectService {
     @Scheduled(cron = "*/10 * * * * *")
     @Transactional
     public void executeProjectMonthlySalary() {
-//        List<Deposit> deposits = depositRepository.findAll();
-//        List<Deposit> depositsToUpdate = new ArrayList<>();
-//        List<Transaction> transactions = new ArrayList<>();
+//        List<SalaryProject> activeProjects = salaryProjectRepository.findAll()
+//                .stream()
+//                .filter(sp -> sp.isStatus(SalaryProjectStatus.ACTIVE))
+//                .toList();
 //
-//        for (Deposit deposit : deposits) {
-//            if (deposit.addMonthlyInterestIfRequired()) {
-//                depositsToUpdate.add(deposit);
-//                Transaction transaction = Transaction.create(deposit.getId(), TransactionType.DEPOSIT, deposit.getId(),
-//                        TransactionType.DEPOSIT, deposit.calculateMonthlyInterest());
-//                transactions.add(transaction);
+//        for (SalaryProject project : activeProjects) {
+//            Enterprise enterprise = entityFinder.findEntityById(project.getEnterpriseId(), enterpriseRepository, "Предприятие");
+//
+//            List<SalaryAccount> salaryAccounts = salaryAccountRepository.findAllBySalaryProjectId(project.getId());
+
+//            for (SalaryAccount account : salaryAccounts) {
+//                double salaryAmount = account.getMonthlySalary();
+//                if (enterprise.getBalance() < salaryAmount) {
+//                    throw new RuntimeException("Недостаточно средств на счете предприятия для выплаты зарплат");
+//                }
+//
+//                // Создаем транзакцию перевода зарплаты
+//                Transaction salaryTransaction = Transaction.create(
+//                        enterprise.getMainAccountId(), account.getId(), salaryAmount, TransactionType.SALARY_PAYMENT);
+//
+//                // Обновляем баланс предприятия и сотрудника
+//                enterprise.withdraw(salaryAmount);
+//                account.deposit(salaryAmount);
+//
+//                // Сохраняем обновленные данные
+//                transactionRepository.create(salaryTransaction);
+//                enterpriseRepository.update(enterprise);
+//                salaryAccountRepository.update(account);
 //            }
 //        }
-//
-//        transactionRepository.batchUpdate(transactions);
-//        depositRepository.batchUpdate(depositsToUpdate);
     }
 }

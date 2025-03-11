@@ -9,10 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 
 @Repository
 public class AccountRepository extends GenericRepository<Account, Account> {
@@ -24,13 +21,13 @@ public class AccountRepository extends GenericRepository<Account, Account> {
 
     @Override
     protected String getCreateSql() {
-        return "INSERT INTO account (balance, status, owner_id, bank_id, currency, " +
-                "created_at) VALUES (?, ?, ?, ?, ?, ?)";
+        return "INSERT INTO account (balance, status, owner_id, bank_id, currency, enterprise_id, " +
+                "created_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
     }
 
     @Override
     protected String getUpdateSql() {
-        return "UPDATE account SET balance = ?, status = ?, owner_id = ?, bank_id = ?, currency = ?, " +
+        return "UPDATE account SET balance = ?, status = ?, owner_id = ?, bank_id = ?, currency = ?, enterprise_id = ?, " +
                 "created_at = ? WHERE id = ?";
     }
 
@@ -65,12 +62,21 @@ public class AccountRepository extends GenericRepository<Account, Account> {
         }
         ps.setBigDecimal(1, accountDto.getBalance());
         ps.setString(2, accountDto.getStatus().name());
-        ps.setLong(3, accountDto.getOwnerId());
+        if (accountDto.getOwnerId() != null) {
+            ps.setLong(3, accountDto.getOwnerId());
+        } else {
+            ps.setNull(3, Types.BIGINT);
+        }
         ps.setLong(4, accountDto.getBankId());
         ps.setString(5, accountDto.getCurrency().name());
-        ps.setTimestamp(6, Timestamp.valueOf(accountDto.getCreatedAt()));
+        if (accountDto.getEnterpriseId() != null) {
+            ps.setLong(6, accountDto.getEnterpriseId());
+        } else {
+            ps.setNull(6, Types.BIGINT);
+        }
+        ps.setTimestamp(7, Timestamp.valueOf(accountDto.getCreatedAt()));
         if (sql.startsWith("UPDATE")) {
-            ps.setLong(7, accountDto.getId());
+            ps.setLong(8, accountDto.getId());
         }
         return ps;
     }

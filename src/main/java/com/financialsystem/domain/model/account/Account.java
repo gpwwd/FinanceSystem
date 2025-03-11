@@ -19,25 +19,16 @@ public class Account {
     protected AccountStatus status;
     @Getter
     protected Long ownerId;
+    @Getter
+    protected Long enterpriseId;
     protected Long bankId;
     protected Currency currency;
     protected LocalDateTime createdAt;
     protected BigDecimal balance;
 
-    public static Account create(Long ownerId, Long bankId, Currency currency) {
-        Account account = new Account();
-        account.ownerId = ownerId;
-        account.bankId = bankId;
-        account.status = AccountStatus.ACTIVE;
-        account.balance = BigDecimal.ZERO;
-        account.currency = currency;
-        account.createdAt = LocalDateTime.now();
-        return account;
-    }
-
     public AccountDatabaseDto toDto() {
         return new AccountDatabaseDto(
-                id, status, ownerId, bankId, currency, createdAt, balance);
+                id, status, ownerId, enterpriseId, bankId, currency, createdAt, balance);
     }
 
     public void block() {

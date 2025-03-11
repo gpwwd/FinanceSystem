@@ -17,6 +17,7 @@ public class SalaryAccountRowMapper implements RowMapper<SalaryAccountDatabaseDt
                rs.getLong("id"),
                AccountStatus.valueOf(rs.getString("status")),
                rs.getLong("owner_id"),
+               rs.getLong("enterprise_id"),
                rs.getLong("bank_id"),
                Currency.valueOf(rs.getString("currency")),
                rs.getTimestamp("created_at").toLocalDateTime(),
