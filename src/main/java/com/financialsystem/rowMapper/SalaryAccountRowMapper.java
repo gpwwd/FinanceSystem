@@ -22,7 +22,8 @@ public class SalaryAccountRowMapper implements RowMapper<SalaryAccountDatabaseDt
                rs.getTimestamp("created_at").toLocalDateTime(),
                rs.getBigDecimal("balance"),
                rs.getLong("salary_project_id"),
-               PendingEntityStatus.valueOf(rs.getString("pending_status"))
+               PendingEntityStatus.valueOf(rs.getString("pending_status")),
+               rs.getBigDecimal("salary")
        );
     }
 }

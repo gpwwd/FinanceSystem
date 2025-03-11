@@ -3,10 +3,11 @@ package com.financialsystem.service;
 import com.financialsystem.domain.model.Currency;
 import com.financialsystem.domain.model.Enterprise;
 import com.financialsystem.domain.model.SalaryProject;
-import com.financialsystem.domain.model.account.Account;
 import com.financialsystem.domain.model.account.SalaryAccount;
 import com.financialsystem.domain.model.user.*;
+import com.financialsystem.dto.request.EmployeeRequestForCreatingSalaryProject;
 import com.financialsystem.dto.request.EmployeeRequestForSalaryProject;
+import com.financialsystem.dto.request.SalaryProjectRequest;
 import com.financialsystem.dto.response.EmployeeResponseForSalaryProject;
 import com.financialsystem.exception.custom.NotFoundException;
 import com.financialsystem.repository.EnterpriseRepository;
@@ -20,6 +21,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -45,7 +47,8 @@ public class SalaryProjectService {
     }
 
     @Transactional
-    public Long createRequest(BankingUserDetails userDetails, Currency currency, List<String> employeesPassports) {
+    public Long createRequest(BankingUserDetails userDetails, SalaryProjectRequest request) {
+        Currency currency = Currency.valueOf(request.currency());
         Specialist specialist = entityFinder.findEntityById(userDetails.getId(), specialistRepository, "Специалист стороннего предприятия");
         Long enterpriseId = specialist.getEnterpriseId();
         Enterprise enterprise = entityFinder.findEntityById(enterpriseId, enterpriseRepository, "Предприятие");
@@ -53,8 +56,10 @@ public class SalaryProjectService {
         SalaryProject salaryProject = SalaryProject.createSalaryProjectRequest(enterpriseId, enterprise.getBankId(), currency);
         Long salaryProjectId = salaryProjectRepository.create(salaryProject);
 
-        employeesPassports.forEach(employeePassport -> addEmployeeToSalaryProject(
-                new EmployeeRequestForSalaryProject(salaryProjectId, employeePassport), userDetails));
+        List<EmployeeRequestForCreatingSalaryProject> employees = request.employees();
+
+        employees.forEach(employee -> addEmployeeToSalaryProject(
+                new EmployeeRequestForSalaryProject(salaryProjectId, employee.passportSeriesNumber(), employee.salaryAmount()), userDetails));
 
         return salaryProjectId;
     }
@@ -82,7 +87,7 @@ public class SalaryProjectService {
         client.checkRole(Role.CLIENT);
 
         SalaryAccount salaryAccount = SalaryAccount.create(client.getId(), enterprise.getBankId(),
-                salaryProject.getCurrency(), salaryProject.getId());
+                salaryProject.getCurrency(), salaryProject.getId(), request.salaryAmount());
 
         Long salaryAccountId = salaryAccountRepository.create(salaryAccount);
 

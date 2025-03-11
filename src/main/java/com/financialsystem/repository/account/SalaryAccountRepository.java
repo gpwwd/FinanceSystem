@@ -35,8 +35,8 @@ public class SalaryAccountRepository extends GenericRepository<SalaryAccount, Sa
                 VALUES (?, ?, ?, ?, ?, ?)
                 RETURNING id
             )
-            INSERT INTO salary_account (account_id, salary_project_id, pending_status)
-            SELECT id, ?, ? FROM inserted_account
+            INSERT INTO salary_account (account_id, salary_project_id, pending_status, salary)
+            SELECT id, ?, ?, ? FROM inserted_account
             RETURNING id;
         """;
     }
@@ -51,7 +51,7 @@ public class SalaryAccountRepository extends GenericRepository<SalaryAccount, Sa
                 RETURNING id
             )
             UPDATE salary_account
-            SET salary_project_id = ?, pending_status = ?
+            SET salary_project_id = ?, pending_status = ?, salary = ?
             WHERE id = ?;
         """;
     }
@@ -59,7 +59,7 @@ public class SalaryAccountRepository extends GenericRepository<SalaryAccount, Sa
     @Override
     protected String getFindByIdSql() {
         return """
-            SELECT sa.salary_project_id, sa.pending_status, a.* FROM salary_account sa
+            SELECT sa.salary_project_id, sa.pending_status, sa.salary, a.* FROM salary_account sa
             JOIN account a ON sa.account_id = a.id
             WHERE sa.id = ?;
         """;
@@ -78,7 +78,7 @@ public class SalaryAccountRepository extends GenericRepository<SalaryAccount, Sa
     @Override
     protected String getFindAllSql() {
         return """
-            SELECT sa.id, sa.account_id, sa.salary_project_id, sa.pending_status,
+            SELECT sa.id, sa.account_id, sa.salary_project_id, sa.pending_status, sa.salary
                    a.owner_id, a.bank_id, a.currency, a.created_at, a.balance, a.status
             FROM salary_account sa
             JOIN account a ON sa.account_id = a.id;
@@ -105,15 +105,13 @@ public class SalaryAccountRepository extends GenericRepository<SalaryAccount, Sa
             fillPreparedStatement(ps, dto);
             ps.setLong(6, dto.getId());
             ps.setLong(7, dto.getSalaryProjectId());
-            ps.setString(8, dto.getSalaryAccountStatus().name());
-            ps.setLong(9, dto.getId());
+            ps.setLong(10, dto.getId());
             return ps;
         }
 
         fillPreparedStatement(ps, dto);
         ps.setTimestamp(6, Timestamp.valueOf(dto.getCreatedAt()));
         ps.setLong(7, dto.getSalaryProjectId());
-        ps.setString(8, dto.getSalaryAccountStatus().name());
         return ps;
     }
 
@@ -123,11 +121,13 @@ public class SalaryAccountRepository extends GenericRepository<SalaryAccount, Sa
         ps.setString(3, dto.getCurrency().name());
         ps.setString(4, dto.getStatus().name());
         ps.setBigDecimal(5, dto.getBalance());
+        ps.setString(8, dto.getSalaryAccountStatus().name());
+        ps.setBigDecimal(9, dto.getSalaryAmount());
     }
 
     public List<SalaryAccount> findAllBySalaryProjectId(Long salaryProjectId) {
         String sql = """
-            SELECT sa.id, sa.account_id, sa.salary_project_id, sa.pending_status,
+            SELECT sa.id, sa.account_id, sa.salary_project_id, sa.pending_status, sa.salary,
                    a.owner_id, a.bank_id, a.currency, a.created_at, a.balance, a.status
             FROM salary_account sa
             JOIN account a ON sa.account_id = a.id

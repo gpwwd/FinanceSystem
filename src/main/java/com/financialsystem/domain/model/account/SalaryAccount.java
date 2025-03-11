@@ -19,8 +19,9 @@ public class SalaryAccount extends Account {
     @Getter
     private Long salaryProjectId;
     private PendingEntityStatus salaryAccountStatus;
+    private BigDecimal salaryAmount;
 
-    public static SalaryAccount create(Long ownerId, Long bankId, Currency currency, Long salaryProjectId) {
+    public static SalaryAccount create(Long ownerId, Long bankId, Currency currency, Long salaryProjectId, BigDecimal salaryAmount) {
         SalaryAccount salaryAccount = new SalaryAccount();
         salaryAccount.ownerId = ownerId;
         salaryAccount.bankId = bankId;
@@ -30,6 +31,7 @@ public class SalaryAccount extends Account {
         salaryAccount.createdAt = LocalDateTime.now();
         salaryAccount.salaryProjectId = salaryProjectId;
         salaryAccount.salaryAccountStatus = PendingEntityStatus.PENDING;
+        salaryAccount.salaryAmount = salaryAmount;
         return salaryAccount;
     }
 
@@ -44,12 +46,13 @@ public class SalaryAccount extends Account {
         salaryAccount.createdAt = dto.getCreatedAt();
         salaryAccount.salaryProjectId = dto.getSalaryProjectId();
         salaryAccount.salaryAccountStatus = dto.getSalaryAccountStatus();
+        salaryAccount.salaryAmount = dto.getSalaryAmount();
         return salaryAccount;
     }
 
     public SalaryAccountDatabaseDto toDto() {
         return new SalaryAccountDatabaseDto(
-                id, status, ownerId, bankId, currency, createdAt, balance, salaryProjectId, salaryAccountStatus);
+                id, status, ownerId, bankId, currency, createdAt, balance, salaryProjectId, salaryAccountStatus, salaryAmount);
     }
 
     public void approveSalaryAccountStatus() {

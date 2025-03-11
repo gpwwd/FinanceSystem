@@ -21,20 +21,17 @@ import java.util.List;
 @PreAuthorize("hasAuthority('SPECIALIST')")
 public class SpecialistController {
 
-    private final SpecialistService specialistService;
     private final SalaryProjectService salaryProjectService;
 
     @Autowired
-    public SpecialistController(SpecialistService specialistService, SalaryProjectService salaryProjectService) {
-        this.specialistService = specialistService;
+    public SpecialistController(SalaryProjectService salaryProjectService) {
         this.salaryProjectService = salaryProjectService;
     }
 
     @PostMapping("/salary-projects/create-request")
     public ResponseEntity<Long> requestSalaryProject(@RequestBody SalaryProjectRequest request,
                                                      @AuthenticationPrincipal BankingUserDetails userDetails) {
-        Long salaryProjectRequestId = salaryProjectService.createRequest(userDetails,
-                Currency.valueOf(request.currency()), request.employeesPassports());
+        Long salaryProjectRequestId = salaryProjectService.createRequest(userDetails, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(salaryProjectRequestId);
     }
 
