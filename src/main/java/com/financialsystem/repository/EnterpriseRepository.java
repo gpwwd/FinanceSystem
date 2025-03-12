@@ -24,8 +24,8 @@ public class EnterpriseRepository extends GenericRepository<Enterprise, Enterpri
     @Override
     protected String getCreateSql() {
         return """
-            INSERT INTO enterprise (type, legal_name, unp, bank_id, legal_address, created_at)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO enterprise (type, legal_name, unp, bank_id, legal_address, created_at, payroll_account_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             RETURNING id
         """;
     }
@@ -34,7 +34,7 @@ public class EnterpriseRepository extends GenericRepository<Enterprise, Enterpri
     protected String getUpdateSql() {
         return """
             UPDATE enterprise SET type = ?, legal_name = ?, unp = ?,
-            bank_id = ?, legal_address = ?
+            bank_id = ?, legal_address = ?, payroll_account_id = ?
             WHERE id = ?
         """;
     }
@@ -66,7 +66,8 @@ public class EnterpriseRepository extends GenericRepository<Enterprise, Enterpri
 
         if (sql.contains("UPDATE enterprise SET")) {
             fillPreparedStatement(ps, dto);
-            ps.setLong(6, dto.id());
+            ps.setLong(6, dto.payrollAccountId());
+            ps.setLong(7, dto.id());
             return ps;
         }
 
@@ -77,6 +78,7 @@ public class EnterpriseRepository extends GenericRepository<Enterprise, Enterpri
 
         fillPreparedStatement(ps, dto);
         ps.setTimestamp(6, java.sql.Timestamp.valueOf(dto.createdAt()));
+        ps.setLong(7, dto.payrollAccountId());
         return ps;
     }
 

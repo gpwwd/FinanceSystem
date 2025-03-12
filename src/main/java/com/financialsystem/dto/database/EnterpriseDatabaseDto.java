@@ -9,5 +9,6 @@ public record EnterpriseDatabaseDto(
         String unp,
         Long bankId,
         String legalAddress,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        Long payrollAccountId
 ) {}

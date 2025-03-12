@@ -19,6 +19,7 @@ public class SalaryAccount extends Account {
     @Getter
     private Long salaryProjectId;
     private PendingEntityStatus salaryAccountStatus;
+    @Getter
     private BigDecimal salaryAmount;
 
     public static SalaryAccount create(Long ownerId, Long bankId, Currency currency, Long salaryProjectId, BigDecimal salaryAmount) {

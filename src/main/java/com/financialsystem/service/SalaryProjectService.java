@@ -3,7 +3,10 @@ package com.financialsystem.service;
 import com.financialsystem.domain.model.Currency;
 import com.financialsystem.domain.model.Enterprise;
 import com.financialsystem.domain.model.SalaryProject;
+import com.financialsystem.domain.model.account.Account;
 import com.financialsystem.domain.model.account.SalaryAccount;
+import com.financialsystem.domain.model.transaction.Transaction;
+import com.financialsystem.domain.model.transaction.TransactionType;
 import com.financialsystem.domain.model.user.*;
 import com.financialsystem.domain.status.SalaryProjectStatus;
 import com.financialsystem.dto.request.EmployeeRequestForCreatingSalaryProject;
@@ -13,6 +16,8 @@ import com.financialsystem.dto.response.EmployeeResponseForSalaryProject;
 import com.financialsystem.exception.custom.NotFoundException;
 import com.financialsystem.repository.EnterpriseRepository;
 import com.financialsystem.repository.SalaryProjectRepository;
+import com.financialsystem.repository.TransactionRepository;
+import com.financialsystem.repository.account.AccountRepository;
 import com.financialsystem.repository.account.SalaryAccountRepository;
 import com.financialsystem.repository.user.ClientRepository;
 import com.financialsystem.repository.user.SpecialistRepository;
@@ -34,17 +39,22 @@ public class SalaryProjectService {
     private final SalaryProjectRepository salaryProjectRepository;
     private final ClientRepository clientRepository;
     private final SalaryAccountRepository salaryAccountRepository;
+    private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
 
     @Autowired
     public SalaryProjectService(SpecialistRepository specialistRepository, EntityFinder entityFinder,
                                 EnterpriseRepository enterpriseRepository, SalaryProjectRepository salaryProjectRepository,
-                                ClientRepository clientRepository, SalaryAccountRepository salaryAccountRepository) {
+                                ClientRepository clientRepository, SalaryAccountRepository salaryAccountRepository,
+                                AccountRepository accountRepository, TransactionRepository transactionRepository) {
         this.specialistRepository = specialistRepository;
         this.entityFinder = entityFinder;
         this.enterpriseRepository = enterpriseRepository;
         this.salaryProjectRepository = salaryProjectRepository;
         this.clientRepository = clientRepository;
         this.salaryAccountRepository = salaryAccountRepository;
+        this.accountRepository = accountRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     @Transactional
@@ -107,38 +117,34 @@ public class SalaryProjectService {
         return salaryProjectRepository.update(salaryProject);
     }
 
-    @Scheduled(cron = "*/10 * * * * *")
+    //@Scheduled(cron = "*/10 * * * * *")
     @Transactional
     public void executeProjectMonthlySalary() {
-//        List<SalaryProject> activeProjects = salaryProjectRepository.findAll()
-//                .stream()
-//                .filter(sp -> sp.isStatus(SalaryProjectStatus.ACTIVE))
-//                .toList();
-//
-//        for (SalaryProject project : activeProjects) {
-//            Enterprise enterprise = entityFinder.findEntityById(project.getEnterpriseId(), enterpriseRepository, "Предприятие");
-//
-//            List<SalaryAccount> salaryAccounts = salaryAccountRepository.findAllBySalaryProjectId(project.getId());
+        List<SalaryProject> activeProjects = salaryProjectRepository.findAll()
+                .stream()
+                .filter(sp -> sp.isStatus(SalaryProjectStatus.ACTIVE))
+                .toList();
 
-//            for (SalaryAccount account : salaryAccounts) {
-//                double salaryAmount = account.getMonthlySalary();
-//                if (enterprise.getBalance() < salaryAmount) {
-//                    throw new RuntimeException("Недостаточно средств на счете предприятия для выплаты зарплат");
-//                }
-//
-//                // Создаем транзакцию перевода зарплаты
-//                Transaction salaryTransaction = Transaction.create(
-//                        enterprise.getMainAccountId(), account.getId(), salaryAmount, TransactionType.SALARY_PAYMENT);
-//
-//                // Обновляем баланс предприятия и сотрудника
-//                enterprise.withdraw(salaryAmount);
-//                account.deposit(salaryAmount);
-//
-//                // Сохраняем обновленные данные
-//                transactionRepository.create(salaryTransaction);
-//                enterpriseRepository.update(enterprise);
-//                salaryAccountRepository.update(account);
-//            }
-//        }
+        for (SalaryProject project : activeProjects) {
+            Enterprise enterprise = entityFinder.findEntityById(project.getEnterpriseId(), enterpriseRepository, "Предприятие");
+            Account enterprisePayrollAccount = entityFinder.findEntityById(enterprise.getPayrollAccountId(),
+                    accountRepository, "Счет предприятия для выплаты зарплат");
+
+            List<SalaryAccount> salaryAccounts = salaryAccountRepository.findAllBySalaryProjectId(project.getId());
+
+            for (SalaryAccount account : salaryAccounts) {
+                BigDecimal salaryAmount = account.getSalaryAmount();
+
+                Transaction salaryTransaction = Transaction.create(
+                        enterprise.getPayrollAccountId(), TransactionType.ACCOUNT, account.getId(), TransactionType.ACCOUNT, salaryAmount);
+
+                enterprisePayrollAccount.withdraw(salaryAmount);
+                account.replenish(salaryAmount);
+
+                transactionRepository.create(salaryTransaction);
+                accountRepository.update(enterprisePayrollAccount);
+                salaryAccountRepository.update(account);
+            }
+        }
     }
 }
