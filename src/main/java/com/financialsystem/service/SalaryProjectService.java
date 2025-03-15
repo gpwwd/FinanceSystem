@@ -8,6 +8,7 @@ import com.financialsystem.domain.model.account.SalaryAccount;
 import com.financialsystem.domain.model.transaction.Transaction;
 import com.financialsystem.domain.model.transaction.TransactionType;
 import com.financialsystem.domain.model.user.*;
+import com.financialsystem.domain.status.PendingEntityStatus;
 import com.financialsystem.domain.status.SalaryProjectStatus;
 import com.financialsystem.dto.request.EmployeeRequestForCreatingSalaryProject;
 import com.financialsystem.dto.request.EmployeeRequestForSalaryProject;
@@ -28,7 +29,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 @Service
 public class SalaryProjectService {
@@ -90,11 +93,13 @@ public class SalaryProjectService {
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Salary project with ID " + request.salaryProjectId()
                         + " not found among projects for enterpriseId " + enterpriseId));
+
         salaryProject.checkStatusToAddEmployee();
 
         Client client = clientRepository.findByPassportSeriesNumber(request.passportSeriesNumber()).
                 orElseThrow(() -> new NotFoundException("Клиент с серийным номером пасспорта " +
                 request.passportSeriesNumber() + " не найден"));
+
         client.checkRole(Role.CLIENT);
 
         SalaryAccount salaryAccount = SalaryAccount.create(client.getId(), enterprise.getBankId(),
@@ -117,7 +122,7 @@ public class SalaryProjectService {
         return salaryProjectRepository.update(salaryProject);
     }
 
-    //@Scheduled(cron = "*/10 * * * * *")
+    //scheduled
     @Transactional
     public void executeProjectMonthlySalary() {
         List<SalaryProject> activeProjects = salaryProjectRepository.findAll()
@@ -147,4 +152,6 @@ public class SalaryProjectService {
             }
         }
     }
+
+
 }

@@ -60,7 +60,7 @@ public class SalaryAccountRepository extends GenericRepository<SalaryAccount, Sa
         SELECT sa.salary_project_id, sa.pending_status, sa.salary, a.*
         FROM salary_account sa
         JOIN account a ON sa.account_id = a.id
-        WHERE sa.id = ?;
+        WHERE a.id = ?;
     """;
     }
 

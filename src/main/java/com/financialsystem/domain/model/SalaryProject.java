@@ -49,9 +49,10 @@ public class SalaryProject {
     }
 
     public void checkStatusToAddEmployee(){
-        if(!this.status.equals(SalaryProjectStatus.ACTIVE) && !this.status.equals(SalaryProjectStatus.PENDING)) {
-            throw new IllegalStateException("Salary project status should be ACTIVE or PENDING");
+        if (this.status.equals(SalaryProjectStatus.ACTIVE) || this.status.equals(SalaryProjectStatus.PENDING)) {
+            return;
         }
+        throw new IllegalStateException("Salary project status should be ACTIVE or PENDING");
     }
 
     public SalaryProjectDatabaseDto toDto() {

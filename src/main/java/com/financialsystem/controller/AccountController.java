@@ -2,12 +2,16 @@ package com.financialsystem.controller;
 
 import com.financialsystem.domain.model.Currency;
 import com.financialsystem.domain.model.user.BankingUserDetails;
+import com.financialsystem.dto.response.AccountReposonseDto;
+import com.financialsystem.dto.response.SalaryAccountResponseDto;
 import com.financialsystem.service.AccountService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/accounts")
@@ -37,4 +41,31 @@ public class AccountController {
         accountService.closeAccount(userDetails.getId(), accountId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping
+    @PreAuthorize("hasAuthority('CLIENT')")
+    public ResponseEntity<List<AccountReposonseDto>> getAllAccountsForClient(@AuthenticationPrincipal BankingUserDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                accountService.getPersonalAccountsForClient(userDetails.getId())
+        );
+    }
+
+    @GetMapping("{accountId}")
+    @PreAuthorize("hasAuthority('CLIENT')")
+    public ResponseEntity<AccountReposonseDto> getAccountById(@AuthenticationPrincipal BankingUserDetails userDetails,
+                                                                    @PathVariable Long accountId) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                accountService.getAccountById(userDetails.getId(), accountId)
+        );
+    }
+
+    @GetMapping("salary/{accountId}")
+    @PreAuthorize("hasAuthority('CLIENT')")
+    public ResponseEntity<SalaryAccountResponseDto> getSalaryAccountById(@AuthenticationPrincipal BankingUserDetails userDetails,
+                                                                         @PathVariable Long accountId) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                accountService.getSalaryAccountById(userDetails.getId(), accountId)
+        );
+    }
+
 }

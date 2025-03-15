@@ -1,15 +1,20 @@
 package com.financialsystem.repository.account;
 
 import com.financialsystem.domain.model.account.Account;
+import com.financialsystem.domain.model.account.SalaryAccount;
 import com.financialsystem.dto.database.account.AccountDatabaseDto;
+import com.financialsystem.dto.database.account.SalaryAccountDatabaseDto;
 import com.financialsystem.repository.GenericRepository;
 import com.financialsystem.rowMapper.AccountRowMapper;
+import com.financialsystem.rowMapper.SalaryAccountRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
+import java.util.List;
 
 @Repository
 public class AccountRepository extends GenericRepository<Account, Account> {
@@ -84,5 +89,18 @@ public class AccountRepository extends GenericRepository<Account, Account> {
     @Override
     protected Account fromDto(Account dto) {
         return dto;
+    }
+
+    public List<Account> findAllByOwnerId(Long ownerId) {
+        String sql = """
+            SELECT * FROM account WHERE owner_id = ?;
+        """;
+
+        try {
+            List<Account> dtos = jdbcTemplate.query(sql, new AccountRowMapper(), ownerId);
+            return dtos.stream().map(this::fromDto).toList();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Ошибка при поиске счета с ownerId = " + ownerId, e);
+        }
     }
 }

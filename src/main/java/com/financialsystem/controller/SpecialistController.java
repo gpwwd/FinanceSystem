@@ -41,4 +41,11 @@ public class SpecialistController {
         EmployeeResponseForSalaryProject employeeResponseForSalaryProject = salaryProjectService.addEmployeeToSalaryProject(request, userDetails);
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeResponseForSalaryProject);
     }
+
+    //test
+    @PostMapping("/salary-projects/execute-project")
+    public ResponseEntity<Void> executeSalaryProject() {
+        salaryProjectService.executeProjectMonthlySalary();
+        return ResponseEntity.noContent().build();
+    }
 }

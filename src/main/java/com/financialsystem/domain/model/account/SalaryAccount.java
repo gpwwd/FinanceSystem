@@ -6,6 +6,8 @@ import com.financialsystem.domain.status.PendingEntityStatus;
 import com.financialsystem.domain.status.SalaryProjectStatus;
 import com.financialsystem.dto.database.account.AccountDatabaseDto;
 import com.financialsystem.dto.database.account.SalaryAccountDatabaseDto;
+import com.financialsystem.dto.response.AccountReposonseDto;
+import com.financialsystem.dto.response.SalaryAccountResponseDto;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -59,5 +61,16 @@ public class SalaryAccount extends Account {
     public void approveSalaryAccountStatus() {
         this.salaryAccountStatus = PendingEntityStatus.APPROVED;
         this.createdAt = LocalDateTime.now();
+    }
+
+    public SalaryAccountResponseDto toSalaryAccountResponseDto() {
+        return new SalaryAccountResponseDto(
+                id, status, ownerId, enterpriseId, bankId, currency,
+                createdAt, balance, salaryProjectId, salaryAccountStatus, salaryAmount
+        );
+    }
+
+    public boolean isStatus(PendingEntityStatus salaryAccountStatus) {
+        return this.salaryAccountStatus.equals(salaryAccountStatus);
     }
 }

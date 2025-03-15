@@ -3,6 +3,7 @@ package com.financialsystem.domain.model.account;
 import com.financialsystem.domain.model.Currency;
 import com.financialsystem.domain.status.AccountStatus;
 import com.financialsystem.dto.database.account.AccountDatabaseDto;
+import com.financialsystem.dto.response.AccountReposonseDto;
 import lombok.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,5 +68,18 @@ public class Account {
         if(this.balance.compareTo(BigDecimal.ZERO) > 0) {
             throw new IllegalStateException("You can not close account with positive balance!");
         }
+    }
+
+    public AccountReposonseDto toAccountResponseDto() {
+        return new AccountReposonseDto(
+                id,
+                status,
+                ownerId,
+                enterpriseId,
+                bankId,
+                currency,
+                createdAt,
+                balance
+        );
     }
 }
