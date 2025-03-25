@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @AllArgsConstructor
-public class PendingClientResponseDto {
+public class ClientResponseDto {
     protected Long id;
     protected String fullName;
     protected String passport;

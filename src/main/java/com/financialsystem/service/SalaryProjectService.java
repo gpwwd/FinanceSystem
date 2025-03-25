@@ -8,12 +8,14 @@ import com.financialsystem.domain.model.account.SalaryAccount;
 import com.financialsystem.domain.model.transaction.Transaction;
 import com.financialsystem.domain.model.transaction.TransactionType;
 import com.financialsystem.domain.model.user.*;
-import com.financialsystem.domain.status.PendingEntityStatus;
 import com.financialsystem.domain.status.SalaryProjectStatus;
+import com.financialsystem.dto.database.user.SpecialistDatabaseDto;
 import com.financialsystem.dto.request.EmployeeRequestForCreatingSalaryProject;
 import com.financialsystem.dto.request.EmployeeRequestForSalaryProject;
 import com.financialsystem.dto.request.SalaryProjectRequest;
 import com.financialsystem.dto.response.EmployeeResponseForSalaryProject;
+import com.financialsystem.dto.response.SalaryProjectDetailsResponseDto;
+import com.financialsystem.dto.response.SalaryProjectResponseDto;
 import com.financialsystem.exception.custom.NotFoundException;
 import com.financialsystem.repository.EnterpriseRepository;
 import com.financialsystem.repository.SalaryProjectRepository;
@@ -24,14 +26,12 @@ import com.financialsystem.repository.user.ClientRepository;
 import com.financialsystem.repository.user.SpecialistRepository;
 import com.financialsystem.util.EntityFinder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 @Service
 public class SalaryProjectService {
@@ -153,5 +153,32 @@ public class SalaryProjectService {
         }
     }
 
+    public List<SalaryProjectResponseDto> getAllSalaryProjects() {
+        List<SalaryProject> salaryProjects = salaryProjectRepository.findAll();
+        return salaryProjects.stream()
+                .map(SalaryProject::toResponseDto)
+                .toList();
+    }
 
+    public SalaryProjectDetailsResponseDto getSalaryProjectDetails(Long salaryPriojectId) {
+        SalaryProject salaryProject = entityFinder.findEntityById(salaryPriojectId, salaryProjectRepository, "Зарплатный проект");
+        List<SalaryAccount> salaryAccounts = salaryAccountRepository.findAllBySalaryProjectId(salaryProject.getId());
+        Enterprise enterprise = entityFinder.findEntityById(salaryProject.getEnterpriseId(), enterpriseRepository, "Предприятие");
+        Account enterprisePayrollAccount = entityFinder.findEntityById(enterprise.getPayrollAccountId(),
+                accountRepository, "Счет предприятия для выплаты зарплат");
+        return new SalaryProjectDetailsResponseDto(
+                salaryAccounts.stream()
+                        .map(SalaryAccount::toSalaryAccountResponseDto)
+                        .toList(),
+                enterprisePayrollAccount.toAccountResponseDto(),
+                salaryProject.toResponseDto()
+        );
+    }
+
+    public boolean validateOwner(Long salaryProjectId, BankingUserDetails userDetails) {
+        SpecialistDatabaseDto specialist = specialistRepository.findByName(userDetails.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException(userDetails.getUsername()));
+        SalaryProject salaryProject = entityFinder.findEntityById(salaryProjectId, salaryProjectRepository, "Зарплатный проект");
+        return salaryProject.getEnterpriseId().equals(specialist.getEnterpriseId());
+    }
 }

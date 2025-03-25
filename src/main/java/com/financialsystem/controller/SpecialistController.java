@@ -1,12 +1,14 @@
 package com.financialsystem.controller;
 
-import com.financialsystem.domain.model.Currency;
 import com.financialsystem.domain.model.user.BankingUserDetails;
 import com.financialsystem.dto.request.EmployeeRequestForSalaryProject;
 import com.financialsystem.dto.request.SalaryProjectRequest;
 import com.financialsystem.dto.response.EmployeeResponseForSalaryProject;
+import com.financialsystem.dto.response.EnterpriseResponseDto;
+import com.financialsystem.dto.response.SalaryProjectDetailsResponseDto;
+import com.financialsystem.dto.response.SalaryProjectResponseDto;
+import com.financialsystem.service.EnterpriseService;
 import com.financialsystem.service.SalaryProjectService;
-import com.financialsystem.service.SpecialistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,18 +16,18 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/specialist")
 @PreAuthorize("hasAuthority('SPECIALIST')")
 public class SpecialistController {
 
     private final SalaryProjectService salaryProjectService;
+    private final EnterpriseService enterpriseService;
 
     @Autowired
-    public SpecialistController(SalaryProjectService salaryProjectService) {
+    public SpecialistController(SalaryProjectService salaryProjectService, EnterpriseService enterpriseService) {
         this.salaryProjectService = salaryProjectService;
+        this.enterpriseService = enterpriseService;
     }
 
     @PostMapping("/salary-projects/create-request")
@@ -42,10 +44,19 @@ public class SpecialistController {
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeResponseForSalaryProject);
     }
 
-    //test
-    @PostMapping("/salary-projects/execute-project")
-    public ResponseEntity<Void> executeSalaryProject() {
-        salaryProjectService.executeProjectMonthlySalary();
-        return ResponseEntity.noContent().build();
+    @GetMapping("/enterprise")
+    public ResponseEntity<EnterpriseResponseDto> getEnterpriseById(@AuthenticationPrincipal BankingUserDetails userDetails) {
+        return ResponseEntity.ok(
+                enterpriseService.getEnterpriseById(userDetails)
+        );
+    }
+
+    @GetMapping("/salary-project/{id}/details")
+    @PreAuthorize("""
+            @salaryProjectService.validateOwner(#id, authentication.principal)""")
+    public ResponseEntity<SalaryProjectDetailsResponseDto> getSalaryProjectDetailsById(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                salaryProjectService.getSalaryProjectDetails(id)
+        );
     }
 }

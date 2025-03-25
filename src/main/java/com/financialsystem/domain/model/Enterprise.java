@@ -2,10 +2,8 @@ package com.financialsystem.domain.model;
 
 import com.financialsystem.dto.database.EnterpriseDatabaseDto;
 import com.financialsystem.dto.request.EnterpriseRegistrationRequest;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.financialsystem.dto.response.EnterpriseResponseDto;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -37,8 +35,8 @@ public class Enterprise {
         return enterprise;
     }
 
-    public static Enterprise create(EnterpriseRegistrationRequest request) {
-        return create(request.type(), request.legalName(), request.unp(), request.bankId(), request.legalAddress(), request.payrollAccountId());
+    public static Enterprise create(EnterpriseRegistrationRequest request, Long payrollAccountId) {
+        return create(request.type(), request.legalName(), request.unp(), request.bankId(), request.legalAddress(), payrollAccountId);
     }
 
     public EnterpriseDatabaseDto toDto() {
@@ -47,5 +45,13 @@ public class Enterprise {
 
     public static Enterprise fromDto(EnterpriseDatabaseDto dto) {
         return new Enterprise(dto.id(), dto.type(), dto.legalName(), dto.unp(), dto.bankId(), dto.payrollAccountId(), dto.legalAddress(), dto.createdAt());
+    }
+
+    public EnterpriseResponseDto toResponseDto() {
+        return new EnterpriseResponseDto(id, type, legalName, unp, bankId, payrollAccountId, legalAddress, createdAt);
+    }
+
+    public void connectPayrollAccount(Long payrollAccountId) {
+        this.payrollAccountId = payrollAccountId;
     }
 }

@@ -78,7 +78,11 @@ public class EnterpriseRepository extends GenericRepository<Enterprise, Enterpri
 
         fillPreparedStatement(ps, dto);
         ps.setTimestamp(6, java.sql.Timestamp.valueOf(dto.createdAt()));
-        ps.setLong(7, dto.payrollAccountId());
+        if(dto.payrollAccountId() != null) {
+            ps.setLong(7, dto.payrollAccountId());
+        } else {
+            ps.setObject(7, null, java.sql.Types.BIGINT);
+        }
         return ps;
     }
 

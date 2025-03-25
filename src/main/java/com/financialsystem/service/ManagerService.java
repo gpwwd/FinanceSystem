@@ -3,7 +3,7 @@ package com.financialsystem.service;
 import com.financialsystem.domain.model.user.Client;
 import com.financialsystem.domain.model.user.PendingClient;
 import com.financialsystem.dto.database.user.PendingClientDatabaseDto;
-import com.financialsystem.dto.response.PendingClientResponseDto;
+import com.financialsystem.dto.response.ClientResponseDto;
 import com.financialsystem.mapper.ClientMapper;
 import com.financialsystem.repository.user.ClientRepository;
 import com.financialsystem.repository.user.PendingClientRepository;
@@ -51,9 +51,16 @@ public class ManagerService {
     }
 
     @Transactional(readOnly = true)
-    public List<PendingClientResponseDto> getAllPendingClients() {
+    public List<ClientResponseDto> getAllPendingClients() {
         return pendingClientRepository.findAll().stream()
                 .map(ClientMapper::toPendingClientResponseDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ClientResponseDto> getAllApprovedClients() {
+        return clientRepository.findAll().stream()
+                .map(Client::toResponseDto)
                 .toList();
     }
 }

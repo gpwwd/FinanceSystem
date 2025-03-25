@@ -1,12 +1,10 @@
 package com.financialsystem.controller;
 
-import com.financialsystem.domain.model.user.PendingClient;
-import com.financialsystem.dto.request.ClientRegistrationRequest;
-import com.financialsystem.dto.response.PendingClientResponseDto;
+import com.financialsystem.dto.response.ClientResponseDto;
+import com.financialsystem.service.LoanService;
 import com.financialsystem.service.ManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,13 +16,15 @@ import java.util.List;
 public class ManagerController {
 
     private final ManagerService managerService;
+    private final LoanService loanService;
 
     @Autowired
-    public ManagerController(ManagerService managerService) {
+    public ManagerController(ManagerService managerService, LoanService loanService) {
         this.managerService = managerService;
+        this.loanService = loanService;
     }
 
-    @PostMapping("/approve/{pendingClientId}")
+    @PostMapping("clients/{pendingClientId}/approve")
     @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<Long> approveClient(@PathVariable Long pendingClientId
                                               ) {
@@ -32,7 +32,7 @@ public class ManagerController {
         return ResponseEntity.ok(approvedId);
     }
 
-    @PostMapping("/reject/{pendingClientId}")
+    @PostMapping("clients/{pendingClientId}/reject")
     @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<Long> rejectClient(@PathVariable Long pendingClientId
                                              ) {
@@ -40,10 +40,16 @@ public class ManagerController {
         return ResponseEntity.ok(approvedId);
     }
 
-    @GetMapping("/pending-clients")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public ResponseEntity<List<PendingClientResponseDto>> getAllPendingClients() {
-        List<PendingClientResponseDto> pendingClients = managerService.getAllPendingClients();
-        return ResponseEntity.ok(pendingClients);
+    @PostMapping("/loans/{pendingLoanId}/approve")
+    public ResponseEntity<Long> approveLoan(@PathVariable Long pendingLoanId) {
+        Long loanId = loanService.approveLoan(pendingLoanId);
+        return ResponseEntity.ok(loanId);
     }
+
+    @PostMapping("/loans/{pendingLoanId}/reject")
+    public ResponseEntity<Long> rejectLoan(@PathVariable Long pendingLoanId) {
+        Long loanId = loanService.rejectLoan(pendingLoanId);
+        return ResponseEntity.ok(loanId);
+    }
+
 }

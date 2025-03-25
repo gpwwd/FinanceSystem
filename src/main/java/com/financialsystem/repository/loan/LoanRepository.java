@@ -1,10 +1,13 @@
 package com.financialsystem.repository.loan;
 
 import com.financialsystem.domain.model.Loan;
+import com.financialsystem.domain.model.account.Account;
 import com.financialsystem.dto.database.loan.LoanDatabaseDto;
 import com.financialsystem.repository.GenericRepository;
+import com.financialsystem.rowMapper.AccountRowMapper;
 import com.financialsystem.rowMapper.LoanRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -13,6 +16,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -106,4 +110,15 @@ public class LoanRepository extends GenericRepository<Loan, Loan> {
         return dto;
     }
 
+    public List<Loan> findByAccountId(Long accountId) {
+        String sql = """
+            SELECT * FROM loan WHERE account_id = ?;
+        """;
+
+        try {
+            return jdbcTemplate.query(sql, new LoanRowMapper(), accountId);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Ошибка при поиске кредитов с accountId = " + accountId, e);
+        }
+    }
 }

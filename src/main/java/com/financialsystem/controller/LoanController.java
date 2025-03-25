@@ -1,6 +1,7 @@
 package com.financialsystem.controller;
 
 import com.financialsystem.domain.model.user.BankingUserDetails;
+import com.financialsystem.dto.response.LoanResponseDto;
 import com.financialsystem.dto.response.LoanTermDto;
 import com.financialsystem.dto.response.PendingLoanResponseDto;
 import com.financialsystem.service.LoanService;
@@ -23,7 +24,7 @@ public class LoanController {
         this.loanService = loanService;
     }
 
-    @PostMapping("/loans/create-request")
+    @PostMapping("/create-request")
     @PreAuthorize("hasAuthority('CLIENT')")
     public ResponseEntity<Long> requestLoan(@RequestParam Long accountId,
                                             @RequestParam BigDecimal amount,
@@ -66,15 +67,16 @@ public class LoanController {
         return ResponseEntity.ok(pendingLoans);
     }
 
-    @GetMapping("/pending")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public ResponseEntity<List<PendingLoanResponseDto>> getAllPendingLoans() {
-        List<PendingLoanResponseDto> pendingLoans = loanService.getPendingLoans();
-        return ResponseEntity.ok(pendingLoans);
+    @GetMapping("/approved/{accountId}")
+    @PreAuthorize("hasAuthority('CLIENT')")
+    public ResponseEntity<List<LoanResponseDto>> getApprovedLoansForAccount(@PathVariable Long accountId,
+                                                                            @AuthenticationPrincipal BankingUserDetails userDetails) {
+        List<LoanResponseDto> approvedLoans = loanService.getApprovedLoansForUserAccount(userDetails, accountId);
+        return ResponseEntity.ok(approvedLoans);
     }
 
     @GetMapping("/fixed-terms")
-    @PreAuthorize("hasAuthority('CLIENT') or hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('CLIENT') or hasAuthority('MANAGER') or hasAuthority('OPERATOR') or hasAuthority('ADMIN')")
     public ResponseEntity<List<LoanTermDto>> getAvailableLoanTerms() {
         List<LoanTermDto> terms = FixedInterestStrategy.getAllFixedLoanTerms();
         return ResponseEntity.ok(terms);

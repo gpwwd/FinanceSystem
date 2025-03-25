@@ -2,6 +2,7 @@ package com.financialsystem.domain.model;
 
 import com.financialsystem.domain.status.SalaryProjectStatus;
 import com.financialsystem.dto.database.project.SalaryProjectDatabaseDto;
+import com.financialsystem.dto.response.SalaryProjectResponseDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -63,4 +64,9 @@ public class SalaryProject {
         return new SalaryProject(dto.getId(), dto.getEnterpriseId(), dto.getBankId(), dto.getCurrency(),
                 dto.getCreatedAt(), dto.getStatus());
     }
+
+    public SalaryProjectResponseDto toResponseDto() {
+        return new SalaryProjectResponseDto(id, enterpriseId, bankId, currency, createdAt, status);
+    }
+
 }

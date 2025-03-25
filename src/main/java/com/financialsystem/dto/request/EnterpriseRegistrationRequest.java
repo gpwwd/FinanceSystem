@@ -6,5 +6,5 @@ public record EnterpriseRegistrationRequest(
         String unp,
         Long bankId,
         String legalAddress,
-        Long payrollAccountId
+        EnterpriseAccountRegistrationRequest enterpriseAccountRegistrationRequest
 ) {}

@@ -5,7 +5,7 @@ import com.financialsystem.domain.model.Currency;
 import com.financialsystem.domain.model.account.PersonalAccount;
 import com.financialsystem.domain.model.account.SalaryAccount;
 import com.financialsystem.domain.model.deposit.Deposit;
-import com.financialsystem.dto.response.AccountReposonseDto;
+import com.financialsystem.dto.response.AccountResposonseDto;
 import com.financialsystem.dto.response.SalaryAccountResponseDto;
 import com.financialsystem.exception.custom.NotFoundException;
 import com.financialsystem.repository.account.AccountRepository;
@@ -47,7 +47,7 @@ public class AccountService {
     }
 
     @Transactional
-    public List<AccountReposonseDto> getPersonalAccountsForClient(Long clientId) {
+    public List<AccountResposonseDto> getPersonalAccountsForClient(Long clientId) {
         List<Account> accounts = accountRepository.findAllByOwnerId(clientId);
         return accounts.stream().map(Account::toAccountResponseDto).toList();
     }
@@ -62,7 +62,7 @@ public class AccountService {
         return accountRepository.delete(account);
     }
 
-    public AccountReposonseDto getAccountById(Long clientId, Long accountId) {
+    public AccountResposonseDto getAccountById(Long clientId, Long accountId) {
         Account account = entityFinder.findEntityById(accountId, accountRepository, "Счет");
         account.verifyOwner(clientId);
         return account.toAccountResponseDto();

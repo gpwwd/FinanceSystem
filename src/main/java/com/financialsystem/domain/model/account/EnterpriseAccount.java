@@ -7,8 +7,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class EnterpriseAccount extends Account {
-    public static Account create(Long enterpriseId, Long bankId, Currency currency) {
-        Account account = new Account();
+    public static EnterpriseAccount create(Long enterpriseId, Long bankId, Currency currency) {
+        EnterpriseAccount account = new EnterpriseAccount();
         account.enterpriseId = enterpriseId;
         account.ownerId = null;
         account.bankId = bankId;

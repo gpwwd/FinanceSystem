@@ -10,6 +10,7 @@ import com.financialsystem.domain.strategy.CustomInterestStrategy;
 import com.financialsystem.domain.strategy.FixedInterestStrategy;
 import com.financialsystem.domain.strategy.InterestCalculationStrategy;
 import com.financialsystem.dto.database.loan.PendingLoanDatabaseDto;
+import com.financialsystem.dto.response.LoanResponseDto;
 import com.financialsystem.dto.response.PendingLoanResponseDto;
 import com.financialsystem.mapper.LoanMapper;
 import com.financialsystem.repository.account.AccountRepository;
@@ -65,10 +66,22 @@ public class LoanService {
                 .collect(Collectors.toList());
     }
 
+    public List<LoanResponseDto> getLoans() {
+        return loanRepository.findAll().stream().map(Loan::toLoanResponseDto)
+                .collect(Collectors.toList());
+    }
+
     public List<PendingLoanResponseDto> getPendingLoansForUserAccount(BankingUserDetails userDetails, Long userAccountId) {
         Account account = entityFinder.findEntityById(userAccountId, accountRepository, "Счет");
         account.verifyOwner(userDetails.getId());
         return pendingLoanRepository.findByAccountId(userAccountId).stream().map(LoanMapper::toPendingLoanResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<LoanResponseDto> getApprovedLoansForUserAccount(BankingUserDetails userDetails, Long accountId) {
+        Account account = entityFinder.findEntityById(accountId, accountRepository, "Счет");
+        account.verifyOwner(userDetails.getId());
+        return loanRepository.findByAccountId(accountId).stream().map(Loan::toLoanResponseDto)
                 .collect(Collectors.toList());
     }
 

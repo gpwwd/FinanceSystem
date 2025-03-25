@@ -3,6 +3,7 @@ package com.financialsystem.domain.model;
 
 import com.financialsystem.dto.database.BankDatabaseDto;
 import com.financialsystem.dto.request.BankRegistrationRequest;
+import com.financialsystem.dto.response.BankResponseDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,5 +36,9 @@ public class Bank {
 
     public static Bank fromDto(BankDatabaseDto dto) {
         return new Bank(dto.getId(), dto.getName(), dto.getBik(), dto.getAddress());
+    }
+
+    public BankResponseDto toBankResponseDto() {
+        return new BankResponseDto(id, name, bik, address);
     }
 }

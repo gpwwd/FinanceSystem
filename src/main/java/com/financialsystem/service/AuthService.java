@@ -1,6 +1,7 @@
 package com.financialsystem.service;
 
 import com.financialsystem.domain.model.Enterprise;
+import com.financialsystem.domain.model.account.EnterpriseAccount;
 import com.financialsystem.domain.model.user.BankingUserDetails;
 import com.financialsystem.domain.model.user.PendingClient;
 import com.financialsystem.domain.model.user.Specialist;
@@ -12,6 +13,7 @@ import com.financialsystem.dto.request.SpecialistRegistrationRequest;
 import com.financialsystem.dto.response.UserAuthResponseDto;
 import com.financialsystem.exception.custom.BadRequestException;
 import com.financialsystem.repository.BankRepository;
+import com.financialsystem.repository.account.AccountRepository;
 import com.financialsystem.repository.user.PendingClientRepository;
 import com.financialsystem.repository.user.SpecialistRepository;
 import com.financialsystem.security.repository.UserDetailsRepository;
@@ -39,12 +41,13 @@ public class AuthService {
     private final EntityFinder entityFinder;
     private final EnterpriseRepository enterpriseRepository;
     private final BankRepository bankRepository;
+    private final AccountRepository accountRepository;
 
     @Autowired
     public AuthService(PendingClientRepository pendingClientRepository, UserDetailsRepository userDetailsRepository,
                        AuthenticationManager authenticationManager, JwtService jwtService,
                        SpecialistRepository specialistRepository, EntityFinder entityFinder,
-                       EnterpriseRepository enterpriseRepository, BankRepository bankRepository) {
+                       EnterpriseRepository enterpriseRepository, BankRepository bankRepository, AccountRepository accountRepository) {
         this.pendingClientRepository = pendingClientRepository;
         this.userDetailsRepository = userDetailsRepository;
         this.authenticationManager = authenticationManager;
@@ -53,6 +56,7 @@ public class AuthService {
         this.entityFinder = entityFinder;
         this.enterpriseRepository = enterpriseRepository;
         this.bankRepository = bankRepository;
+        this.accountRepository = accountRepository;
     }
 
     @Transactional
@@ -106,6 +110,7 @@ public class AuthService {
         return specialistRepository.create(specialist);
     }
 
+    @Transactional
     public Long registerEnterprise(EnterpriseRegistrationRequest request) {
         Optional<EnterpriseDatabaseDto> existingNameEnterprise = enterpriseRepository.findByLegalName(request.legalName());
         if (existingNameEnterprise.isPresent()) {
@@ -119,7 +124,16 @@ public class AuthService {
 
         entityFinder.findEntityById(request.bankId(), bankRepository, "Банк");
 
-        Enterprise enterprise = Enterprise.create(request);
-        return enterpriseRepository.create(enterprise);
+        Enterprise enterprise = Enterprise.create(request, null);
+        Long createdEnterpriseId = enterpriseRepository.create(enterprise);
+
+        EnterpriseAccount enterprisePayrollAccount = EnterpriseAccount.create(createdEnterpriseId,
+                request.bankId(), request.enterpriseAccountRegistrationRequest().currency());
+        Long enterprisePayrollAccountId = accountRepository.create(enterprisePayrollAccount);
+
+        Enterprise createdEnterprise = entityFinder.findEntityById(createdEnterpriseId, enterpriseRepository, "Созданное предприятие");
+
+        createdEnterprise.connectPayrollAccount(enterprisePayrollAccountId);
+        return enterpriseRepository.update(createdEnterprise);
     }
 }

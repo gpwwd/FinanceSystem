@@ -1,21 +1,19 @@
 package com.financialsystem.dto.response;
 
 import com.financialsystem.domain.model.Currency;
-import com.financialsystem.domain.status.AccountStatus;
-import lombok.*;
+import com.financialsystem.domain.status.SalaryProjectStatus;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
 @AllArgsConstructor
-public class AccountReposonseDto {
+public class SalaryProjectResponseDto {
     private Long id;
-    private AccountStatus status;
-    private Long ownerId;
     private Long enterpriseId;
     private Long bankId;
     private Currency currency;
     private LocalDateTime createdAt;
-    private BigDecimal balance;
+    private SalaryProjectStatus status;
 }

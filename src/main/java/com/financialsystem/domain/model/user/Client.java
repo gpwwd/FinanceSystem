@@ -3,6 +3,7 @@ package com.financialsystem.domain.model.user;
 import com.financialsystem.domain.status.PendingEntityStatus;
 import com.financialsystem.dto.database.user.ClientDatabaseDto;
 import com.financialsystem.dto.database.user.PendingClientDatabaseDto;
+import com.financialsystem.dto.response.ClientResponseDto;
 
 public class Client extends User {
     protected boolean isForeign;
@@ -21,6 +22,13 @@ public class Client extends User {
         return new ClientDatabaseDto(
                 this.id, this.fullName, this.passport, this.identityNumber, this.phone, this.email,
                 this.role, this.password, this.createdAt, this.isForeign
+        );
+    }
+
+    public ClientResponseDto toResponseDto() {
+        return new ClientResponseDto(
+                this.id, this.fullName, this.passport, this.identityNumber, this.phone, this.email,
+                this.role.toString(), this.createdAt, this.isForeign, PendingEntityStatus.APPROVED.toString()
         );
     }
 

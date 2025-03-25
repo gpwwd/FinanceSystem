@@ -1,5 +1,6 @@
 package com.financialsystem.domain.model;
 
+import com.financialsystem.dto.response.LoanResponseDto;
 import com.financialsystem.util.LoanConfig;
 import com.financialsystem.domain.status.LoanStatus;
 import com.financialsystem.domain.strategy.InterestCalculationStrategy;
@@ -95,5 +96,10 @@ public class Loan {
 
     public void applyOverduePenalty() {
         setStatus(LoanStatus.OVERDUE);
+    }
+
+    public LoanResponseDto toLoanResponseDto() {
+        return new LoanResponseDto(id, accountId, principalAmount, remainingAmountToPay,
+                interestRate, termMonths, createdAt, status);
     }
 }
