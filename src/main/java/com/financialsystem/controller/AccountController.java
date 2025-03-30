@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -68,4 +69,12 @@ public class AccountController {
         );
     }
 
+    @GetMapping("replenish/{accountId}")
+    @PreAuthorize("hasAuthority('CLIENT')")
+    public ResponseEntity<AccountResposonseDto> replenishAccount(@AuthenticationPrincipal BankingUserDetails userDetails,
+                                                 @PathVariable Long accountId, BigDecimal amount) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                accountService.replenish(userDetails.getId(), accountId, amount)
+        );
+    }
 }

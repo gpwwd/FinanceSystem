@@ -25,14 +25,14 @@ public class TransactionRepository extends GenericRepository<Transaction, Transa
     @Override
     protected String getCreateSql() {
         return "INSERT INTO transaction (from_entity_id, from_type, to_entity_id, to_type, " +
-                "amount, timestamp) "  +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+                "amount, timestamp, revert_transaction_id) "  +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
     }
 
     @Override
     protected String getUpdateSql() {
         return "UPDATE transaction SET from_entity_id = ?, from_type = ?, to_entity_id = ?, to_type = ?, " +
-                "amount = ?, timestamp = ? WHERE id = ?";
+                "amount = ?, timestamp = ?, revert_transaction_id = ? WHERE id = ?";
     }
 
     @Override
@@ -65,7 +65,11 @@ public class TransactionRepository extends GenericRepository<Transaction, Transa
             return ps;
         }
 
-        ps.setLong(1, transactionDto.getFromEntityId());
+        if(transactionDto.getFromEntityId() != null) {
+            ps.setLong(1, transactionDto.getFromEntityId());
+        } else {
+            ps.setObject(1, null, java.sql.Types.BIGINT);
+        }
         ps.setString(2, transactionDto.getFromType().name());
         ps.setLong(3, transactionDto.getToEntityId());
         ps.setString(4, transactionDto.getToType().name());
@@ -77,8 +81,13 @@ public class TransactionRepository extends GenericRepository<Transaction, Transa
             ps.setTimestamp(6, getExistingCreatedAt(transactionDto.getId()));
         }
 
+        if(transactionDto.getRevertTransactionId() != null) {
+            ps.setLong(7, transactionDto.getRevertTransactionId());
+        } else {
+            ps.setObject(7, null, java.sql.Types.BIGINT);
+        }
         if (sql.startsWith("UPDATE")) {
-            ps.setLong(7, transactionDto.getId());
+            ps.setLong(8, transactionDto.getId());
         }
 
         return ps;
@@ -95,6 +104,7 @@ public class TransactionRepository extends GenericRepository<Transaction, Transa
                     ps.setString(4, transactionDto.getToType().name());
                     ps.setBigDecimal(5, transactionDto.getAmount());
                     ps.setTimestamp(6, Timestamp.valueOf(transactionDto.getTimestamp()));
+                    ps.setLong(7, transactionDto.getRevertTransactionId());
                 }
         );
     }

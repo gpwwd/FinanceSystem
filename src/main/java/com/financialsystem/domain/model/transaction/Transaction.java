@@ -1,10 +1,7 @@
 package com.financialsystem.domain.model.transaction;
 
 import com.financialsystem.dto.database.TransactionDatabaseDto;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
@@ -14,6 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Getter
 public class Transaction {
     private Long id;
     private Long fromEntityId;
@@ -22,6 +20,8 @@ public class Transaction {
     private TransactionType toType;
     private BigDecimal amount;
     private LocalDateTime timestamp;
+    @Setter
+    private Long revertTransactionId;
 
     private Transaction(Long fromEntityId, TransactionType fromType, Long toEntityId, TransactionType toType, BigDecimal amount) {
         this.fromEntityId = fromEntityId;
@@ -40,6 +40,6 @@ public class Transaction {
     }
 
     public TransactionDatabaseDto toDto() {
-        return new TransactionDatabaseDto(id, fromEntityId, toEntityId, fromType, toType, amount, timestamp);
+        return new TransactionDatabaseDto(id, fromEntityId, toEntityId, fromType, toType, amount, timestamp, revertTransactionId);
     }
 }

@@ -1,22 +1,30 @@
 package com.financialsystem.service;
 
+import com.financialsystem.domain.model.Loan;
 import com.financialsystem.domain.model.account.Account;
 import com.financialsystem.domain.model.Currency;
 import com.financialsystem.domain.model.account.PersonalAccount;
 import com.financialsystem.domain.model.account.SalaryAccount;
 import com.financialsystem.domain.model.deposit.Deposit;
+import com.financialsystem.domain.model.transaction.Transaction;
+import com.financialsystem.domain.model.transaction.TransactionType;
 import com.financialsystem.dto.response.AccountResposonseDto;
+import com.financialsystem.dto.response.DepositResponseDto;
 import com.financialsystem.dto.response.SalaryAccountResponseDto;
 import com.financialsystem.exception.custom.NotFoundException;
+import com.financialsystem.mapper.DepositMapper;
+import com.financialsystem.repository.TransactionRepository;
 import com.financialsystem.repository.account.AccountRepository;
 import com.financialsystem.repository.DepositRepository;
 import com.financialsystem.repository.account.SalaryAccountRepository;
 import com.financialsystem.repository.user.ClientRepository;
 import com.financialsystem.util.EntityFinder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -27,16 +35,19 @@ public class AccountService {
     private final DepositRepository depositRepository;
     private final EntityFinder entityFinder;
     private final SalaryAccountRepository salaryAccountRepository;
+    private final TransactionRepository transactionRepository;
 
     @Autowired
     public AccountService(AccountRepository accountRepository, EntityFinder entityFinder,
                           ClientRepository clientRepository, DepositRepository depositRepository,
-                          SalaryAccountRepository salaryAccountRepository) {
+                          SalaryAccountRepository salaryAccountRepository,
+                          TransactionRepository transactionRepository) {
         this.accountRepository = accountRepository;
         this.entityFinder = entityFinder;
         this.clientRepository = clientRepository;
         this.depositRepository = depositRepository;
         this.salaryAccountRepository = salaryAccountRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     @Transactional
@@ -73,5 +84,19 @@ public class AccountService {
                 orElseThrow(() -> new NotFoundException("SalaryAccount with ID " + accountId + " not found"));
         salaryAccount.verifyOwner(clientId);
         return salaryAccount.toSalaryAccountResponseDto();
+    }
+
+    @Transactional
+    public AccountResposonseDto replenish(Long userId, Long accountId, BigDecimal amount){
+        Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
+        account.verifyOwner(userId);
+
+        account.replenish(amount);
+        Transaction transaction = Transaction.create(null, TransactionType.EXTERNAL, accountId,
+                TransactionType.ACCOUNT, amount);
+
+        accountRepository.update(account);
+        transactionRepository.create(transaction);
+        return account.toAccountResponseDto();
     }
 }

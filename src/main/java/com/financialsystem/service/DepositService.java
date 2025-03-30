@@ -66,7 +66,7 @@ public class DepositService {
         Account account = entityFinder.findEntityById(deposit.getAccountId(), accountRepository, "Аккаунт");
         account.verifyOwner(userId);
 
-        deposit.withdrawInterest(amount);
+        deposit.withdraw(amount);
         account.replenish(amount);
         Transaction transaction = Transaction.create(depositId, TransactionType.DEPOSIT, deposit.getAccountId(),
                 TransactionType.ACCOUNT, amount);

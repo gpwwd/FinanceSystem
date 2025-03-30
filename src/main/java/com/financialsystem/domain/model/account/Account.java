@@ -1,6 +1,7 @@
 package com.financialsystem.domain.model.account;
 
 import com.financialsystem.domain.model.Currency;
+import com.financialsystem.domain.model.FinancialEntity;
 import com.financialsystem.domain.status.AccountStatus;
 import com.financialsystem.dto.database.account.AccountDatabaseDto;
 import com.financialsystem.dto.response.AccountResposonseDto;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Account {
+public class Account implements FinancialEntity {
     @Getter
     protected Long id;
     @Setter(AccessLevel.PRIVATE)

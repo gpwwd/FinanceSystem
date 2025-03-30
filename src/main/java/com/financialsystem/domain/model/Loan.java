@@ -1,10 +1,12 @@
 package com.financialsystem.domain.model;
 
 import com.financialsystem.dto.response.LoanResponseDto;
+import com.financialsystem.exception.custom.BadRequestException;
 import com.financialsystem.util.LoanConfig;
 import com.financialsystem.domain.status.LoanStatus;
 import com.financialsystem.domain.strategy.InterestCalculationStrategy;
 import com.financialsystem.dto.database.loan.LoanDatabaseDto;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,7 +18,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class Loan {
+public class Loan implements FinancialEntity {
+    @Getter
     private Long id;
     @Getter
     private Long accountId;
@@ -53,6 +56,23 @@ public class Loan {
     public LoanDatabaseDto toDto() {
         return new LoanDatabaseDto(
                 id, accountId, principalAmount, remainingAmountToPay, interestRate, termMonths, createdAt, status);
+    }
+
+    @Override
+    public void withdraw(@Positive BigDecimal amount) {
+        if (!this.status.equals(LoanStatus.ACTIVE))
+            throw new BadRequestException("Account status must be ACTIVE, actual status is: " + this.status);
+
+        if (remainingAmountToPay.compareTo(amount) > 0)
+            throw new BadRequestException("Balance insufficient.");
+
+        remainingAmountToPay = remainingAmountToPay.add(amount);
+    }
+
+
+    @Override
+    public void replenish(@Positive BigDecimal amount) {
+        makePayment(amount);
     }
 
     public void makePayment(BigDecimal amount) {

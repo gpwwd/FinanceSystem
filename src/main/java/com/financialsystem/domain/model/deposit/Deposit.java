@@ -1,5 +1,6 @@
 package com.financialsystem.domain.model.deposit;
 
+import com.financialsystem.domain.model.FinancialEntity;
 import com.financialsystem.domain.status.DepositStatus;
 import com.financialsystem.dto.database.DepositDatabseDto;
 import lombok.*;
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor @ToString
 @Slf4j
-public class Deposit {
+public class Deposit implements FinancialEntity {
     @Getter
     private Long id;
     private BigDecimal principalBalance;
@@ -55,7 +56,7 @@ public class Deposit {
         this.depositStatus = status;
     }
 
-    public void withdrawInterest(BigDecimal amount) {
+    public void withdraw(BigDecimal amount) {
         checkStatus(DepositStatus.ACTIVE);
         BigDecimal interest = balance.subtract(principalBalance);
         if (interest.compareTo(amount) < 0) {

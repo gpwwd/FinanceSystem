@@ -17,7 +17,8 @@ public class TransactionRowMapper implements RowMapper<TransactionDatabaseDto> {
                 TransactionType.valueOf(rs.getString("from_type")),
                 TransactionType.valueOf(rs.getString("to_type")),
                 rs.getBigDecimal("amount"),
-                rs.getTimestamp("timestamp").toLocalDateTime()
+                rs.getTimestamp("timestamp").toLocalDateTime(),
+                rs.getLong("revert_transaction_id")
         );
     }
 }
