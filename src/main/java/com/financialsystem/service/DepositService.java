@@ -12,6 +12,7 @@ import com.financialsystem.repository.account.AccountRepository;
 import com.financialsystem.repository.DepositRepository;
 import com.financialsystem.repository.TransactionRepository;
 import com.financialsystem.util.EntityFinder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
@@ -26,6 +27,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class DepositService {
 
     private final DepositRepository depositRepository;
@@ -66,7 +68,7 @@ public class DepositService {
         Account account = entityFinder.findEntityById(deposit.getAccountId(), accountRepository, "Аккаунт");
         account.verifyOwner(userId);
 
-        deposit.withdraw(amount);
+        deposit.withdrawInterest(amount);
         account.replenish(amount);
         Transaction transaction = Transaction.create(depositId, TransactionType.DEPOSIT, deposit.getAccountId(),
                 TransactionType.ACCOUNT, amount);
@@ -123,6 +125,9 @@ public class DepositService {
         for (Deposit deposit : deposits) {
             if (deposit.addMonthlyInterestIfRequired()) {
                 depositsToUpdate.add(deposit);
+                if(deposit.isGoneOverdue()){
+                    continue;
+                }
                 Transaction transaction = Transaction.create(deposit.getId(), TransactionType.DEPOSIT, deposit.getId(),
                         TransactionType.DEPOSIT, deposit.calculateMonthlyInterest());
                 transactions.add(transaction);
@@ -190,5 +195,10 @@ public class DepositService {
         if(!Objects.equals(account.getOwnerId(), userDetails.getId())) {
             throw new AccessDeniedException("Этот счет не принадлежит аутенфицированному клиенту");
         }
+    }
+
+    public DepositResponseDto getDepositById(BankingUserDetails userDetails, Long id) {
+        Deposit deposit = entityFinder.findEntityById(id, depositRepository, "Депозит");
+        return DepositMapper.toDepositResponseDto(deposit);
     }
 }

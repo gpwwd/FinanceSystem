@@ -12,13 +12,13 @@ public class TransactionRowMapper implements RowMapper<TransactionDatabaseDto> {
     public TransactionDatabaseDto mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new TransactionDatabaseDto(
                 rs.getLong("id"),
-                rs.getLong("from_entity_id"),
-                rs.getLong("to_entity_id"),
+                rs.getObject("from_entity_id", Long.class),
+                rs.getObject("to_entity_id", Long.class),
                 TransactionType.valueOf(rs.getString("from_type")),
                 TransactionType.valueOf(rs.getString("to_type")),
                 rs.getBigDecimal("amount"),
                 rs.getTimestamp("timestamp").toLocalDateTime(),
-                rs.getLong("revert_transaction_id")
+                rs.getObject("revert_transaction_id", Long.class)
         );
     }
 }

@@ -124,6 +124,6 @@ public class TransactionRepository extends GenericRepository<Transaction, Transa
 
     @Override
     protected Transaction fromDto(TransactionDatabaseDto transaction) {
-        return null;
+        return Transaction.fromDto(transaction);
     }
 }

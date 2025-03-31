@@ -89,7 +89,7 @@ public class DepositController {
         return ResponseEntity.ok(id);
     }
 
-    @GetMapping("/{accountId}")
+    @GetMapping("account/{accountId}")
     @PreAuthorize("hasAuthority('CLIENT') or hasAuthority('MANAGER')")
     public ResponseEntity<List<DepositResponseDto>> getDepositsForAccount(@AuthenticationPrincipal BankingUserDetails userDetails,
                                                                        @PathVariable Long accountId) {
@@ -105,5 +105,13 @@ public class DepositController {
                 .toList();
 
         return ResponseEntity.ok(terms);
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('CLIENT') or hasAuthority('MANAGER')")
+    public ResponseEntity<DepositResponseDto> getDepositById(@AuthenticationPrincipal BankingUserDetails userDetails,
+                                                                          @PathVariable Long id) {
+        DepositResponseDto deposit = depositService.getDepositById(userDetails, id);
+        return ResponseEntity.ok(deposit);
     }
 }

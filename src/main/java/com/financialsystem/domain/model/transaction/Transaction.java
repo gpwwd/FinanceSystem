@@ -39,6 +39,11 @@ public class Transaction {
         return new Transaction(fromEntityId, fromType, toEntityId, toType, amount);
     }
 
+    public static Transaction fromDto(TransactionDatabaseDto transaction) {
+        return new Transaction(transaction.getId(), transaction.getFromEntityId(), transaction.getToEntityId(), transaction.getFromType(),
+                transaction.getToType(), transaction.getAmount(), transaction.getTimestamp(), transaction.getRevertTransactionId());
+    }
+
     public TransactionDatabaseDto toDto() {
         return new TransactionDatabaseDto(id, fromEntityId, toEntityId, fromType, toType, amount, timestamp, revertTransactionId);
     }

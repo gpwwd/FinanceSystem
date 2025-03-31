@@ -37,13 +37,6 @@ public class SupervisorController {
         return ResponseEntity.ok(approvedId);
     }
 
-    //test
-    @PostMapping("/salary-projects/execute-projects")
-    public ResponseEntity<Void> executeSalaryProject() {
-        salaryProjectService.executeProjectMonthlySalary();
-        return ResponseEntity.noContent().build();
-    }
-
     @GetMapping("/enterprise/{id}")
     public ResponseEntity<EnterpriseResponseDto> getEnterpriseById(@PathVariable Long id) {
         return ResponseEntity.ok(

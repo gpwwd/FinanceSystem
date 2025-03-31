@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/banks")
@@ -23,6 +25,13 @@ public class BankController {
     public ResponseEntity<BankResponseDto> getBankById(@PathVariable Long bankId) {
         return ResponseEntity.ok(
                 bankService.getBankById(bankId)
+        );
+    }
+
+    @GetMapping
+    public ResponseEntity<List<BankResponseDto>> getAllBanks() {
+        return ResponseEntity.ok(
+                bankService.getAllBanks()
         );
     }
 

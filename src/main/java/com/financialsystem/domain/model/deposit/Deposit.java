@@ -56,12 +56,19 @@ public class Deposit implements FinancialEntity {
         this.depositStatus = status;
     }
 
-    public void withdraw(BigDecimal amount) {
+    public void withdrawInterest(BigDecimal amount) {
         checkStatus(DepositStatus.ACTIVE);
         BigDecimal interest = balance.subtract(principalBalance);
         if (interest.compareTo(amount) < 0) {
             throw new IllegalArgumentException("Недостаточно процентов");
         }
+        this.balance = balance.subtract(amount);
+    }
+
+    @Override
+    public void withdraw(BigDecimal amount) {
+        checkStatus(DepositStatus.ACTIVE);
+        BigDecimal money = balance.subtract(principalBalance);
         this.balance = balance.subtract(amount);
     }
 

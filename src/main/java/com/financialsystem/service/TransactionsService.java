@@ -42,16 +42,8 @@ public class TransactionsService {
     }
 
     public List<Transaction> getAll() {
-        return transactionsRepository.findAll();
+        return  transactionsRepository.findAll();
     }
-
-//    public List<Transaction> getAllByUserId(Long id) {
-//        return transactionsRepository.findAllByUserId(id);
-//    }
-//
-//    public List<Transaction> getAllByEntityId(Long id, TransactionType type) {
-//        return transactionsRepository.findAllByEntityId(id, type);
-//    }
 
     public Transaction getById(Long id) {
         return entityFinder.findEntityById(id, transactionsRepository, "Транзакция");

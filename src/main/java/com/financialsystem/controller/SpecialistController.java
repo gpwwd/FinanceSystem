@@ -30,6 +30,12 @@ public class SpecialistController {
         this.enterpriseService = enterpriseService;
     }
 
+    @PostMapping("/salary-projects/execute-projects")
+    public ResponseEntity<Void> executeSalaryProject() {
+        salaryProjectService.executeProjectMonthlySalary();
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/salary-projects/create-request")
     public ResponseEntity<Long> requestSalaryProject(@RequestBody SalaryProjectRequest request,
                                                      @AuthenticationPrincipal BankingUserDetails userDetails) {
