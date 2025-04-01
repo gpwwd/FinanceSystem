@@ -52,6 +52,7 @@ public class SupervisorController {
     }
 
     @GetMapping("/salary-project/{id}/details")
+    @PreAuthorize("hasAuthority('SPECIALIST') or hasAuthority('OPERATOR') or hasAuthority('MANAGER') or hasAuthority('ADMIN')")
     public ResponseEntity<SalaryProjectDetailsResponseDto> getSalaryProjectDetailsById(@PathVariable Long id) {
         return ResponseEntity.ok(
                 salaryProjectService.getSalaryProjectDetails(id)

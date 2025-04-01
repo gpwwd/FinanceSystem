@@ -14,6 +14,7 @@ import com.financialsystem.dto.request.EmployeeRequestForCreatingSalaryProject;
 import com.financialsystem.dto.request.EmployeeRequestForSalaryProject;
 import com.financialsystem.dto.request.SalaryProjectRequest;
 import com.financialsystem.dto.response.EmployeeResponseForSalaryProject;
+import com.financialsystem.dto.response.EnterpriseResponseDto;
 import com.financialsystem.dto.response.SalaryProjectDetailsResponseDto;
 import com.financialsystem.dto.response.SalaryProjectResponseDto;
 import com.financialsystem.exception.custom.NotFoundException;
@@ -139,9 +140,9 @@ public class SalaryProjectService {
 
             for (SalaryAccount account : salaryAccounts) {
                 BigDecimal salaryAmount = account.getSalaryAmount();
-
+                Long mainAccountId = salaryAccountRepository.findAccountIdById(account.getId());
                 Transaction salaryTransaction = Transaction.create(
-                        enterprise.getPayrollAccountId(), TransactionType.ACCOUNT, account.getId(), TransactionType.ACCOUNT, salaryAmount);
+                        enterprise.getPayrollAccountId(), TransactionType.ACCOUNT, mainAccountId, TransactionType.ACCOUNT, salaryAmount);
 
                 enterprisePayrollAccount.withdraw(salaryAmount);
                 account.replenish(salaryAmount);
@@ -180,5 +181,13 @@ public class SalaryProjectService {
                 .orElseThrow(() -> new UsernameNotFoundException(userDetails.getUsername()));
         SalaryProject salaryProject = entityFinder.findEntityById(salaryProjectId, salaryProjectRepository, "Зарплатный проект");
         return salaryProject.getEnterpriseId().equals(specialist.getEnterpriseId());
+    }
+
+    public List<SalaryProjectResponseDto> getProjectsBySpecialist(BankingUserDetails userDetails) {
+        Specialist specialist = entityFinder.findEntityById(userDetails.getId(), specialistRepository, "Специалист стороннего предприятия");
+        Enterprise enterprise = entityFinder.findEntityById(specialist.getEnterpriseId(), enterpriseRepository, "Предприятие");
+        return salaryProjectRepository.findAllByEnterpriseId(enterprise.getId()).
+               stream().map(SalaryProject::toResponseDto)
+                .toList();
     }
 }

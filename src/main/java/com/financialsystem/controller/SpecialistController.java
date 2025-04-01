@@ -16,6 +16,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/specialist")
 @PreAuthorize("hasAuthority('SPECIALIST')")
@@ -63,6 +65,20 @@ public class SpecialistController {
     public ResponseEntity<SalaryProjectDetailsResponseDto> getSalaryProjectDetailsById(@PathVariable Long id) {
         return ResponseEntity.ok(
                 salaryProjectService.getSalaryProjectDetails(id)
+        );
+    }
+
+    @GetMapping("/projects")
+    public ResponseEntity<List<SalaryProjectResponseDto>> getProjectsBySpecialist(@AuthenticationPrincipal BankingUserDetails userDetails) {
+        return ResponseEntity.ok(
+                salaryProjectService.getProjectsBySpecialist(userDetails)
+        );
+    }
+
+    @GetMapping("/enterprise/{id}")
+    public ResponseEntity<EnterpriseResponseDto> getEnterpriseById(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                enterpriseService.getEnterpriseById(id)
         );
     }
 }

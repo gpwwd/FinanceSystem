@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-public class AccountResposonseDto {
+public class AccountResponseDto {
     private Long id;
     private AccountStatus status;
     private Long ownerId;

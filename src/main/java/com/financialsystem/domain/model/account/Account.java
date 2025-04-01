@@ -4,7 +4,7 @@ import com.financialsystem.domain.model.Currency;
 import com.financialsystem.domain.model.FinancialEntity;
 import com.financialsystem.domain.status.AccountStatus;
 import com.financialsystem.dto.database.account.AccountDatabaseDto;
-import com.financialsystem.dto.response.AccountResposonseDto;
+import com.financialsystem.dto.response.AccountResponseDto;
 import lombok.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,8 +71,8 @@ public class Account implements FinancialEntity {
         }
     }
 
-    public AccountResposonseDto toAccountResponseDto() {
-        return new AccountResposonseDto(
+    public AccountResponseDto toAccountResponseDto() {
+        return new AccountResponseDto(
                 id,
                 status,
                 ownerId,

@@ -2,7 +2,7 @@ package com.financialsystem.controller;
 
 import com.financialsystem.domain.model.Currency;
 import com.financialsystem.domain.model.user.BankingUserDetails;
-import com.financialsystem.dto.response.AccountResposonseDto;
+import com.financialsystem.dto.response.AccountResponseDto;
 import com.financialsystem.dto.response.SalaryAccountResponseDto;
 import com.financialsystem.service.AccountService;
 import org.springframework.http.HttpStatus;
@@ -45,7 +45,7 @@ public class AccountController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('CLIENT')")
-    public ResponseEntity<List<AccountResposonseDto>> getAllAccountsForClient(@AuthenticationPrincipal BankingUserDetails userDetails) {
+    public ResponseEntity<List<AccountResponseDto>> getAllAccountsForClient(@AuthenticationPrincipal BankingUserDetails userDetails) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 accountService.getPersonalAccountsForClient(userDetails.getId())
         );
@@ -53,8 +53,8 @@ public class AccountController {
 
     @GetMapping("{accountId}")
     @PreAuthorize("hasAuthority('CLIENT')")
-    public ResponseEntity<AccountResposonseDto> getAccountById(@AuthenticationPrincipal BankingUserDetails userDetails,
-                                                               @PathVariable Long accountId) {
+    public ResponseEntity<AccountResponseDto> getAccountById(@AuthenticationPrincipal BankingUserDetails userDetails,
+                                                             @PathVariable Long accountId) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 accountService.getAccountById(userDetails.getId(), accountId)
         );
@@ -71,8 +71,8 @@ public class AccountController {
 
     @GetMapping("replenish/{accountId}")
     @PreAuthorize("hasAuthority('CLIENT')")
-    public ResponseEntity<AccountResposonseDto> replenishAccount(@AuthenticationPrincipal BankingUserDetails userDetails,
-                                                 @PathVariable Long accountId, BigDecimal amount) {
+    public ResponseEntity<AccountResponseDto> replenishAccount(@AuthenticationPrincipal BankingUserDetails userDetails,
+                                                               @PathVariable Long accountId, BigDecimal amount) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 accountService.replenish(userDetails.getId(), accountId, amount)
         );

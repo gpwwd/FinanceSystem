@@ -153,6 +153,16 @@ public class SalaryAccountRepository extends GenericRepository<SalaryAccount, Sa
         }
     }
 
+    public Long findAccountIdById(Long salaryAccountId) {
+        String sql = "SELECT account_id FROM salary_account WHERE id = ?";
+
+        try {
+            return jdbcTemplate.queryForObject(sql, Long.class, salaryAccountId);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Ошибка при поиске account_id по salary_account.id = " + salaryAccountId, e);
+        }
+    }
+
 
     @Override
     protected SalaryAccount fromDto(SalaryAccountDatabaseDto dto) {

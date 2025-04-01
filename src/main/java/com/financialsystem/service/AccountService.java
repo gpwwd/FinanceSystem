@@ -1,6 +1,5 @@
 package com.financialsystem.service;
 
-import com.financialsystem.domain.model.Loan;
 import com.financialsystem.domain.model.account.Account;
 import com.financialsystem.domain.model.Currency;
 import com.financialsystem.domain.model.account.PersonalAccount;
@@ -8,11 +7,9 @@ import com.financialsystem.domain.model.account.SalaryAccount;
 import com.financialsystem.domain.model.deposit.Deposit;
 import com.financialsystem.domain.model.transaction.Transaction;
 import com.financialsystem.domain.model.transaction.TransactionType;
-import com.financialsystem.dto.response.AccountResposonseDto;
-import com.financialsystem.dto.response.DepositResponseDto;
+import com.financialsystem.dto.response.AccountResponseDto;
 import com.financialsystem.dto.response.SalaryAccountResponseDto;
 import com.financialsystem.exception.custom.NotFoundException;
-import com.financialsystem.mapper.DepositMapper;
 import com.financialsystem.repository.TransactionRepository;
 import com.financialsystem.repository.account.AccountRepository;
 import com.financialsystem.repository.DepositRepository;
@@ -20,7 +17,6 @@ import com.financialsystem.repository.account.SalaryAccountRepository;
 import com.financialsystem.repository.user.ClientRepository;
 import com.financialsystem.util.EntityFinder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,7 +54,7 @@ public class AccountService {
     }
 
     @Transactional
-    public List<AccountResposonseDto> getPersonalAccountsForClient(Long clientId) {
+    public List<AccountResponseDto> getPersonalAccountsForClient(Long clientId) {
         List<Account> accounts = accountRepository.findAllByOwnerId(clientId);
         return accounts.stream().map(Account::toAccountResponseDto).toList();
     }
@@ -73,7 +69,7 @@ public class AccountService {
         return accountRepository.delete(account);
     }
 
-    public AccountResposonseDto getAccountById(Long clientId, Long accountId) {
+    public AccountResponseDto getAccountById(Long clientId, Long accountId) {
         Account account = entityFinder.findEntityById(accountId, accountRepository, "Счет");
         account.verifyOwner(clientId);
         return account.toAccountResponseDto();
@@ -87,7 +83,7 @@ public class AccountService {
     }
 
     @Transactional
-    public AccountResposonseDto replenish(Long userId, Long accountId, BigDecimal amount){
+    public AccountResponseDto replenish(Long userId, Long accountId, BigDecimal amount){
         Account account = entityFinder.findEntityById(accountId, accountRepository, "Аккаунт");
         account.verifyOwner(userId);
 

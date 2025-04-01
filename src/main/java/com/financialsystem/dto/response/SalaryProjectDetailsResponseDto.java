@@ -9,6 +9,6 @@ import java.util.List;
 @AllArgsConstructor
 public class SalaryProjectDetailsResponseDto {
     private List<SalaryAccountResponseDto> salaryAccounts;
-    private AccountResposonseDto enterpriseAccount;
+    private AccountResponseDto enterpriseAccount;
     private SalaryProjectResponseDto salaryProject;
 }
