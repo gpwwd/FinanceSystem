@@ -1,0 +1,10 @@
+2025-04-01 14:45:58 - User 'anonymousUser' successfully accessed '/auth/login' [POST] - Status: 200
+2025-04-01 14:52:08 - User 'passwordstring' successfully accessed '/logs/user-activity' [GET] - Status: 200
+2025-04-01 15:51:50 - User 'anonymousUser' successfully accessed '/auth/login' [POST] - Status: 200
+2025-04-01 15:51:50 - User 'anonymousUser' successfully accessed '/auth/login' [POST] - Status: 200
+2025-04-01 16:09:40 - User 'anonymousUser' successfully accessed '/auth/login' [POST] - Status: 200
+2025-04-01 16:10:59 - User 'passwordstring' successfully accessed '/logs/user-activity' [GET] - Status: 200
+2025-04-01 16:11:05 - User 'passwordstring' successfully accessed '/logs/user-activity' [GET] - Status: 200
+2025-04-01 16:11:05 - User 'passwordstring' successfully accessed '/logs/user-activity' [GET] - Status: 200
+2025-04-01 16:11:06 - User 'passwordstring' successfully accessed '/logs/user-activity' [GET] - Status: 200
+2025-04-01 16:23:07 - User 'passwordstring' successfully accessed '/logs/user-activity' [GET] - Status: 200
